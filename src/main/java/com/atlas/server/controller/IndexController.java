@@ -23,6 +23,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +38,11 @@ public class IndexController extends LambkitController {
     private static AipImageSearch client = new AipImageSearch(config.getAPP_ID(), config.getAPI_KEY(), config.getSECRET_KEY());
 
 
-    public void test(){
-        renderJson(Ret.ok("hello","hello ainong"));
+    public void list(){
+        List<Object> types = new ArrayList<>();
+        types.add("aaa");
+        types.add("bbb");
+        renderJson(Co.ok("data", types));
     }
 
 
