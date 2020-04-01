@@ -11,7 +11,7 @@ import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 public class ApiRoute extends Routes {
     @Override
     public void config() {
-        add("/", IndexController.class);
+        add("/", IndexController.class,"/WEB-INF/app");
         addInterceptor(new JwtTokenInterceptor());
     }
 }

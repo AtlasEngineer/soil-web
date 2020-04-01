@@ -37,6 +37,16 @@ public class IndexController extends LambkitController {
     //百度接口调用连接对象
     private static AipImageSearch client = new AipImageSearch(config.getAPP_ID(), config.getAPI_KEY(), config.getSECRET_KEY());
 
+    /**
+     * @Author queer
+     * @Description //TODO 跳转签到页面
+     * @Date 16:26 2020/4/1
+     * @Param []
+     * @return void
+     **/
+    public void sign(){
+        render("sign.html");
+    }
 
     public void list(){
         List<Object> types = new ArrayList<>();
