@@ -16,7 +16,7 @@ public class GeneratorTest {
     public static void main(String[] args) {
             GeneratorConfig config = new GeneratorConfig();
             //生成java代码的存放地址
-            config.setOutRootDir("E:/atlas-server/src/main/java");
+            config.setOutRootDir("F:/atlas/Atlas_ainong/src/main/java");
             //生成java代码的包地址
             config.setBasepackage("com.atlas.server");
             //生成前端文件文件夹
