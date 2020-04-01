@@ -21,8 +21,7 @@ import java.util.Map;
 import com.atlas.server.model.CatalogueSample;
 import com.atlas.server.service.CatalogueSampleService;
 import com.lambkit.common.util.StringUtils;
-import com.lambkit.common.service.ServiceKit;
-import com.lambkit.web.tag.base.BaseDirectiveModel;
+import com.lambkit.web.tag.LambkitTemplateModel;
 import com.jfinal.kit.StrKit;
 import com.jfinal.render.FreeMarkerRender;
 
@@ -45,10 +44,10 @@ import freemarker.template.TemplateModel;
  * 返回值：{entity:catalogue_sample信息}
  * @author lambkit
  */
-public class CatalogueSampleDirective extends BaseDirectiveModel {
+public class CatalogueSampleDirective extends LambkitTemplateModel {
 
 	@Override
-	public void executeMe(Environment env, Map params, TemplateModel[] loopVars,
+	public void onRender(Environment env, Map params, TemplateModel[] loopVars,
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		// TODO Auto-generated method stub
 		String id = get(params, "id");

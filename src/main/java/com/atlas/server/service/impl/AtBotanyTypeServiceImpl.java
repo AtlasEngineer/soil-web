@@ -15,7 +15,7 @@
  */
 package com.atlas.server.service.impl;
 
-import com.lambkit.common.service.BaseModelServiceImpl;
+import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.core.aop.AopKit;
 
 import com.atlas.server.service.AtBotanyTypeService;
@@ -29,7 +29,7 @@ import com.atlas.server.model.AtBotanyType;
  * @version 1.0
  * @since 1.0
  */
-public class AtBotanyTypeServiceImpl extends BaseModelServiceImpl<AtBotanyType> implements AtBotanyTypeService {
+public class AtBotanyTypeServiceImpl extends LambkitModelServiceImpl<AtBotanyType> implements AtBotanyTypeService {
 	
 	private AtBotanyType DAO = null;
 	

@@ -3,6 +3,9 @@ package com.atlas.server.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.atlas.lambkit.start.BaiDuConfig;
+import com.atlas.server.model.AtBotany;
+import com.atlas.server.model.AtBotanyType;
+import com.atlas.server.model.Catalogue;
 import com.atlas.server.utils.Co;
 import com.baidu.aip.imagesearch.AipImageSearch;
 import com.jfinal.aop.Clear;
@@ -48,12 +51,27 @@ public class IndexController extends LambkitController {
         render("sign.html");
     }
 
-    public void list(){
+    public void testList(){
         List<Object> types = new ArrayList<>();
         types.add("aaa");
         types.add("bbb");
         renderJson(Co.ok("data", types));
     }
+    public void list(){
+        List<AtBotanyType> list=AtBotanyType.service().dao().findAll();
+        renderJson(Co.ok("data",list));
+    }
+
+    public void listById(){
+        Integer id=getParaToInt("id");
+        if(id==null){
+            renderJson(Co.fail("msg","id不能为空"));
+            return;
+        }
+        List<Catalogue> list=Catalogue.service().dao().find(Catalogue.sql().andBotanyTypeEqualTo(id).example());
+        renderJson(Co.ok("data",list));
+    }
+
 
 
     /**

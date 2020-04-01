@@ -17,7 +17,7 @@ package com.atlas.server.model.base;
 
 import com.jfinal.plugin.activerecord.IBean;
 
-import com.lambkit.common.model.BaseModel;
+import com.lambkit.common.model.LambkitModel;
 
 /**
  * @author yangyong 
@@ -28,7 +28,7 @@ import com.lambkit.common.model.BaseModel;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public abstract class BaseCatalogueSample<M extends BaseCatalogueSample<M>> extends BaseModel<M> implements IBean {
+public abstract class BaseCatalogueSample<M extends BaseCatalogueSample<M>> extends LambkitModel<M> implements IBean {
 
 	public String getTableName() {
 		return "catalogue_sample";

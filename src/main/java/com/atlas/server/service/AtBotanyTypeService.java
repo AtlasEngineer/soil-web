@@ -15,8 +15,8 @@
  */
 package com.atlas.server.service;
 
-import com.lambkit.common.service.BaseService;
 
+import com.lambkit.common.service.LambkitService;
 import com.atlas.server.model.AtBotanyType;
 
 /**
@@ -27,5 +27,5 @@ import com.atlas.server.model.AtBotanyType;
  * @version 1.0
  * @since 1.0
  */
-public interface AtBotanyTypeService extends BaseService<AtBotanyType> {
+public interface AtBotanyTypeService extends LambkitService<AtBotanyType> {
 }

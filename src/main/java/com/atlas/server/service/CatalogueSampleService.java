@@ -15,8 +15,8 @@
  */
 package com.atlas.server.service;
 
-import com.lambkit.common.service.BaseService;
 
+import com.lambkit.common.service.LambkitService;
 import com.atlas.server.model.CatalogueSample;
 
 /**
@@ -27,5 +27,5 @@ import com.atlas.server.model.CatalogueSample;
  * @version 1.0
  * @since 1.0
  */
-public interface CatalogueSampleService extends BaseService<CatalogueSample> {
+public interface CatalogueSampleService extends LambkitService<CatalogueSample> {
 }

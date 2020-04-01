@@ -16,9 +16,9 @@
 package com.atlas.server.web.validator;
 
 import com.jfinal.core.Controller;
-import com.lambkit.web.validator.BaseValidator;
 
 import com.atlas.server.model.AtBotany;
+import com.lambkit.web.validator.LambkitValidator;
 
 /**
  * @author yangyong 
@@ -28,7 +28,7 @@ import com.atlas.server.model.AtBotany;
  * @version 1.0
  * @since 1.0
  */
-public class AtBotanyValidator extends BaseValidator {
+public class AtBotanyValidator extends LambkitValidator {
 
 	@Override
 	protected String getTableName(Controller c) {

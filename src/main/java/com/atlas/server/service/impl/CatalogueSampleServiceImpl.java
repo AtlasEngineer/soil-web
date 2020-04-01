@@ -15,7 +15,7 @@
  */
 package com.atlas.server.service.impl;
 
-import com.lambkit.common.service.BaseModelServiceImpl;
+import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.core.aop.AopKit;
 
 import com.atlas.server.service.CatalogueSampleService;
@@ -29,7 +29,7 @@ import com.atlas.server.model.CatalogueSample;
  * @version 1.0
  * @since 1.0
  */
-public class CatalogueSampleServiceImpl extends BaseModelServiceImpl<CatalogueSample> implements CatalogueSampleService {
+public class CatalogueSampleServiceImpl extends LambkitModelServiceImpl<CatalogueSample> implements CatalogueSampleService {
 	
 	private CatalogueSample DAO = null;
 	
