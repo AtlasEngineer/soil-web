@@ -4,20 +4,249 @@
          updateCheck="false" 
          monitoring="autodetect"
          dynamicConfig="true">
-    <diskStore path="java.io.tmpdir"/>
+         
+        <diskStore path="java.io.tmpdir"/>
     
-    <defaultCache
-            maxElementsInMemory="10000"
-            eternal="false"
-            timeToIdleSeconds="120"
-            timeToLiveSeconds="120"
-            overflowToDisk="false"
-            diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
+    <!-- 
+    默认缓存
+    
+    属性说明：
+        maxElementsInMemory：内存中可保存的最大数量
+        eternal：缓存中对象是否为永久的。如果是，超时设置将被忽略
+        timeToIdleSeconds：对象最后一次访问之后的存活时间
+        timeToLiveSeconds：对象创建后的存活时间
+        memoryStoreEvictionPolicy：内存缓存的超期清理策略
+        maxElementsOnDisk：硬盘中可保存的最大数量
+        diskExpiryThreadIntervalSeconds：磁盘超期监控线程扫描时间间隔
+        overflowToDisk：内存不足时，是否启用磁盘缓存
+    -->
+    <defaultCache 
+        maxElementsInMemory="10000" 
+        eternal="false"
+        timeToIdleSeconds="1200" 
+        maxElementsOnDisk="10000000"
+        diskExpiryThreadIntervalSeconds="120" 
+        memoryStoreEvictionPolicy="LRU"
+        overflowToDisk="true">
+    </defaultCache>
+            
+    <cache name="jpress"
+           maxEntriesLocalHeap="500"
+           eternal="false"
+           overflowToDisk="true"
+           timeToIdleSeconds="300"
+           timeToLiveSeconds="600"
+           diskPersistent="true"
+           diskExpiryThreadIntervalSeconds="1"
+           memoryStoreEvictionPolicy="LFU"
             />
-
-	<!-- shiro -->
-    <cache name="myRealm.authorizationCache" 
+    
+    <cache name="session"
+		  maxElementsInMemory="10000"
+		  maxElementsOnDisk="100000000"
+		  eternal="false"
+		  timeToIdleSeconds="3600"
+		  timeToLiveSeconds="0"
+		  overflowToDisk="true"
+		  diskPersistent="true"
+  		 />
+  		 
+    <cache name="action"
+		  maxElementsInMemory="10000"
+		  maxElementsOnDisk="100000000"
+		  eternal="false"
+		  timeToIdleSeconds="3600"
+		  timeToLiveSeconds="0"
+		  overflowToDisk="true"
+		  diskPersistent="true"
+  		 />
+    <cache name="action_wechat"
+		  maxElementsInMemory="10000"
+		  maxElementsOnDisk="100000000"
+		  eternal="false"
+		  timeToIdleSeconds="3600"
+		  timeToLiveSeconds="0"
+		  overflowToDisk="true"
+		  diskPersistent="true"
+  		 />
+    <cache name="action_mobile"
+		  maxElementsInMemory="10000"
+		  maxElementsOnDisk="100000000"
+		  eternal="false"
+		  timeToIdleSeconds="3600"
+		  timeToLiveSeconds="0"
+		  overflowToDisk="true"
+		  diskPersistent="true"
+  		 />
+    
+    <cache name="token"
+		  maxElementsInMemory="10000"
+		  maxElementsOnDisk="1000000000"
+		  eternal="false"
+		  timeToIdleSeconds="3600"
+		  timeToLiveSeconds="0"
+		  overflowToDisk="true"
+		  diskPersistent="true"
+  		 />
+    
+    <cache name="option"
+           maxEntriesLocalHeap="5000"
+           eternal="true"
+           overflowToDisk="true"
+           diskPersistent="true"
+           memoryStoreEvictionPolicy="FIFO"
+            />
+    
+     <cache name="content"
+         maxEntriesLocalHeap="10000"
+         maxEntriesLocalDisk="100000"
+         eternal="false"
+         overflowToDisk="true"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="600"
+         memoryStoreEvictionPolicy="LFU"
+         transactionalMode="off"
+          />
+          
+     <cache name="content_list"
+         maxEntriesLocalHeap="10000"
+         maxEntriesLocalDisk="100000"
+         eternal="false"
+         overflowToDisk="true"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="600"
+         memoryStoreEvictionPolicy="LFU"
+         transactionalMode="off"
+          />
+     
+     <cache name="metadata"
+         maxEntriesLocalHeap="10000"
+         maxEntriesLocalDisk="100000"
+         eternal="false"
+         overflowToDisk="true"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="600"
+         memoryStoreEvictionPolicy="LFU"
+         transactionalMode="off"
+          />
+     
+     <cache name="user"
+         maxEntriesLocalHeap="10000"
+         maxEntriesLocalDisk="100000"
+         eternal="false"
+         overflowToDisk="true"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="600"
+         memoryStoreEvictionPolicy="LFU"
+         transactionalMode="off"
+          />
+          
+     <cache name="taxonomy"
+         maxEntriesLocalHeap="10000"
+         maxEntriesLocalDisk="100000"
+         eternal="false"
+         overflowToDisk="true"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="600"
+         memoryStoreEvictionPolicy="LFU"
+         transactionalMode="off"
+          />
+          
+          
+    <cache name="taxonomy_list"
+         maxEntriesLocalHeap="10000"
+         maxEntriesLocalDisk="100000"
+         eternal="false"
+         overflowToDisk="true"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="600"
+         memoryStoreEvictionPolicy="LFU"
+         transactionalMode="off"
+          />
+          
+     <cache name="comment"
+         maxEntriesLocalHeap="10000"
+         maxEntriesLocalDisk="100000"
+         eternal="false"
+         overflowToDisk="true"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="600"
+         memoryStoreEvictionPolicy="LFU"
+         transactionalMode="off"
+          />
+          
+     <cache name="mapping"
+         maxEntriesLocalHeap="10000"
+         maxEntriesLocalDisk="100000"
+         eternal="false"
+         overflowToDisk="true"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="600"
+         memoryStoreEvictionPolicy="LFU"
+         transactionalMode="off"
+          />
+          
+     <cache name="attachment"
+         maxEntriesLocalHeap="10000"
+         maxEntriesLocalDisk="100000"
+         eternal="false"
+         overflowToDisk="true"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="300"
+         timeToLiveSeconds="600"
+         memoryStoreEvictionPolicy="LFU"
+         transactionalMode="off"
+          />
+          
+   <cache name="wechat_dkf"
+        maxEntriesLocalHeap="10000"
+        eternal="false"
+        overflowToDisk="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="300"
+        memoryStoreEvictionPolicy="LFU"
+        transactionalMode="off"
+         />
+         
+   <cache name="visitor_counter"
+        maxEntriesLocalHeap="10000"
+        eternal="true"
+        overflowToDisk="true"
+        memoryStoreEvictionPolicy="LFU"
+        transactionalMode="off"
+         />
+         
+         
+         <!-- lambkit -->
+         <cache name="mapData"
+		maxElementsInMemory="10000"
+		maxElementsOnDisk="100000"
+		eternal="false"
+		timeToIdleSeconds="3600"
+		timeToLiveSeconds="0"
+		overflowToDisk="true"
+		diskPersistent="true"
+		/>
+	<cache name="tableData"
+		maxElementsInMemory="10000"
+		maxElementsOnDisk="100000"
+		eternal="false"
+		timeToIdleSeconds="3600"
+		timeToLiveSeconds="0"
+		overflowToDisk="true"
+		diskPersistent="true"
+		/>
+		
+		<!-- shiro -->
+		<cache name="myRealm.authorizationCache" 
            maxElementsInMemory="10000" 
            overflowToDisk="true" 
            eternal="true" 
@@ -35,8 +264,8 @@
            timeToIdleSeconds="0"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"/>
-    
-    <!-- session -->
+           
+            <!-- session -->
     <cache name="SESSION"
 		  maxElementsInMemory="10000"
 		  maxElementsOnDisk="100000000"
@@ -46,8 +275,9 @@
 		  overflowToDisk="true"
 		  diskPersistent="true"
   		 />
-  		 
-  	<!-- node manager -->
+		<!-- 客户的业务cache -->
+		
+		<!-- node manager -->
   	<cache name="nodelist"
            maxElementsInMemory="10000"
            overflowToDisk="true"
@@ -95,9 +325,9 @@
            timeToIdleSeconds="0"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"/>
-
-    <!-- userLocation -->
-    <cache name="user_location"
+           
+    <!-- upms -->
+    <cache name="upmsCache"
            maxElementsInMemory="10000"
            overflowToDisk="true"
            eternal="true"
@@ -105,5 +335,23 @@
            timeToIdleSeconds="0"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"/>
+	<cache name="upms_user"
+		   maxElementsInMemory="10000"
+		   overflowToDisk="true"
+		   eternal="true"
+		   timeToLiveSeconds="0"
+		   timeToIdleSeconds="0"
+		   diskPersistent="true"
+		   diskExpiryThreadIntervalSeconds="600"/>
+
+	<!-- message_code -->
+	<cache name="message_code"
+		   maxElementsInMemory="10000"
+		   overflowToDisk="true"
+		   eternal="true"
+		   timeToLiveSeconds="0"
+		   timeToIdleSeconds="0"
+		   diskPersistent="true"
+		   diskExpiryThreadIntervalSeconds="600"/>
 
 </ehcache>

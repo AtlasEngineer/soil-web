@@ -1,12 +1,14 @@
 # 配置 undertow
 
-undertow.devMode=true
+undertow.devMode=false
 undertow.host=0.0.0.0
-undertow.port=8087
+undertow.port=8099
 
 # 打成 fatjar 部署的项目开启下面的配置
 # undertow.resourcePath=src/main/webapp, classpath:webapp
-#undertow.resourcePath=webapp, qzkk2/src/main/webapp, src/main/webapp
+
+#idea启动时必须配置undertow.resourcePath=webapp, {这里换成项目名称}/src/main/webapp, src/main/webapp
+undertow.resourcePath=webapp, atlas-server/src/main/webapp, src/main/webapp
 
 # 开启 gzip 压缩
 undertow.gzip.enable=true

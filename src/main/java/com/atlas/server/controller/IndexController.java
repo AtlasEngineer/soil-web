@@ -8,6 +8,7 @@ import com.baidu.aip.imagesearch.AipImageSearch;
 import com.jfinal.aop.Clear;
 import com.jfinal.json.JFinalJson;
 import com.jfinal.kit.PathKit;
+import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.upload.UploadFile;
 import com.lambkit.Lambkit;
@@ -33,6 +34,11 @@ public class IndexController extends LambkitController {
     private static BaiDuConfig config = Lambkit.config(BaiDuConfig.class);
     //百度接口调用连接对象
     private static AipImageSearch client = new AipImageSearch(config.getAPP_ID(), config.getAPI_KEY(), config.getSECRET_KEY());
+
+
+    public void test(){
+        renderJson(Ret.ok("hello","hello ainong"));
+    }
 
 
     /**
