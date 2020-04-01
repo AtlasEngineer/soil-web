@@ -12,11 +12,14 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-        <geotools.version>17.0</geotools.version>
     </properties>
 
     <!-- 使用阿里 maven 库 -->
     <repositories>
+        <repository>
+            <id>jsoftlocal-mvn-repo</id>
+            <url>file:D:/tools/Maven/maven_depository</url>
+        </repository>
         <repository>
             <id>alimaven</id>
             <name>Maven Aliyun Mirror</name>
@@ -47,42 +50,8 @@
             <url>http://repo.boundlessgeo.com/main</url>
         </repository>
     </repositories>
-
     <dependencies>
-<!--        geoserver-manager-->
-<!--        <dependency>-->
-<!--            <groupId>it.geosolutions</groupId>-->
-<!--            <artifactId>geoserver-manager</artifactId>-->
-<!--            <version>1.7.0</version>-->
-<!--        </dependency>-->
-<!--        geotools-->
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-geotiff</artifactId>
-            <version>${geotools.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-shapefile</artifactId>
-            <version>${geotools.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-geojson</artifactId>
-            <version>${geotools.version}</version>
-        </dependency>
 
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-main</artifactId>
-            <version>${geotools.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.xmlbeans</groupId>
-            <artifactId>xmlbeans</artifactId>
-            <version>2.6.0</version>
-        </dependency>
         <!--许可授权	-->
         <dependency>
             <groupId>de.schlichtherle.truelicense</groupId>
@@ -90,26 +59,22 @@
             <version>1.33</version>
         </dependency>
 
-        <!--json-->
         <dependency>
-            <groupId>net.sf.json-lib</groupId>
-            <artifactId>json-lib</artifactId>
-            <version>2.4</version>
-            <classifier>jdk15</classifier>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.17</version>
         </dependency>
-        <!--start:视频获取某一帧的图片-->
         <dependency>
-            <groupId>org.bytedeco</groupId>
-            <artifactId>javacv</artifactId>
-            <version>0.8</version>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.17</version>
         </dependency>
-        <!-- cors跨域 -->
-        <dependency>
-            <groupId>com.thetransactioncompany</groupId>
-            <artifactId>cors-filter</artifactId>
-            <version>2.5</version>
-        </dependency>
-
+        <!-- 自动发布-->
+        <!--        <dependency>-->
+        <!--            <groupId>it.geosolutions</groupId>-->
+        <!--            <artifactId>geoserver-manager</artifactId>-->
+        <!--            <version>1.7.0</version>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>junit</groupId>
@@ -117,17 +82,16 @@
             <version>4.10</version>
             <scope>test</scope>
         </dependency>
-
         <!--jfinal -->
         <dependency>
             <groupId>com.jfinal</groupId>
             <artifactId>jfinal</artifactId>
-            <version>3.8</version>
+            <version>4.7</version>
         </dependency>
         <dependency>
             <groupId>com.jfinal</groupId>
             <artifactId>jfinal-weixin</artifactId>
-            <version>1.9</version>
+            <version>2.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.jfinal</groupId>
@@ -139,27 +103,19 @@
         <dependency>
             <groupId>com.jfinal</groupId>
             <artifactId>cos</artifactId>
-            <version>2017.5</version>
+            <version>2019.8</version>
         </dependency>
 
         <!-- server -->
         <dependency>
             <groupId>com.jfinal</groupId>
             <artifactId>jfinal-undertow</artifactId>
-            <version>1.6</version>
+            <version>1.9</version>
         </dependency>
         <dependency>
             <groupId>com.jfinal</groupId>
             <artifactId>jetty-server</artifactId>
             <version>2019.3</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!--postgresql-->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>9.4-1203-jdbc4</version>
         </dependency>
 
         <!-- websocket for server -->
@@ -201,7 +157,7 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>2.6.6</version>
+            <version>2.6.11</version>
         </dependency>
 
         <dependency>
@@ -333,6 +289,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- rpc motan end -->
 
         <!-- json -->
         <dependency>
@@ -371,11 +328,11 @@
         </dependency>
 
         <!-- Ueditor for UeditorController -->
-        <!--		<dependency>-->
-        <!--			<groupId>cn.songxinqiang</groupId>-->
-        <!--			<artifactId>com.baidu.ueditor</artifactId>-->
-        <!--			<version>1.1.2-edit-1.0</version>-->
-        <!--		</dependency>-->
+        <dependency>
+            <groupId>cn.songxinqiang</groupId>
+            <artifactId>com.baidu.ueditor</artifactId>
+            <version>1.1.2-edit-1.0</version>
+        </dependency>
 
         <!-- mail -->
         <dependency>
@@ -383,6 +340,12 @@
             <artifactId>javax.mail-api</artifactId>
             <version>1.5.6</version>
         </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+
 
         <!-- sharding-jdbc -->
         <dependency>
@@ -408,6 +371,135 @@
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
             <version>3.2.1</version>
+        </dependency>
+
+        <!--<dependency> -->
+        <!--<groupId>org.apache.dubbo</groupId> -->
+        <!--<artifactId>dubbo</artifactId> -->
+        <!--<version>2.7.0</version> -->
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>2.6.7</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-web</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+
+        <!-- 用于支持 dubbo 的 restful 注解 start -->
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jdk-http</artifactId>
+            <version>3.9.0.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jaxrs</artifactId>
+            <version>3.9.0.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+            <version>3.9.0.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-netty4</artifactId>
+            <version>3.9.0.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jackson-provider</artifactId>
+            <version>3.9.0.Final</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 用于支持 dubbo 的 restful 注解 end -->
+
+        <!-- zookeeper -->
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.4.14</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.101tec</groupId>
+            <artifactId>zkclient</artifactId>
+            <version>0.3</version>
+        </dependency>
+        <!-- zookeeper end -->
+
+        <!-- consul -->
+        <dependency>
+            <groupId>com.orbitz.consul</groupId>
+            <artifactId>consul-client</artifactId>
+            <version>0.12.3</version>
+        </dependency>
+        <!-- consul end -->
+        <!--start:视频获取某一帧的图片-->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv</artifactId>
+            <version>1.4.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>ffmpeg-platform</artifactId>
+            <version>4.0.2-1.4.3</version>
+        </dependency>
+        <!--end:视频获取某一帧的图片-->
+        <!-- cors跨域 -->
+        <dependency>
+            <groupId>com.thetransactioncompany</groupId>
+            <artifactId>cors-filter</artifactId>
+            <version>2.5</version>
+        </dependency>
+
+        <!--postgresql-->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.4-1203-jdbc4</version>
         </dependency>
 
         <!-- database -->
@@ -439,8 +531,6 @@
     </dependencies>
 
     <build>
-        <finalName>qzkk</finalName>
-
         <resources>
             <resource>
                 <directory>src/main/java</directory>
@@ -450,118 +540,130 @@
                 </includes>
                 <filtering>false</filtering>
             </resource>
-
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
         </resources>
 
-        <pluginManagement><!-- lock down plugins versions to avoid using Maven
-				defaults (may be moved to parent pom) -->
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.7</source>
-                        <target>1.7</target>
-                        <encoding>UTF-8</encoding>
-                    </configuration>
-                </plugin>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <compilerArgument>-parameters</compilerArgument>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                    <compilerArguments>
+                        <extdirs>D:\IdeaWorkSpace\lanzhou\landa-web\src\main\webapp\WEB-INF\lib</extdirs>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
 
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>appassembler-maven-plugin</artifactId>
-                    <version>1.10</version>
+            <!-- Javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                    <encoding>UTF-8</encoding>
+                    <outputDirectory>${basedir}/doc</outputDirectory>
+                    <reportOutputDirectory>${basedir}/doc</reportOutputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-                    <executions>
-                        <execution>
-                            <id>package</id>
-                            <goals>
-                                <goal>generate-daemons</goal>
-                            </goals>
-                        </execution>
-                    </executions>
+            <!-- 安装源码到本地仓库 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>false</skip>
+                </configuration>
+            </plugin>
 
-                    <configuration>
-                        <!-- 根目录 -->
-                        <assembleDirectory>${project.build.directory}/app</assembleDirectory>
-                        <!-- 打包的jar，以及maven依赖的jar放到这个目录里面 -->
-                        <repositoryName>lib</repositoryName>
-                        <!-- 可执行脚本的目录 -->
-                        <binFolder>bin</binFolder>
-                        <!-- 配置classpath 或 webroot目录 -->
-                        <configurationDirectory>conf</configurationDirectory>
-                        <!-- 拷贝配置文件到上面的目录中 -->
-                        <copyConfigurationDirectory>true</copyConfigurationDirectory>
-                        <!-- 从哪里拷贝配置文件 (默认src/main/config) -->
-                        <configurationSourceDirectory>src/main/resources</configurationSourceDirectory>
-                        <!-- lib目录中jar的存放规则，默认是${groupId}/${artifactId}的目录格式，flat表示直接把jar放到lib目录 -->
-                        <repositoryLayout>flat</repositoryLayout>
-                        <encoding>UTF-8</encoding>
-                        <logsDirectory>logs</logsDirectory>
-                        <tempDirectory>tmp</tempDirectory>
+            <!--
+	jar 包中的配置文件优先级高于 config 目录下的 "同名文件"
+	因此，打包时需要排除掉 jar 包中来自 src/main/resources 目录的
+	配置文件，否则部署时 config 目录中的同名配置文件不会生效
+ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <excludes>
+                        <exclude>*.txt</exclude>
+                        <exclude>*.xml</exclude>
+                        <exclude>*.properties</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
 
-                        <programs>
-                            <!--程序打包 mvn package appassembler:assemble -->
-                            <program>
-                                <mainClass>com.atlas.lambkit.start.AtlasStarter</mainClass>
-                                <id>lambkit</id>
-                                <platforms>
-                                    <platform>windows</platform>
-                                    <platform>unix</platform>
-                                </platforms>
-                            </program>
-                        </programs>
+            <!--
+    使用 mvn clean package 打包
+    更多配置可参考官司方文档：http://maven.apache.org/plugins/maven-assembly-plugin/single-mojo.html
+-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 打包生成的文件名 -->
+                            <finalName>${project.artifactId}</finalName>
+                            <!-- jar 等压缩文件在被打包进入 zip、tar.gz 时是否压缩，设置为 false 可加快打包速度 -->
+                            <recompressZippedFiles>false</recompressZippedFiles>
+                            <!-- 打包生成的文件是否要追加 release.xml 中定义的 id 值 -->
+                            <appendAssemblyId>true</appendAssemblyId>
+                            <!-- 指向打包描述文件 package.xml -->
+                            <descriptors>
+                                <descriptor>package.xml</descriptor>
+                            </descriptors>
+                            <!-- 打包结果输出的基础目录 -->
+                            <outputDirectory>${project.build.directory}/</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-                        <daemons>
-                            <!-- 后台程序打包：mvn clean package appassembler:generate-daemons -->
-                            <daemon>
-                                <mainClass>com.atlas.lambkit.start.AtlasStarter</mainClass>
-                                <id>lambkit</id>
-                                <platforms>
-                                    <platform>jsw</platform>
-                                </platforms>
-                                <generatorConfigurations>
-                                    <generatorConfiguration>
-                                        <generator>jsw</generator>
-                                        <includes>
-                                            <include>linux-x86-32</include>
-                                            <include>linux-x86-64</include>
-                                            <include>macosx-universal-32</include>
-                                            <include>macosx-universal-64</include>
-                                            <include>windows-x86-32</include>
-                                            <include>windows-x86-64</include>
-                                        </includes>
-                                        <configuration>
-                                            <property>
-                                                <name>configuration.directory.in.classpath.first</name>
-                                                <value>conf</value>
-                                            </property>
-                                            <property>
-                                                <name>wrapper.ping.timeout</name>
-                                                <value>120</value>
-                                            </property>
-                                            <property>
-                                                <name>set.default.REPO_DIR</name>
-                                                <value>lib</value>
-                                            </property>
-                                            <property>
-                                                <name>wrapper.logfile</name>
-                                                <value>logs/wrapper.log</value>
-                                            </property>
-                                        </configuration>
-                                    </generatorConfiguration>
-                                </generatorConfigurations>
-                            </daemon>
-                        </daemons>
-
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+        </plugins>
     </build>
+
 </project>

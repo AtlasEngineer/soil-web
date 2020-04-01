@@ -1,10 +1,10 @@
 package com.atlas.lambkit.license;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.jfinal.handler.Handler;
 import com.lambkit.license.LicenseKit;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class LicenseHandler extends Handler {
 

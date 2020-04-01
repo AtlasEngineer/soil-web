@@ -2,10 +2,7 @@ package com.atlas.server.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.atlas.lambkit.geoserver.BaiDuConfig;
-import com.atlas.server.model.AtBotanyType;
-import com.atlas.server.model.Catalogue;
-import com.atlas.server.model.CatalogueSample;
+import com.atlas.lambkit.start.BaiDuConfig;
 import com.atlas.server.utils.Co;
 import com.baidu.aip.imagesearch.AipImageSearch;
 import com.jfinal.aop.Clear;
@@ -20,7 +17,7 @@ import com.lambkit.component.swagger.annotation.ApiOperation;
 import com.lambkit.component.swagger.annotation.Param;
 import com.lambkit.component.swagger.annotation.Params;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
-import com.lambkit.web.controller.BaseController;
+import com.lambkit.web.controller.LambkitController;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -30,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Clear(JwtTokenInterceptor.class)
-public class IndexController extends BaseController {
+public class IndexController extends LambkitController {
 
     //百度的连接信息
     private static BaiDuConfig config = Lambkit.config(BaiDuConfig.class);
@@ -43,12 +40,12 @@ public class IndexController extends BaseController {
      * @Author: yangxueyang
      * @Date: 2019/9/25
      */
-    @Params({
-            @Param(name = "filepath", description = "图片路径", required = true, dataType = "String"),
-            @Param(name = "id", description = "种类id", required = false, dataType = "String"),
-            @Param(name = "prantId", description = "父id", required = false, dataType = "String"),
-    })
-    @ApiOperation(url = "/cern/addEatalogue", tag = "/cern", httpMethod = "get", description = "添加纲目科属种样本")
+//    @Params({
+//            @Param(name = "filepath", description = "图片路径", required = true, dataType = "String"),
+//            @Param(name = "id", description = "种类id", required = false, dataType = "String"),
+//            @Param(name = "prantId", description = "父id", required = false, dataType = "String"),
+//    })
+//    @ApiOperation(url = "/cern/addEatalogue", tag = "/cern", httpMethod = "get", description = "添加纲目科属种样本")
 //    public void addEatalogue() throws IOException {
 //        String id = getPara("id");//种类id
 //        String rootPath = PathKit.getWebRootPath().replace("\\", "/");
@@ -107,112 +104,112 @@ public class IndexController extends BaseController {
 //    }
 
 
-    public void list(){
-        List<AtBotanyType> types=AtBotanyType.service().dao().findAll();
-        renderJson(Co.ok("data", types));
-    }
-
-    public void listById(){
-        Integer id=getParaToInt("id");
-        if(id==null){
-            renderJson(Co.fail("msg", "id为空"));
-            return;
-        }
-        List<Catalogue> types=Catalogue.service().dao().find(Catalogue.sql().andBotanyTypeEqualTo(id).example());
-        renderJson(Co.ok("data", types));
-    }
-
-
-
-    public void search() throws UnsupportedEncodingException {
-        //getFile一定放在第一个参数去获取，否则都获取不到参数
-        UploadFile uf = getFile("file", "image");
-        File file = uf.getFile();
-        String lon = getPara("lon");
-        String lat = getPara("lat");
-        String fileext = PathUtils.getExtensionName(file.getName());
-        System.out.println("上传时文件名：" + file.getName());
-        String rootPath = PathKit.getWebRootPath() + "/eatalogue/w/";
-        String s2 = new Date().getTime() + "" + (int) ((Math.random() * 9 + 1) * 100000);
-        String filename = s2 + "." + fileext;
-        String image = "";
-        String p = "/eatalogue/w/";
-        if (!"jpg".equals(fileext) && !"png".equals(fileext) && !"gif".equals(fileext) && !"jpeg".equals(fileext)) {
-            file.delete();
-            renderJson(Co.fail("msg", "图片格式不正确"));
-            return;
-        } else {
-            boolean b = file.renameTo(new File(rootPath + filename));
-            if (!b) {
-                renderJson(Co.fail("msg", "重命名失败"));
-                return;
-            } else {
-                System.out.println(filename);
-                image = File.separator + "eatalogue" + File.separator + "w" + File.separator + filename;
-                System.out.println(image);
-                String root = PathKit.getWebRootPath().replace("\\", "/");
-                JSONObject res = null;
-                HashMap<String, String> options = new HashMap<String, String>();
-                // 页码, 这里从第一页开始, 也就是展示相似度最高的两张图片
-                options.put("pn", "0");
-                // 条数, 只显示两条
-                options.put("rn", "10");
-                // 进行相似查询,
-                String images = root + image;
-                System.out.println("图片的地址为哎哎哎啊" + images);
-                res = client.similarSearch(images, options);//直接输入路径进行查询
-                // 打印上传结果
-                System.out.println(res.toString(2));
-                if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
-                    renderJson(Co.fail("msg", "识别失败").set("data", JSON.parseObject(res.toString()).getString("error_msg")));
-                    return;
-                }
-                JSONArray jsonArray = null;
-                Catalogue flora = null;
-                String result = "";
-                String id = "";
-                com.alibaba.fastjson.JSONObject jsonObject = null;
-                if (StringUtils.isNotBlank(res.toString(2))) {
-                    result = JSON.parseObject(res.toString(2)).getString("result");
-                    jsonArray = JSONArray.parseArray(result);
-                    for (int x = 0; x < jsonArray.size(); x++) {
-                        System.out.println("name__________name:" + jsonArray.getJSONObject(x).get("brief"));
-                        System.out.println(JSON.parseObject(jsonArray.getJSONObject(x).get("brief").toString()).getString("id"));
-                        id = JSON.parseObject(jsonArray.getJSONObject(x).get("brief").toString()).getString("id");
-                        flora = Catalogue.service().dao().findFirst(Catalogue.sql().andIdEqualTo(id).example());
-                        flora.put("result", JSONArray.parseArray(result));
-                        flora.put("photo", image);
-                        String text = JFinalJson.getJson().toJson(flora);
-                        jsonObject = com.alibaba.fastjson.JSONObject.parseObject(text);
-                    }
-                }
-                CatalogueSample sample = new CatalogueSample();
-                sample.setBrief("{\"name\":\"" + filename + "\",\"url\":" + image + "\"}");
-                sample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
-                sample.setDel(0);
-                sample.setId(s2);
-                sample.setType(1); //识别待审核
-                sample.setTime(new Date());
-                sample.setName(filename);
-                sample.setUrl(image);
-                sample.setStatus(1);//0 导入,1识别,2.上报
-                sample.set("lat", lat);
-                sample.set("lon", lon);
-                boolean t = sample.save();
-                if (t) {
-                    //1 暂时写死  用户id，从用户信息中获取
-                    String sql = "INSERT INTO \"catalogue_keep\" (\"name\" , \"url\" , \"user_id\" ,\"time\",\"sample_id\",\"status\")  values('" + filename + "','" + p + filename + "',1,'" + new Date() + "','" + sample.getId() + "',1)";
-                    int msg = Db.update(sql);
-                    if (msg == 1) {
-                        renderJson(Co.ok("data", jsonObject));
-                    } else {
-                        renderJson(Co.fail("msg", "识别失败"));
-                    }
-                }
-            }
-        }
-
-    }
+//    public void list(){
+//        List<AtBotanyType> types=AtBotanyType.service().dao().findAll();
+//        renderJson(Co.ok("data", types));
+//    }
+//
+//    public void listById(){
+//        Integer id=getParaToInt("id");
+//        if(id==null){
+//            renderJson(Co.fail("msg", "id为空"));
+//            return;
+//        }
+//        List<Catalogue> types=Catalogue.service().dao().find(Catalogue.sql().andBotanyTypeEqualTo(id).example());
+//        renderJson(Co.ok("data", types));
+//    }
+//
+//
+//
+//    public void search() throws UnsupportedEncodingException {
+//        //getFile一定放在第一个参数去获取，否则都获取不到参数
+//        UploadFile uf = getFile("file", "image");
+//        File file = uf.getFile();
+//        String lon = getPara("lon");
+//        String lat = getPara("lat");
+//        String fileext = PathUtils.getExtensionName(file.getName());
+//        System.out.println("上传时文件名：" + file.getName());
+//        String rootPath = PathKit.getWebRootPath() + "/eatalogue/w/";
+//        String s2 = new Date().getTime() + "" + (int) ((Math.random() * 9 + 1) * 100000);
+//        String filename = s2 + "." + fileext;
+//        String image = "";
+//        String p = "/eatalogue/w/";
+//        if (!"jpg".equals(fileext) && !"png".equals(fileext) && !"gif".equals(fileext) && !"jpeg".equals(fileext)) {
+//            file.delete();
+//            renderJson(Co.fail("msg", "图片格式不正确"));
+//            return;
+//        } else {
+//            boolean b = file.renameTo(new File(rootPath + filename));
+//            if (!b) {
+//                renderJson(Co.fail("msg", "重命名失败"));
+//                return;
+//            } else {
+//                System.out.println(filename);
+//                image = File.separator + "eatalogue" + File.separator + "w" + File.separator + filename;
+//                System.out.println(image);
+//                String root = PathKit.getWebRootPath().replace("\\", "/");
+//                JSONObject res = null;
+//                HashMap<String, String> options = new HashMap<String, String>();
+//                // 页码, 这里从第一页开始, 也就是展示相似度最高的两张图片
+//                options.put("pn", "0");
+//                // 条数, 只显示两条
+//                options.put("rn", "10");
+//                // 进行相似查询,
+//                String images = root + image;
+//                System.out.println("图片的地址为哎哎哎啊" + images);
+//                res = client.similarSearch(images, options);//直接输入路径进行查询
+//                // 打印上传结果
+//                System.out.println(res.toString(2));
+//                if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
+//                    renderJson(Co.fail("msg", "识别失败").set("data", JSON.parseObject(res.toString()).getString("error_msg")));
+//                    return;
+//                }
+//                JSONArray jsonArray = null;
+//                Catalogue flora = null;
+//                String result = "";
+//                String id = "";
+//                com.alibaba.fastjson.JSONObject jsonObject = null;
+//                if (StringUtils.isNotBlank(res.toString(2))) {
+//                    result = JSON.parseObject(res.toString(2)).getString("result");
+//                    jsonArray = JSONArray.parseArray(result);
+//                    for (int x = 0; x < jsonArray.size(); x++) {
+//                        System.out.println("name__________name:" + jsonArray.getJSONObject(x).get("brief"));
+//                        System.out.println(JSON.parseObject(jsonArray.getJSONObject(x).get("brief").toString()).getString("id"));
+//                        id = JSON.parseObject(jsonArray.getJSONObject(x).get("brief").toString()).getString("id");
+//                        flora = Catalogue.service().dao().findFirst(Catalogue.sql().andIdEqualTo(id).example());
+//                        flora.put("result", JSONArray.parseArray(result));
+//                        flora.put("photo", image);
+//                        String text = JFinalJson.getJson().toJson(flora);
+//                        jsonObject = com.alibaba.fastjson.JSONObject.parseObject(text);
+//                    }
+//                }
+//                CatalogueSample sample = new CatalogueSample();
+//                sample.setBrief("{\"name\":\"" + filename + "\",\"url\":" + image + "\"}");
+//                sample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
+//                sample.setDel(0);
+//                sample.setId(s2);
+//                sample.setType(1); //识别待审核
+//                sample.setTime(new Date());
+//                sample.setName(filename);
+//                sample.setUrl(image);
+//                sample.setStatus(1);//0 导入,1识别,2.上报
+//                sample.set("lat", lat);
+//                sample.set("lon", lon);
+//                boolean t = sample.save();
+//                if (t) {
+//                    //1 暂时写死  用户id，从用户信息中获取
+//                    String sql = "INSERT INTO \"catalogue_keep\" (\"name\" , \"url\" , \"user_id\" ,\"time\",\"sample_id\",\"status\")  values('" + filename + "','" + p + filename + "',1,'" + new Date() + "','" + sample.getId() + "',1)";
+//                    int msg = Db.update(sql);
+//                    if (msg == 1) {
+//                        renderJson(Co.ok("data", jsonObject));
+//                    } else {
+//                        renderJson(Co.fail("msg", "识别失败"));
+//                    }
+//                }
+//            }
+//        }
+//
+//    }
 
 
 }

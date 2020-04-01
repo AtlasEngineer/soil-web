@@ -13,7 +13,7 @@ public class GlobalActionHandler extends Handler {
         if(request.getMethod().equals("OPTIONS")){
             response.setHeader("Access-Control-Max-Age","3600");
             response.setHeader("Access-Control-Allow-Methods","POST,GET");
-            response.setHeader("Access-Control-Allow-Headers","token,Access-Control-Allow-Origin,Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers");
+            response.setHeader("Access-Control-Allow-Headers","Authorization,token,Access-Control-Allow-Origin,Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers");
             response.setHeader("Cache-Control","no-cache");
             response.setStatus(HttpServletResponse.SC_OK);
         }else{

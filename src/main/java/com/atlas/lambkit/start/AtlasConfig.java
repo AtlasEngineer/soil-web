@@ -1,80 +1,75 @@
 package com.atlas.lambkit.start;
 
 import com.atlas.lambkit.interceptor.GlobalActionHandler;
-import com.atlas.lambkit.interceptor.GlobalActionInterceptor;
-import com.atlas.server.MschModule;
+import com.atlas.server.route.ApiRoute;
 import com.jfinal.config.*;
-import com.jfinal.template.Engine;
-import com.lambkit.Lambkit;
+import com.jfinal.json.JFinalJsonFactory;
+import com.lambkit.LambkitApplicationContext;
 import com.lambkit.db.mgr.MgrdbManager;
 import com.lambkit.module.LambkitModule;
-import com.lambkit.module.lms.LmsModule;
+import com.lambkit.module.upms.jwt.UpmsJwtUserService;
 import com.lambkit.module.upms.server.UpmsModule;
+import com.lambkit.plugin.jwt.JwtTokenPlugin;
 
-public class AtlasConfig extends JFinalConfig {
-    private LambkitModule config = null;
+public class AtlasConfig extends LambkitApplicationContext {
+
+    @Override
+    public void configModule(LambkitModule module) {
+        super.configModule(module);
+        LambkitModule mgrModule = MgrdbManager.me().getLambkitModule();
+        if (mgrModule != null) {
+            module.addModule(mgrModule);
+        }
+        module.addModule(new UpmsModule());
+        module.addModule(new LambkitModule() {
+            @Override
+            public void configRoute(Routes me) {
+                super.configRoute(me);
+                me.add(new ApiRoute());
+            }
+
+            @Override
+            public void configInterceptor(Interceptors me) {
+                super.configInterceptor(me);
+//				me.add(new GlobalActionInterceptor());
+            }
+
+            /**
+             * 配置插件
+             */
+            public void configPlugin(Plugins me) {
+                super.configPlugin(me);
+                me.add(new JwtTokenPlugin(UpmsJwtUserService.me()));
+//                me.add(new LicensePlugin());
+            }
+
+            @Override
+            public void configHandler(Handlers me) {
+                super.configHandler(me);
+//				me.add(new ApiRouteHandler("/api"));
+                me.add(new GlobalActionHandler());
+//                me.add(new LicenseHandler());
+                me.add(com.lambkit.core.api.route.ApiRoute.me().getHandler("/api"));
+            }
+
+//			@Override
+//			public void addModule(LambkitModule config) {
+//				super.addModule(config);
+//				config.addModule(new UpmsModule());
+//			}
+
+            @Override
+            public void onStart() {
+                super.onStart();
+                com.lambkit.core.api.route.ApiRoute.me().onStart();
+            }
+        });
+    }
 
     @Override
     public void configConstant(Constants me) {
-        if (config == null) config = Lambkit.getModule();
-        if (Lambkit.getLambkitConfig().isLmsActived()) {
-            Lambkit.addModule(new UpmsModule());
-            Lambkit.addModule(new AtlasModule());
-            LambkitModule module = MgrdbManager.me().getLambkitModule();
-            if (module != null) {
-                Lambkit.addModule(module);
-            }
-            Lambkit.addModule(new LmsModule());
-        }
-        config.addModule(new MschModule());
-        config.configConstant(me);
+        super.configConstant(me);
+        me.setJsonFactory(new JFinalJsonFactory());
     }
 
-    /**
-     * 配置路由
-     */
-    public void configRoute(Routes me) {
-        config.configRoute(me);
-    }
-
-    public void configEngine(Engine me) {
-        config.configEngine(me);
-    }
-
-    /**
-     * 配置插件
-     */
-    public void configPlugin(Plugins me) {
-//        me.add(new LicensePlugin());
-        //me.add((IPlugin) new JwtTokenPlugin(UpmsJwtUserService.me()));
-        config.configPlugin(me);
-    }
-
-    /**
-     * 配置全局拦截器
-     */
-    public void configInterceptor(Interceptors me) {
-      me.add(new GlobalActionInterceptor());
-        config.configInterceptor(me);
-    }
-
-    /**
-     * 配置处理器
-     */
-    public void configHandler(Handlers me) {
-//        me.add(new LicenseHandler());
-        me.add(new GlobalActionHandler());
-        config.configHandler(me);
-    }
-
-    @Override
-    public void onStart() {
-        // TODO Auto-generated method stub
-        config.onStart();
-    }
-    @Override
-    public void onStop() {
-        // TODO Auto-generated method stub
-        config.onStop();
-    }
 }
