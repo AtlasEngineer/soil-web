@@ -22,7 +22,7 @@ import $!{basepackage}.service.impl.${table.modelName}ServiceImpl;
 import $!{basepackage}.service.impl.${table.modelName}ServiceMock;
 #end##
 #foreach ($table in $tables)
-import $!{basepackage}.web.tag.${table.modelName}Directive;
+import $!{basepackage}.web.tag.${table.modelName}Marker;
 #end##
 
 #parse("/template/java_author.include")
@@ -34,7 +34,7 @@ public class MschModule extends LambkitModule  {
 			mapping(arp);
 		}
 	}
-	
+
 	@Override
 	public void configMapping(String name, ActiveRecordPluginWrapper arp) {
 		super.configMapping(name, arp);
@@ -42,7 +42,7 @@ public class MschModule extends LambkitModule  {
 			mapping(arp);
 		}
 	}
-	
+
 	@Override
 	public void configRoute(Routes me) {
 		// TODO Auto-generated method stub
@@ -52,15 +52,15 @@ public class MschModule extends LambkitModule  {
 	public void onStart() {
 		// TODO Auto-generated method stub
 		addTag(this);
-		if("server".equals(getConfig().getDbconfig())) {
+		if("server".equals(getConfig().getServerType())) {
 			registerLocalService();
-		} else if("client".equals(getConfig().getDbconfig())) {
+		} else if("client".equals(getConfig().getServerType())) {
 			registerRemoteService();
-		} 
+		}
 	}
-	
+
 	public void mapping(ActiveRecordPluginWrapper arp) {
-#foreach ($table in $tables)##	
+#foreach ($table in $tables)##
 #if(!${table.primaryKey})##
 		arp.addMapping("$table.name", ${table.modelName}.class);
 #else##
@@ -68,33 +68,33 @@ public class MschModule extends LambkitModule  {
 #end##
 #end##
 	}
-	
+
 	public void addTag(LambkitModule lk) {
 #foreach ($table in $tables)
-		lk.addTag("$table.attrName", new ${table.modelName}Directive());
+		lk.addTag("$table.attrName", new ${table.modelName}Marker());
 #end##
 	}
-			
+
 	public void registerLocalService() {
 		registerLocalService(getRpcGroup(), getRpcVersion(), getRpcPort());
 	}
-	
+
 	public void registerLocalService(String group, String version, int port) {
-#foreach ($table in $tables)##	
+#foreach ($table in $tables)##
 		ServiceManager.me().mapping(${table.modelName}Service.class, ${table.modelName}ServiceImpl.class, ${table.modelName}ServiceMock.class, group, version, port);
 #end##
 	}
-	
+
 	public void registerRemoteService() {
 		registerRemoteService(getRpcGroup(), getRpcVersion(), getRpcPort());
 	}
-	
+
 	public void registerRemoteService(String group, String version, int port) {
-#foreach ($table in $tables)##	
+#foreach ($table in $tables)##
 		ServiceManager.me().remote(${table.modelName}Service.class, ${table.modelName}ServiceMock.class, group, version, port);
 #end##
 	}
-	
+
 	public int getRpcPort() {
 		return Lambkit.config(RpcConfig.class).getDefaultPort();
 	}

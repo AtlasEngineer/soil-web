@@ -3,23 +3,25 @@ package com.atlas.server.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.atlas.lambkit.start.BaiDuConfig;
-import com.atlas.server.model.AtBotany;
-import com.atlas.server.model.AtBotanyType;
-import com.atlas.server.model.Catalogue;
+import com.atlas.server.model.*;
 import com.atlas.server.utils.Co;
 import com.baidu.aip.imagesearch.AipImageSearch;
 import com.jfinal.aop.Clear;
 import com.jfinal.json.JFinalJson;
 import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;
+import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.upload.UploadFile;
 import com.lambkit.Lambkit;
+import com.lambkit.common.util.DateTimeUtils;
 import com.lambkit.common.util.PathUtils;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.component.swagger.annotation.ApiOperation;
 import com.lambkit.component.swagger.annotation.Param;
 import com.lambkit.component.swagger.annotation.Params;
+import com.lambkit.module.upms.UpmsManager;
+import com.lambkit.module.upms.rpc.model.UpmsUser;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.controller.LambkitController;
 import org.json.JSONObject;
@@ -27,10 +29,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Clear(JwtTokenInterceptor.class)
 public class IndexController extends LambkitController {
@@ -48,6 +47,47 @@ public class IndexController extends LambkitController {
      * @return void
      **/
     public void sign(){
+        String username = getPara("username");
+        if(StrKit.isBlank(username)) {
+            setAttr("code", 0);
+            setAttr("msg", "username is null");
+        } else {
+            UpmsUser upmsUser = UpmsManager.me().getUpmsApiService().selectUpmsUserByUsername(username);
+            if(upmsUser!=null) {
+                //当期时间
+                Calendar cal = Calendar.getInstance();
+                int day = cal.get(Calendar.DATE);
+                int month = cal.get(Calendar.MONTH) + 1;
+                int year = cal.get(Calendar.YEAR);
+                setAttr("year", year);
+                setAttr("month", month);
+                setAttr("day", day);
+                //签到情况
+                Sign sign = Sign.service().today(upmsUser.getUserId(), null);
+                if(sign!=null) {
+                    setAttr("code", 1);
+                    setAttr("msg", "signed");
+                } else {
+                    sign = new Sign();
+                    sign.setUserid(upmsUser.getUserId().intValue());
+                    sign.setCreated(DateTimeUtils.getCurrentTime());
+                    boolean flag = sign.save();
+                    if(flag) {
+                        Integral.service().addCredit(upmsUser.getUserId(), 1, "sign", "签到", sign.getId());
+                        setAttr("cnum", 5);
+                        setAttr("code", 2);
+                    } else {
+                        setAttr("code", 3);
+                    }
+                }
+                //总积分
+//                setAttr("credit", UpmsUserCredit.service().findById(upmsUser.getUserId()));
+                setAttr("signMonth", sign.service().currentMonth(upmsUser.getUserId(), null));
+            } else {
+                setAttr("code", 0);
+                setAttr("msg", "username not exist");
+            }
+        }
         render("sign.html");
     }
 

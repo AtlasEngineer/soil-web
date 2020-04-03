@@ -19,7 +19,7 @@ public class SysconfigInitTest {
 		//不包含如下数据表
 		options.put("excludedTables", "sys_fieldconfig, sys_tableconfig");
 		//仅包含如下数据表
-		options.put("includedTables", "at_botany,at_botany_type,catalogue,catalogue_sample");
+		options.put("includedTables", "at_integral,at_sign,at_botany,at_botany_type,catalogue,catalogue_sample");
 		MgrdbManager.me().run(options, MgrdbConfig.SYSCONFIG);
 		System.exit(0);
 	}
