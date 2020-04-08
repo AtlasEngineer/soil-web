@@ -15,8 +15,8 @@
  */
 package com.atlas.server.web.directive;
 
-import com.atlas.server.model.CatalogueSample;
-import com.atlas.server.service.CatalogueSampleService;
+import com.atlas.server.model.SpeciesPests;
+import com.atlas.server.service.SpeciesPestsService;
 import com.jfinal.kit.StrKit;
 import com.jfinal.template.Env;
 import com.jfinal.template.io.Writer;
@@ -24,41 +24,25 @@ import com.jfinal.template.stat.Scope;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.web.directive.LambkitDirective;
 
-public class CatalogueSampleDirective extends LambkitDirective {
+public class SpeciesPestsDirective extends LambkitDirective {
 
 	@Override
 	public void onRender(Env env, Scope scope, Writer writer) {
 		// TODO Auto-generated method stub
 		String id = getPara("id", scope);
-		String name = getPara("name", scope);
-		String brief = getPara("brief", scope);
-		String catalogueId = getPara("catalogue_id", scope);
-		String url = getPara("url", scope);
 		String del = getPara("del", scope);
-		String contSign = getPara("cont_sign", scope);
-		String lon = getPara("lon", scope);
-		String lat = getPara("lat", scope);
-		String time = getPara("time", scope);
-		String type = getPara("type", scope);
-		String status = getPara("status", scope);
+		String pestsId = getPara("pests_id", scope);
+		String speciesId = getPara("species_id", scope);
 		int pagenum = getParaToInt("pagenum", scope, 0);
 		int pagesize = getParaToInt("pagesize", scope, 0);
 		String wheresql = getPara("sql", null);
-		String sql = " from catalogue_sample where "; 
+		String sql = " from at_species_pests where "; 
 		if(wheresql == null) {
 			sql += " 1=1 ";
-			if(StringUtils.hasText(id)) sql += " and id like '%" + id + "%'";//varchar
-			if(StringUtils.hasText(name)) sql += " and name like '%" + name + "%'";//varchar
-			if(StringUtils.hasText(brief)) sql += " and brief like '%" + brief + "%'";//varchar
-			if(StringUtils.hasText(catalogueId)) sql += " and catalogue_id like '%" + catalogueId + "%'";//varchar
-			if(StringUtils.hasText(url)) sql += " and url like '%" + url + "%'";//varchar
+			if(StringUtils.hasText(id)) sql += " and id=" + id;//int
 			if(StringUtils.hasText(del)) sql += " and del=" + del;//int
-			if(StringUtils.hasText(contSign)) sql += " and cont_sign like '%" + contSign + "%'";//varchar
-			if(StringUtils.hasText(lon)) sql += " and lon like '%" + lon + "%'";//varchar
-			if(StringUtils.hasText(lat)) sql += " and lat like '%" + lat + "%'";//varchar
-			if(StringUtils.hasText(time)) sql += " and time like '%" + time + "%'";//datetime
-			if(StringUtils.hasText(type)) sql += " and type=" + type;//smallint
-			if(StringUtils.hasText(status)) sql += " and status=" + status;//smallint
+			if(StringUtils.hasText(pestsId)) sql += " and pests_id=" + pestsId;//int
+			if(StringUtils.hasText(speciesId)) sql += " and species_id=" + speciesId;//int
 		} else {
 			sql += wheresql;
 		}
@@ -69,7 +53,7 @@ public class CatalogueSampleDirective extends LambkitDirective {
 			sql += " order by " + orderby;
 		}
 		
-		CatalogueSampleService service = CatalogueSample.service();
+		SpeciesPestsService service = SpeciesPests.service();
 		
 		String tagEntityKeyname = getPara("key", scope, "entity");
 		if(pagenum==0) {

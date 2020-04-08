@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atlas.server.service.impl;
+package com.atlas.server.web.validator;
 
-import com.jfinal.plugin.activerecord.Record;
-import com.lambkit.common.service.BaseServiceMock;
+import com.jfinal.core.Controller;
+import com.lambkit.web.validator.LambkitValidator;
 
-import com.atlas.server.model.BotanyType;
-import com.atlas.server.service.BotanyTypeService;
-
-import java.util.List;
+import com.atlas.server.model.PestsSample;
 
 /**
  * @author yangyong 
@@ -31,14 +28,15 @@ import java.util.List;
  * @version 1.0
  * @since 1.0
  */
-public class BotanyTypeServiceMock extends BaseServiceMock<BotanyType> implements BotanyTypeService {
-    @Override
-    public List<Record> all() {
-        return null;
-    }
+public class PestsSampleValidator extends LambkitValidator {
 
-    @Override
-    public Record searchNewsById(Integer id) {
-        return null;
-    }
+	@Override
+	protected String getTableName(Controller c) {
+		return PestsSample.service().getTableName();
+	}
+	
+	@Override
+	protected String getPrefix() {
+		return "model";//StrKit.firstCharToLowerCase(PestsSample.class.getSimpleName());
+	}
 }

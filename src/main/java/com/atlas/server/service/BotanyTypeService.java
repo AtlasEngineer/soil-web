@@ -15,9 +15,15 @@
  */
 package com.atlas.server.service;
 
+import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitService;
 
 import com.atlas.server.model.BotanyType;
+import com.lambkit.core.api.route.ApiBody;
+import com.lambkit.core.api.route.ApiMapping;
+import com.lambkit.core.api.route.ApiRenderJFinalJson;
+
+import java.util.List;
 
 /**
  * @author yangyong 
@@ -28,4 +34,17 @@ import com.atlas.server.model.BotanyType;
  * @since 1.0
  */
 public interface BotanyTypeService extends LambkitService<BotanyType> {
+
+    //查询所有新闻
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "news.all")
+    public List<Record> all();
+
+
+    //查询新闻详情
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "news.allById")
+    public Record searchNewsById(Integer id);
+
+
 }

@@ -15,9 +15,18 @@
  */
 package com.atlas.server.service;
 
+import com.atlas.server.model.InsectPests;
+import com.atlas.server.model.InsectSpecies;
+import com.jfinal.plugin.activerecord.Page;
+import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitService;
 
 import com.atlas.server.model.Catalogue;
+import com.lambkit.core.api.route.ApiBody;
+import com.lambkit.core.api.route.ApiMapping;
+import com.lambkit.core.api.route.ApiRenderJFinalJson;
+
+import java.util.List;
 
 /**
  * @author yangyong 
@@ -28,4 +37,28 @@ import com.atlas.server.model.Catalogue;
  * @since 1.0
  */
 public interface CatalogueService extends LambkitService<Catalogue> {
+
+    //查询所有作物
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "insectSpecies.all")
+    public Page all(Integer pageNum, Integer pageSize);
+
+
+    //查询某个植物所得的病
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "insectPests.all.byId")
+    public List<InsectPests> all(Integer id);
+
+
+    //查询某个病虫害
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "search.insectPests.byId")
+    public InsectPests searchInsectPestsById(Integer id);
+
+
+
+
+
+
+
 }

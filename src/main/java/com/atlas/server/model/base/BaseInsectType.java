@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atlas.server.service.impl;
+package com.atlas.server.model.base;
 
-import com.jfinal.plugin.activerecord.Record;
-import com.lambkit.common.service.BaseServiceMock;
+import com.jfinal.plugin.activerecord.IBean;
 
-import com.atlas.server.model.BotanyType;
-import com.atlas.server.service.BotanyTypeService;
-
-import java.util.List;
+import com.lambkit.common.model.LambkitModel;
 
 /**
  * @author yangyong 
@@ -31,14 +27,32 @@ import java.util.List;
  * @version 1.0
  * @since 1.0
  */
-public class BotanyTypeServiceMock extends BaseServiceMock<BotanyType> implements BotanyTypeService {
-    @Override
-    public List<Record> all() {
-        return null;
-    }
+@SuppressWarnings("serial")
+public abstract class BaseInsectType<M extends BaseInsectType<M>> extends LambkitModel<M> implements IBean {
 
-    @Override
-    public Record searchNewsById(Integer id) {
-        return null;
-    }
+	public String getTableName() {
+		return "at_insect_type";
+	}
+    
+	public java.lang.Integer getId() {
+		return this.get("id");
+	}
+
+	public void setId(java.lang.Integer id) {
+		this.set("id", id);
+	}
+	public java.lang.String getName() {
+		return this.get("name");
+	}
+
+	public void setName(java.lang.String name) {
+		this.set("name", name);
+	}
+	public java.lang.Integer getDel() {
+		return this.get("del");
+	}
+
+	public void setDel(java.lang.Integer del) {
+		this.set("del", del);
+	}
 }

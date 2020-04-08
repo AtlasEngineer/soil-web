@@ -15,10 +15,15 @@
  */
 package com.atlas.server.service.impl;
 
+import com.atlas.server.model.InsectPests;
+import com.atlas.server.model.InsectSpecies;
+import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.BaseServiceMock;
 
 import com.atlas.server.model.Catalogue;
 import com.atlas.server.service.CatalogueService;
+
+import java.util.List;
 
 /**
  * @author yangyong 
@@ -29,4 +34,20 @@ import com.atlas.server.service.CatalogueService;
  * @since 1.0
  */
 public class CatalogueServiceMock extends BaseServiceMock<Catalogue> implements CatalogueService {
+
+
+    @Override
+    public Page all(Integer pageNum, Integer pageSize) {
+        return null;
+    }
+
+    @Override
+    public List<InsectPests> all(Integer id) {
+        return null;
+    }
+
+    @Override
+    public InsectPests searchInsectPestsById(Integer id) {
+        return null;
+    }
 }

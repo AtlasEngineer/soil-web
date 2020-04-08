@@ -43,7 +43,7 @@ public class AtlasConfig extends LambkitApplicationContext {
             public void configPlugin(Plugins me) {
                 super.configPlugin(me);
                 me.add(new JwtTokenPlugin(UpmsJwtUserService.me()));
-//                me.add(new LicensePlugin());
+                //        me.add(new LicensePlugin());
             }
 
             @Override
@@ -51,7 +51,6 @@ public class AtlasConfig extends LambkitApplicationContext {
                 super.configHandler(me);
 //				me.add(new ApiRouteHandler("/api"));
                 me.add(new GlobalActionHandler());
-//                me.add(new LicenseHandler());
                 me.add(com.lambkit.core.api.route.ApiRoute.me().getHandler("/api"));
             }
 
@@ -68,7 +67,6 @@ public class AtlasConfig extends LambkitApplicationContext {
             }
         });
     }
-
     @Override
     public void configConstant(Constants me) {
         super.configConstant(me);

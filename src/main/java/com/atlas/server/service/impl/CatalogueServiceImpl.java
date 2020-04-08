@@ -15,11 +15,18 @@
  */
 package com.atlas.server.service.impl;
 
+import com.atlas.server.model.InsectPests;
+import com.atlas.server.model.InsectSpecies;
+import com.atlas.server.model.SpeciesPests;
+import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.core.aop.AopKit;
 
 import com.atlas.server.service.CatalogueService;
 import com.atlas.server.model.Catalogue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author yangyong 
@@ -38,5 +45,33 @@ public class CatalogueServiceImpl extends LambkitModelServiceImpl<Catalogue> imp
 			DAO = AopKit.singleton(Catalogue.class);
 		}
 		return DAO;
+	}
+
+	@Override
+	public Page all(Integer pageNum, Integer pageSize) {
+		if(pageNum==null||pageSize==null){
+			pageNum=1;
+			pageSize=10;
+		}
+		Page<InsectSpecies> page=InsectSpecies.service().dao().paginate(pageNum,pageSize,InsectSpecies.sql().example());
+		return page;
+	}
+
+	@Override
+	public List<InsectPests> all(Integer id) {
+		List<InsectPests> insectPests=new ArrayList<>();
+
+		List<SpeciesPests> speciesPests=SpeciesPests.service().find(SpeciesPests.sql().andSpeciesIdEqualTo(id).example());
+		for (SpeciesPests pests:speciesPests){
+			InsectPests insect=InsectPests.service().dao().findById(pests.getPestsId());
+			insectPests.add(insect);
+		}
+		return insectPests;
+	}
+
+	@Override
+	public InsectPests searchInsectPestsById(Integer id) {
+		InsectPests insect=InsectPests.service().dao().findById(id);
+		return insect;
 	}
 }

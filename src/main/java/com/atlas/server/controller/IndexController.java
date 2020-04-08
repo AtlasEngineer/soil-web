@@ -45,10 +45,6 @@ import java.util.stream.Collectors;
 @Clear(JwtTokenInterceptor.class)
 public class IndexController extends LambkitController {
 
-    //百度的连接信息
-    private static BaiDuConfig config = Lambkit.config(BaiDuConfig.class);
-    //百度接口调用连接对象
-    private static AipImageSearch client = new AipImageSearch(config.getAPP_ID(), config.getAPI_KEY(), config.getSECRET_KEY());
 
     /**
      * @return void
@@ -140,73 +136,7 @@ public class IndexController extends LambkitController {
     }
 
 
-    //    /**
-//     * @Description: 添加纲目科属种样本
-//     * @Author: yangxueyang
-//     * @Date: 2019/9/25
-//     */
-//    @Params({
-//            @Param(name = "filepath", description = "图片路径", required = true, dataType = "String"),
-//            @Param(name = "id", description = "种类id", required = false, dataType = "String"),
-//            @Param(name = "prantId", description = "父id", required = false, dataType = "String"),
-//    })
-//    @ApiOperation(url = "/cern/addEatalogue", tag = "/cern", httpMethod = "get", description = "添加纲目科属种样本")
-//    public void addEatalogue() throws IOException {
-//        String id = getPara("id");//种类id
-//        String rootPath = PathKit.getWebRootPath().replace("\\", "/");
-//        String s ="D:/upload/sample/" + id; //现在改为种类id为文件夹得名字
-//
-//            List<String> baiDu = new ArrayList<>();  //上传百度失败的图片
-//            HashMap<String, String> options = new HashMap<String, String>();
-//            // 文件标签, 这个先不填, 实际项目时, 根据实际需求来
-//            Catalogue catalogue = Catalogue.service().dao().findFirst(Catalogue.sql().andIdEqualTo(id).example());
-//            options.put("tags", "5");
-//            //  images 目录下的base目录训练图片, test是测试图片, 这里把训练图片全部入库
-//            File images = new File(s);
-//            // 获取目录下的所有图片
-//            File[] fi = images.listFiles();
-//            for (File f : fi) {
-//                if (ZipUtils.checkFileSizeIsLimit(f.length(), 3, "M")) {
-//                    System.out.println("小于3m啊啊啊啊啊啊");
-//                } else {
-//                    System.out.println(f.getName() + "大于3m啊啊啊啊啊啊");
-//                    String path = rootPath + "/upload/" + f.getName();
-//                    ZipUtils.yasuoImage(path, f);
-//                }
-//
-//                String fileext = PathUtils.getExtensionName(f.getName());
-//                String name = f.getName().split("\\.")[0];
-//                if ("jpg".equalsIgnoreCase(fileext) || "png".equalsIgnoreCase(fileext) || "bmp".equalsIgnoreCase(fileext)) {
-//                    // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
-//                    options.put("brief", "{\"name\":" + f.getName() + ",\"id\":" + id + ",\"url\":" + "/eatalogue/sample/" + id + "/" + f.getName() + "}");
-//                    // 上传图片入库
-//                    JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
-//                    // 打印上传结果
-//                    System.out.println(res.toString(2));//不是格式
-//                    if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
-//                        //上传百度图库报错了
-//                        baiDu.add(f.getName());
-//                    } else {
-//                        CatalogueSample catalogueSample = CatalogueSample.service().dao().findById(name);
-//                        catalogueSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
-//                        boolean result = catalogueSample.update();
-//                        if (result) {
-//                            System.out.println(f.getName() + "修改成功");
-//                        } else {
-//                            System.out.println(f.getName() + "修改失败");
-//                        }
-//                    }
-//                } else {
-//                    //移动到错误的文件夹   应该没有
-//                    System.out.println(f.getName()+"文件格式不正确");
-//                }
-//            }
-//            if ( baiDu.size() != 0) {
-//                renderJson(Co.ok("baiDu", baiDu));
-//            } else {
-//                renderJson(Co.ok("msg", "添加样本成功,所有图片添加成功"));
-//            }
-//    }
+    //测试添加病虫害列表
     public void bulkAdd() {
         UploadFile file = getFile("file");
 
@@ -250,7 +180,7 @@ public class IndexController extends LambkitController {
         tempXlsFile.delete();
         renderJson(Co.ok("msg", "导入完成").set("ab", ab));
     }
-
+    //导入病虫害列表
     public void text() {
         UploadFile file = getFile("file");
 
@@ -304,10 +234,6 @@ public class IndexController extends LambkitController {
         tempXlsFile.delete();
         renderJson(Co.ok("msg", "导入完成").set("map", map));
     }
-    public void search(){
 
-        List<Sign> records=Sign.service().dao().findAll();
-        renderJson(Co.ok("data",records));
-    }
 
 }

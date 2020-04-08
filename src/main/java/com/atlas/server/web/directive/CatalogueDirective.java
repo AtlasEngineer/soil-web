@@ -22,7 +22,6 @@ import com.jfinal.template.Env;
 import com.jfinal.template.io.Writer;
 import com.jfinal.template.stat.Scope;
 import com.lambkit.common.util.StringUtils;
-
 import com.lambkit.web.directive.LambkitDirective;
 
 public class CatalogueDirective extends LambkitDirective {

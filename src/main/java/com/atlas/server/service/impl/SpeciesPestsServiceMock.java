@@ -15,13 +15,10 @@
  */
 package com.atlas.server.service.impl;
 
-import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.BaseServiceMock;
 
-import com.atlas.server.model.BotanyType;
-import com.atlas.server.service.BotanyTypeService;
-
-import java.util.List;
+import com.atlas.server.model.SpeciesPests;
+import com.atlas.server.service.SpeciesPestsService;
 
 /**
  * @author yangyong 
@@ -31,14 +28,5 @@ import java.util.List;
  * @version 1.0
  * @since 1.0
  */
-public class BotanyTypeServiceMock extends BaseServiceMock<BotanyType> implements BotanyTypeService {
-    @Override
-    public List<Record> all() {
-        return null;
-    }
-
-    @Override
-    public Record searchNewsById(Integer id) {
-        return null;
-    }
+public class SpeciesPestsServiceMock extends BaseServiceMock<SpeciesPests> implements SpeciesPestsService {
 }

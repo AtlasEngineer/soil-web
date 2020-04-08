@@ -10,6 +10,7 @@ import com.lambkit.component.swagger.annotation.ApiOperation;
 import com.lambkit.component.swagger.annotation.Param;
 import com.lambkit.component.swagger.annotation.Params;
 import com.lambkit.db.sql.column.Example;
+import com.lambkit.module.upms.UpmsManager;
 import com.lambkit.module.upms.rpc.model.*;
 import com.lambkit.plugin.jwt.JwtConfig;
 import com.lambkit.plugin.jwt.JwtKit;
@@ -47,9 +48,7 @@ public class UserController extends LambkitController {
             return;
         }
         System.out.println(username);
-        Example example = UpmsUser.sql().andUsernameEqualTo(username).example();
-        UpmsUser dao = UpmsUser.service().dao();
-        UpmsUser upmsUser = dao.findFirst(example);
+        UpmsUser upmsUser = UpmsManager.me().getUpmsApiService().selectUpmsUserByUsername(username);
         if (upmsUser == null) {
             renderJson(Co.ok("data", Co.fail("errorMsg", "用户不存在")));
             return;
@@ -84,27 +83,14 @@ public class UserController extends LambkitController {
             Lambkit.getCache().put("jwtcache", username + "_username", username);
             System.out.println("token:" + token);
 
-            //获取权限集合
-            ArrayList<String> perlist = new ArrayList<>();
-            for (UpmsUserRole upmsUserRole : userRole) {
-                roles.add(upmsUserRole.getRoleId());
-                List<UpmsRolePermission> upmsRolePermissions = UpmsRolePermission.service().dao().find(UpmsRolePermission.sql().andRoleIdEqualTo(Long.valueOf(upmsUserRole.getRoleId())).example());
-                for (UpmsRolePermission urp : upmsRolePermissions) {
-                    UpmsPermission per = UpmsPermission.service().dao().findById(urp.getPermissionId());
-                    if (per == null) {
-                        continue;
-                    }
-                    if (per.getSystemId() == 6) {
-                        perlist.add(per.getPermissionValue());
-                    }
-                }
-            }
 
-            renderJson(Co.ok("data", Co.by("token", token).set("state", "ok").set("userMsg", upmsUser.put("role_id", roles)).set("perlist", perlist)));
+            renderJson(Co.ok("data", Co.by("token", token).set("state", "ok").set("userMsg", upmsUser.put("role_id", roles))));
         }
 
 
     }
+
+
     /**
      * @Description: 获取当前登录用户信息
      * @Author: yangxueyang

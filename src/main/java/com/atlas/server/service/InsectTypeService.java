@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atlas.server.service.impl;
+package com.atlas.server.service;
 
-import com.jfinal.plugin.activerecord.Record;
-import com.lambkit.common.service.BaseServiceMock;
+import com.lambkit.common.service.LambkitService;
 
-import com.atlas.server.model.BotanyType;
-import com.atlas.server.service.BotanyTypeService;
-
-import java.util.List;
+import com.atlas.server.model.InsectType;
 
 /**
  * @author yangyong 
@@ -31,14 +27,5 @@ import java.util.List;
  * @version 1.0
  * @since 1.0
  */
-public class BotanyTypeServiceMock extends BaseServiceMock<BotanyType> implements BotanyTypeService {
-    @Override
-    public List<Record> all() {
-        return null;
-    }
-
-    @Override
-    public Record searchNewsById(Integer id) {
-        return null;
-    }
+public interface InsectTypeService extends LambkitService<InsectType> {
 }
