@@ -1,6 +1,7 @@
 package com.atlas.lambkit.start;
 
 import com.atlas.lambkit.interceptor.GlobalActionHandler;
+import com.atlas.server.MschModule;
 import com.atlas.server.route.ApiRoute;
 import com.jfinal.config.*;
 import com.jfinal.json.JFinalJsonFactory;
@@ -22,6 +23,7 @@ public class AtlasConfig extends LambkitApplicationContext {
             module.addModule(mgrModule);
         }
         module.addModule(new UpmsModule());
+        module.addModule(new MschModule());
         module.addModule(new LambkitModule() {
             @Override
             public void configRoute(Routes me) {
