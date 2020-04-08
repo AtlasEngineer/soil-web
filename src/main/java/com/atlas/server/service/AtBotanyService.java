@@ -16,17 +16,37 @@
 package com.atlas.server.service;
 
 
-
 import com.atlas.server.model.AtBotany;
+import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitService;
+import com.lambkit.core.api.route.ApiBody;
+import com.lambkit.core.api.route.ApiMapping;
+import com.lambkit.core.api.route.ApiRenderJFinalJson;
+
+import java.util.List;
 
 /**
- * @author yangyong 
+ * @author yangyong
+ * @version 1.0
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
  * @date 2020-04-01
- * @version 1.0
  * @since 1.0
  */
 public interface AtBotanyService extends LambkitService<AtBotany> {
+
+    //查询所有新闻
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "news.all")
+    public List<Record> all();
+
+
+    //查询新闻详情
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "news.allById")
+    public Record searchNewsById(Integer id);
+
+
+
+
 }

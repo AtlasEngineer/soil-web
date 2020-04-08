@@ -16,14 +16,18 @@
 package com.atlas.server.service.impl;
 
 
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.core.aop.AopKit;
 
 import com.atlas.server.service.AtBotanyService;
 import com.atlas.server.model.AtBotany;
 
+import java.util.List;
+
 /**
- * @author yangyong 
+ * @author yangyong
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
  * @date 2020-04-01
@@ -31,13 +35,25 @@ import com.atlas.server.model.AtBotany;
  * @since 1.0
  */
 public class AtBotanyServiceImpl extends LambkitModelServiceImpl<AtBotany> implements AtBotanyService {
-	
+
 	private AtBotany DAO = null;
-	
+
 	public AtBotany dao() {
 		if(DAO==null) {
 			DAO = AopKit.singleton(AtBotany.class);
 		}
 		return DAO;
+	}
+
+	@Override
+	public List<Record> all() {
+		List<Record> list= Db.find("select * from news where del=0");
+		return list;
+	}
+
+	@Override
+	public Record searchNewsById(Integer id) {
+		Record record= Db.findFirst("select * from news where del=0 and id="+id+"");
+		return record;
 	}
 }
