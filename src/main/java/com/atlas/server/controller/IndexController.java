@@ -91,7 +91,7 @@ public class IndexController extends LambkitController {
                     }
                 }
                 //总积分
-//                setAttr("credit", UpmsUserCredit.service().findById(upmsUser.getUserId()));
+                setAttr("credit", 55);
                 setAttr("signMonth", sign.service().currentMonth(upmsUser.getUserId(), null));
             } else {
                 setAttr("code", 0);

@@ -1,0 +1,130 @@
+@charset "utf-8";
+/* CSS Document */
+
+*{
+	font-family:微软雅黑;
+	}
+body{
+	padding:0;
+	margin:0;
+	font-size:12px;
+	}
+a{text-decoration:none;}a:link,a:visited{text-decoration: none;}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,blockquote,p{padding:0; margin:0;}
+h1,h2,h3,h4,h5,h6{font-size:inherit; font-weight:normal;}
+address,cite,code,em,th,i{font-weight:normal; font-style:normal;}
+input{outline: none;}
+.clearfix{*zoom:1;}
+.clearfix:after{display:block; overflow:hidden; clear:both; height:0; visibility:hidden; content:"";}
+.clear{ clear: both;}
+/* float */
+.left{
+	float:left;
+}
+.right{
+	
+	width: 100%;
+}
+.account-box{
+	background: #fff;
+	padding: 0 35px 25px 25px;
+}
+.account-title{
+	border-bottom: 1px solid #ccc;
+	height: 50px;
+	line-height: 50px;
+	font-size: 16px;
+	margin-bottom: 10px;
+}
+.f-btn-fhby{height: 30px;line-height: 30px;color: #f77b10;border: 1px solid #f77b10;font-size: 14px;display: block;width: 85px;text-align: center;border-radius: 4px;cursor: pointer;margin-top: 10px;margin-left: 20px;}
+.f-btn-jian{height: 30px;line-height: 30px; border: 1px solid #ccc;border-right: 0px;margin-top:10px;text-align: center;width: 20px;background: #ececec;color: #666;border-radius: 4px;position: relative;left: 2px;cursor: pointer;}
+.f-btn-jia{height: 30px;line-height: 30px;border: 1px solid #ccc;border-left: 0px;margin-top:10px;text-align: center;width: 20px;background: #ececec;color: #666;border-radius: 4px;position: relative;left: -2px;cursor: pointer;}
+.f-riqi{width: 110px;padding: 0 10px; background: #fff;color: #666;font-size: 14px;text-align: center;height: 30px;line-height: 30px;margin-top: 10px;display: block;margin: 0 auto;}
+.f-rili-table tbody td{background: #fff;position: relative;}
+.f-rili-table tbody tr{border-bottom: 1px dashed #ccc;}
+.f-rili-table .f-today{ background: url(/src/img/dui.png) right bottom no-repeat,#faf1de; background-size:20px 20px ;}
+.f-rili-table .f-on{background-color:cornflowerblue;color: #fff;}
+.f-number{cursor: pointer;}
+.f-rili-table{width: 100%;}
+.f-rili-th{float: left;width: 14.25%;text-align: center;line-height: 46px;height: 46px; /*background-color: #F9EADE;*/color: #333;}
+.f-td{border-bottom: 1px dashed #ccc;float: left;width: 14.25%;text-align: center;height:46px;line-height: 46px;position: relative;}
+.f-yuan{position: absolute;width: 20px;height: 20px;top: 13px;left: 50%;margin-left: 10px; /*background: url(../images/yuan.png) no-repeat center;*/}
+.f-table-msg{position: absolute;z-index: 2;top: 34px;left:50%;margin-left: -120px; width: 280px;/*background: url(../images/bg-msg.png) no-repeat bottom;*/line-height: 55px;height: 46px;text-align: center;display: none;color: #666;}
+
+
+.top {width:100%;height:300px;background: #007aff;margin-bottom: .8rem;overflow: hidden;}
+.flex-warp{flex-wrap: wrap;}
+.flex, .fn-flex{display:flex}
+.top .out-1{width: 8rem;height: 8rem;border-radius: 100%;-webkit-border-radius: 100%;background: rgba(255, 255, 255, 0.4);margin: 5rem auto 0 auto;}
+.flex-pack-center{-webkit-box-pack: center;justify-content: center;position: relative;}
+.flex-align-center{-webkit-box-align: center;align-items: center;}
+.top .out-1 .out-2 .signBtn{width: 6.2rem;
+    height: 6.2rem;
+    border-radius: 100%;
+    -webkit-border-radius: 100%;
+    border: 1px #7ebdff solid;}
+.top .out-1 .out-2 .signBtn strong, .top .out-1 .out-2 .signBtn span{display: block;
+    width: 85%;
+    margin: 0 auto;
+    text-align: center;
+    color: #007aff;}
+.sign{color: #84b4aa;position: absolute;left:30px;bottom: 10px;font-size: 16px;}
+.sign_num{color: #fff;}
+.now_sign_d{margin: 0 auto; text-align: center; height: 50px;}
+.now_sign{text-align: center; width: 90%; height: 50px;color: #fff;background: #007aff;border: 0;border-radius:5px;font-size: 18px;letter-spacing: 1px;cursor: pointer;}
+.sign_mon{width: 100px;height: 30px;margin: 0 auto;display: block;}
+.qd_bg{width: 100%;
+    height: 300px;
+    border-radius: 100%;
+    -webkit-border-radius: 100%;
+    background: url(../../src/img/sign_icon.png) no-repeat center;
+    }
+.qd{width: 50px;height: 35px;font-size: 20px;color: #FFF;}
+.sign_yqd{width: 100%; height: 100%;background: rgba(0,0,0,0.5);position: fixed;top: 0;z-index: 999;left: 0;bottom: 0;right: 0; display: none;}
+.sign_up{margin: 0 auto;width: 250px;height: 270px;position: absolute;top: 50%;margin-top:-200px; left: 0px;right: 0px;margin-left: auto;margin-right: auto;z-index: 444444;background-color: #fafafa;border-radius: 8px;will-change: top, opacity;}
+.sign_yqdbg{height: 160px;}
+.sign_up .sign_yqdbg h4{width: 45px;height: 45px;background: url(../../src/img/sign_yqd.png) no-repeat;margin: 0 auto;position: relative;top: 20px;}
+.sign_qdcg{text-align: center;font-weight: 600;font-size: 20px;padding-top: 25px;}
+.sign_qdjf{text-align: center;font-weight: 600;font-size: 20px;padding-top: 20px;color: #f9f1af;}
+.sign_btom{height: 111px;background: url(../../src/img/sign_qbg.png) no-repeat top -295px left -72px;border-bottom-left-radius: 8px;border-bottom-right-radius: 8px;}
+.sign_gb{width: 30px;height: 30px;position: absolute;top: -36px;right: 1px;background: url(../../src/img/sign_gb.png) no-repeat; background-size:100% ;}
+/*jifen*/
+.jifen{height: 170px;background-image: url(../../src/img/jf_bg.jpg);background-size:100% 100%;}
+.jf_num p{text-align: center;color: #fff;}
+.jf_num_fp{font-size: 30px;padding-top: 55px;}
+.jf_num_tp{font-size: 16px;padding-top: 10px;}
+.byjf{height: 50px;background: #ffffff;}
+.byjf p{padding-left: 10px;color: #000;line-height: 50px;font-size: 16px;}
+.byjf_num{color: #007aff;}
+.qdjf p{font-size: 16px;height: 50px;border-bottom: 1px solid #ccc;padding-left: 10px; padding-top: 5px;}
+.qdjf p .shij{font-size: 12px; color: #666666;}
+.qdjf p span{font-size: 16px;}
+.tim{float: right;font-weight: 500 !important;font-size: 16px !important;padding-right: 15px; color: #3a9fef; position: relative; top: -8px;}
+.qdjf .jf_but{cursor: pointer;border-bottom: 0;}
+.qdjf .jf_but span{color: #ccc;margin: 0 auto;font-size: 14px;display:block;text-align: center;}
+
+.yfhead{background: #f9f9f9;}
+.yf{display: inline-block; height: 24px; line-height: 24px; padding: 0 8px; border-radius: 12px;  box-shadow: 2px 2px 2px #CCCCCC; font-size: 14px !important; background:#FFFFFF;}
+.byhj{float: right; font-size: 14px !important; margin-right: 10px;}
+#search{width: calc(100% - 120px); border: 0; border-bottom: 1px solid #CCCCCC; height: 18px; margin-right: 10px; padding: 5px;}
+#searchbtn,#chongzhi{background: #3a9fef; border: 1px solid #3a9fef; color: #FFFFFF; padding: 5px 8px; border: 0;}
+#chongzhi{background: #FFFFFF; border: 1px solid #CCCCCC; color: #000000; margin-left: 5px;}
+.yf .jt{background: url(../img/jt.png) no-repeat center;  background-size: 10px; display: inline-block; width: 10px; height: 10px;}
+
+.tcsxck{width: 100%; height: 100%; position: absolute; left: 0; top: 0; background: #FFFFFF; display: none;}
+.anyuexz{height: 24px; line-height: 24px; padding: 0 8px; padding-right: 18px; border-radius: 12px; background: #FFFFFF; box-shadow: 2px 2px 2px #CCCCCC; font-size: 14px !important; position: absolute; top: 30px; left: 30px;  background: url(../img/qh.png) no-repeat 67px center,#FFFFFF; background-size: 10px;}
+
+.curtimebox,.qingchuriqi{width: 100%; display: block; position: absolute; top: 80px; left: 0;  margin: 0 auto; text-align: center;}
+.curtimebox #curmonth{border: 0; line-height: 30px; height: 30px; padding: 5px; border-bottom:1px solid #CCCCCC ; text-align: center; width:calc(80% + 22px); margin: 0 auto; display: block;}
+#curstime,#curetime{width: 40%; border: 0;line-height: 30px; height: 30px; padding: 5px;border-bottom:1px solid #CCCCCC ; text-align: center;}
+.qingchuriqi{top: 130px; border-bottom: 1px solid #CCCCCC;  width:calc(80% + 32px); margin-left:calc(10% - 16px); height: 30px;}
+.qcrq{float: right; display: block; height: 20px; width: 20px; margin-bottom: 5px; margin-right: 20px; background: url(../img/qcrq.png) no-repeat center; background-size: 20px;}
+.wanc{background: url(../img/wanc.png) no-repeat center; background-size: 20px;}
+
+.gbtc{display: block; width: 20px; height: 20px; background: url(../img/chahao.png) no-repeat center; position: absolute; top: 30px; right: 30px;}
+
+.zwjl{width: 80%; padding-top: 80%; background: url(../img/wjl.png) no-repeat top center; background-size: contain; margin: 0 auto;}
+.wenzi{font-size: 14px; color: #666666; text-align: center; height: 50px;}
+.cxxzsj{background: #399fee; padding: 10px 20px; color: #FFFFFF; border-radius: 3px; margin-top: 20px;}
+
+.jfyy{display: inline-block; width: calc(100% - 50px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
