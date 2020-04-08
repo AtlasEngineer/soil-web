@@ -27,7 +27,7 @@ import java.util.List;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
@@ -1004,83 +1004,6 @@ public class CatalogueSampleCriteria extends Columns implements Serializable {
           addCriterion("type", values, ConditionMode.NOT_IN, "type", "java.lang.Integer", "Float");
           return this;
       }
-	public CatalogueSampleCriteria andParentIdIsNull() {
-		isnull("parent_id");
-		return this;
-	}
-	
-	public CatalogueSampleCriteria andParentIdIsNotNull() {
-		notNull("parent_id");
-		return this;
-	}
-	
-	public CatalogueSampleCriteria andParentIdIsEmpty() {
-		empty("parent_id");
-		return this;
-	}
-
-	public CatalogueSampleCriteria andParentIdIsNotEmpty() {
-		notEmpty("parent_id");
-		return this;
-	}
-        public CatalogueSampleCriteria andParentIdLike(java.lang.String value) {
-    	   addCriterion("parent_id", value, ConditionMode.FUZZY, "parentId", "java.lang.String", "Float");
-    	   return this;
-      }
-
-      public CatalogueSampleCriteria andParentIdNotLike(java.lang.String value) {
-          addCriterion("parent_id", value, ConditionMode.NOT_FUZZY, "parentId", "java.lang.String", "Float");
-          return this;
-      }
-      public CatalogueSampleCriteria andParentIdEqualTo(java.lang.String value) {
-          addCriterion("parent_id", value, ConditionMode.EQUAL, "parentId", "java.lang.String", "String");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andParentIdNotEqualTo(java.lang.String value) {
-          addCriterion("parent_id", value, ConditionMode.NOT_EQUAL, "parentId", "java.lang.String", "String");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andParentIdGreaterThan(java.lang.String value) {
-          addCriterion("parent_id", value, ConditionMode.GREATER_THEN, "parentId", "java.lang.String", "String");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andParentIdGreaterThanOrEqualTo(java.lang.String value) {
-          addCriterion("parent_id", value, ConditionMode.GREATER_EQUAL, "parentId", "java.lang.String", "String");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andParentIdLessThan(java.lang.String value) {
-          addCriterion("parent_id", value, ConditionMode.LESS_THEN, "parentId", "java.lang.String", "String");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andParentIdLessThanOrEqualTo(java.lang.String value) {
-          addCriterion("parent_id", value, ConditionMode.LESS_EQUAL, "parentId", "java.lang.String", "String");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andParentIdBetween(java.lang.String value1, java.lang.String value2) {
-    	  addCriterion("parent_id", value1, value2, ConditionMode.BETWEEN, "parentId", "java.lang.String", "String");
-    	  return this;
-      }
-
-      public CatalogueSampleCriteria andParentIdNotBetween(java.lang.String value1, java.lang.String value2) {
-          addCriterion("parent_id", value1, value2, ConditionMode.NOT_BETWEEN, "parentId", "java.lang.String", "String");
-          return this;
-      }
-        
-      public CatalogueSampleCriteria andParentIdIn(List<java.lang.String> values) {
-          addCriterion("parent_id", values, ConditionMode.IN, "parentId", "java.lang.String", "String");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andParentIdNotIn(List<java.lang.String> values) {
-          addCriterion("parent_id", values, ConditionMode.NOT_IN, "parentId", "java.lang.String", "String");
-          return this;
-      }
 	public CatalogueSampleCriteria andStatusIsNull() {
 		isnull("status");
 		return this;
@@ -1147,74 +1070,6 @@ public class CatalogueSampleCriteria extends Columns implements Serializable {
 
       public CatalogueSampleCriteria andStatusNotIn(List<java.lang.Integer> values) {
           addCriterion("status", values, ConditionMode.NOT_IN, "status", "java.lang.Integer", "Float");
-          return this;
-      }
-	public CatalogueSampleCriteria andBotanyTypeIsNull() {
-		isnull("botany_type");
-		return this;
-	}
-	
-	public CatalogueSampleCriteria andBotanyTypeIsNotNull() {
-		notNull("botany_type");
-		return this;
-	}
-	
-	public CatalogueSampleCriteria andBotanyTypeIsEmpty() {
-		empty("botany_type");
-		return this;
-	}
-
-	public CatalogueSampleCriteria andBotanyTypeIsNotEmpty() {
-		notEmpty("botany_type");
-		return this;
-	}
-       public CatalogueSampleCriteria andBotanyTypeEqualTo(java.lang.Integer value) {
-          addCriterion("botany_type", value, ConditionMode.EQUAL, "botanyType", "java.lang.Integer", "Float");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andBotanyTypeNotEqualTo(java.lang.Integer value) {
-          addCriterion("botany_type", value, ConditionMode.NOT_EQUAL, "botanyType", "java.lang.Integer", "Float");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andBotanyTypeGreaterThan(java.lang.Integer value) {
-          addCriterion("botany_type", value, ConditionMode.GREATER_THEN, "botanyType", "java.lang.Integer", "Float");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andBotanyTypeGreaterThanOrEqualTo(java.lang.Integer value) {
-          addCriterion("botany_type", value, ConditionMode.GREATER_EQUAL, "botanyType", "java.lang.Integer", "Float");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andBotanyTypeLessThan(java.lang.Integer value) {
-          addCriterion("botany_type", value, ConditionMode.LESS_THEN, "botanyType", "java.lang.Integer", "Float");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andBotanyTypeLessThanOrEqualTo(java.lang.Integer value) {
-          addCriterion("botany_type", value, ConditionMode.LESS_EQUAL, "botanyType", "java.lang.Integer", "Float");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andBotanyTypeBetween(java.lang.Integer value1, java.lang.Integer value2) {
-    	  addCriterion("botany_type", value1, value2, ConditionMode.BETWEEN, "botanyType", "java.lang.Integer", "Float");
-    	  return this;
-      }
-
-      public CatalogueSampleCriteria andBotanyTypeNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
-          addCriterion("botany_type", value1, value2, ConditionMode.NOT_BETWEEN, "botanyType", "java.lang.Integer", "Float");
-          return this;
-      }
-        
-      public CatalogueSampleCriteria andBotanyTypeIn(List<java.lang.Integer> values) {
-          addCriterion("botany_type", values, ConditionMode.IN, "botanyType", "java.lang.Integer", "Float");
-          return this;
-      }
-
-      public CatalogueSampleCriteria andBotanyTypeNotIn(List<java.lang.Integer> values) {
-          addCriterion("botany_type", values, ConditionMode.NOT_IN, "botanyType", "java.lang.Integer", "Float");
           return this;
       }
 }

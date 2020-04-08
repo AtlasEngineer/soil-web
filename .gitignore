@@ -55,3 +55,23 @@ build/
 
 src/main/webapp/upload/
 /log
+/src/main/java/com/atlas/server/model/AtBotany.java
+/src/main/java/com/atlas/server/model/AtBotanyType.java
+/src/main/java/com/atlas/server/model/sql/AtBotanyTypeCriteria.java
+/src/main/java/com/atlas/server/model/sql/AtBotanyCriteria.java
+/src/main/java/com/atlas/server/model/base/BaseAtBotany.java
+/src/main/java/com/atlas/server/model/base/BaseAtBotanyType.java
+/src/main/java/com/atlas/server/service/AtBotanyTypeService.java
+/src/main/java/com/atlas/server/service/AtBotanyService.java
+/src/main/java/com/atlas/server/service/impl/AtBotanyServiceMock.java
+/src/main/java/com/atlas/server/service/impl/AtBotanyTypeServiceImpl.java
+/src/main/java/com/atlas/server/service/impl/AtBotanyTypeServiceMock.java
+/src/main/java/com/atlas/server/service/impl/AtBotanyServiceImpl.java
+/src/main/java/com/atlas/server/service/impl/AtBotanyTypeServiceMock.java
+/src/main/java/com/atlas/server/service/impl/AtBotanyServiceImpl.java
+/src/main/java/com/atlas/server/service/impl/AtBotanyServiceMock.java
+/src/main/java/com/atlas/server/service/impl/AtBotanyTypeServiceImpl.java
+/src/main/java/com/atlas/server/web/tag/AtBotanyTypeDirective.java
+/src/main/java/com/atlas/server/web/tag/AtBotanyDirective.java
+/src/main/java/com/atlas/server/web/validator/AtBotanyValidator.java
+/src/main/java/com/atlas/server/web/validator/AtBotanyTypeValidator.java

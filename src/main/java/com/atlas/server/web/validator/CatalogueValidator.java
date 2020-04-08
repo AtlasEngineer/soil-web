@@ -16,15 +16,15 @@
 package com.atlas.server.web.validator;
 
 import com.jfinal.core.Controller;
+import com.lambkit.web.validator.LambkitValidator;
 
 import com.atlas.server.model.Catalogue;
-import com.lambkit.web.validator.LambkitValidator;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */

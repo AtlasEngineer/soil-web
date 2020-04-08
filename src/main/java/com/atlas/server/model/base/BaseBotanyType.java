@@ -23,15 +23,15 @@ import com.lambkit.common.model.LambkitModel;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public abstract class BaseAtBotany<M extends BaseAtBotany<M>> extends LambkitModel<M> implements IBean {
+public abstract class BaseBotanyType<M extends BaseBotanyType<M>> extends LambkitModel<M> implements IBean {
 
 	public String getTableName() {
-		return "at_botany";
+		return "at_botany_type";
 	}
     
 	public java.lang.Integer getId() {
@@ -41,25 +41,18 @@ public abstract class BaseAtBotany<M extends BaseAtBotany<M>> extends LambkitMod
 	public void setId(java.lang.Integer id) {
 		this.set("id", id);
 	}
+	public java.lang.String getType() {
+		return this.get("type");
+	}
+
+	public void setType(java.lang.String type) {
+		this.set("type", type);
+	}
 	public java.lang.Integer getDel() {
 		return this.get("del");
 	}
 
 	public void setDel(java.lang.Integer del) {
 		this.set("del", del);
-	}
-	public java.lang.Integer getCatalogueId() {
-		return this.get("catalogue_id");
-	}
-
-	public void setCatalogueId(java.lang.Integer catalogueId) {
-		this.set("catalogue_id", catalogueId);
-	}
-	public java.lang.Integer getSampleId() {
-		return this.get("sample_id");
-	}
-
-	public void setSampleId(java.lang.Integer sampleId) {
-		this.set("sample_id", sampleId);
 	}
 }

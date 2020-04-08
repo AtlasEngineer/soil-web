@@ -27,25 +27,25 @@ import java.util.List;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
-public class AtBotanyTypeCriteria extends Columns implements Serializable {
+public class BotanyTypeCriteria extends Columns implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	public static AtBotanyTypeCriteria create() {
-		return new AtBotanyTypeCriteria();
+	public static BotanyTypeCriteria create() {
+		return new BotanyTypeCriteria();
 	}
 	
-	public static AtBotanyTypeCriteria create(Column column) {
-		AtBotanyTypeCriteria that = new AtBotanyTypeCriteria();
+	public static BotanyTypeCriteria create(Column column) {
+		BotanyTypeCriteria that = new BotanyTypeCriteria();
 		that.add(column);
         return that;
     }
 
-    public static AtBotanyTypeCriteria create(String name, Object value) {
-        return (AtBotanyTypeCriteria) create().eq(name, value);
+    public static BotanyTypeCriteria create(String name, Object value) {
+        return (BotanyTypeCriteria) create().eq(name, value);
     }
     
     public Example example() {
@@ -59,7 +59,7 @@ public class AtBotanyTypeCriteria extends Columns implements Serializable {
      * @param value
      * @return
      */
-    public AtBotanyTypeCriteria eq(String name, Object value) {
+    public BotanyTypeCriteria eq(String name, Object value) {
     	super.eq(name, value);
         return this;
     }
@@ -71,7 +71,7 @@ public class AtBotanyTypeCriteria extends Columns implements Serializable {
      * @param value
      * @return
      */
-    public AtBotanyTypeCriteria ne(String name, Object value) {
+    public BotanyTypeCriteria ne(String name, Object value) {
     	super.ne(name, value);
         return this;
     }
@@ -85,12 +85,12 @@ public class AtBotanyTypeCriteria extends Columns implements Serializable {
      * @return
      */
 
-    public AtBotanyTypeCriteria like(String name, Object value) {
+    public BotanyTypeCriteria like(String name, Object value) {
     	super.like(name, value);
         return this;
     }
     
-    public AtBotanyTypeCriteria notLike(String name, Object value) {
+    public BotanyTypeCriteria notLike(String name, Object value) {
     	super.notLike(name, value);
         return this;
     }
@@ -102,7 +102,7 @@ public class AtBotanyTypeCriteria extends Columns implements Serializable {
      * @param value
      * @return
      */
-    public AtBotanyTypeCriteria gt(String name, Object value) {
+    public BotanyTypeCriteria gt(String name, Object value) {
     	super.gt(name, value);
         return this;
     }
@@ -114,7 +114,7 @@ public class AtBotanyTypeCriteria extends Columns implements Serializable {
      * @param value
      * @return
      */
-    public AtBotanyTypeCriteria ge(String name, Object value) {
+    public BotanyTypeCriteria ge(String name, Object value) {
     	super.ge(name, value);
         return this;
     }
@@ -126,7 +126,7 @@ public class AtBotanyTypeCriteria extends Columns implements Serializable {
      * @param value
      * @return
      */
-    public AtBotanyTypeCriteria lt(String name, Object value) {
+    public BotanyTypeCriteria lt(String name, Object value) {
     	super.lt(name, value);
         return this;
     }
@@ -138,32 +138,32 @@ public class AtBotanyTypeCriteria extends Columns implements Serializable {
      * @param value
      * @return
      */
-    public AtBotanyTypeCriteria le(String name, Object value) {
+    public BotanyTypeCriteria le(String name, Object value) {
     	super.le(name, value);
         return this;
     }
     
-    public AtBotanyTypeCriteria isnull(String name) {
+    public BotanyTypeCriteria isnull(String name) {
     	super.isnull(name);
         return this;
     } 
 
-    public AtBotanyTypeCriteria notNull(String name) {
+    public BotanyTypeCriteria notNull(String name) {
     	super.notNull(name);
         return this;
     } 
     
-    public AtBotanyTypeCriteria empty(String name) {
+    public BotanyTypeCriteria empty(String name) {
     	super.empty(name);
         return this;
     } 
     
-    public AtBotanyTypeCriteria notEmpty(String name) {
+    public BotanyTypeCriteria notEmpty(String name) {
     	super.notEmpty(name);
         return this;
     } 
     
-    public AtBotanyTypeCriteria add(Column column) {
+    public BotanyTypeCriteria add(Column column) {
     	super.add(column);
     	return this;
     }
@@ -184,216 +184,216 @@ public class AtBotanyTypeCriteria extends Columns implements Serializable {
 		 add(Column.create(name, value1, value2, logic, typeHandler, valueType));
 	}
 		 
-	public AtBotanyTypeCriteria andIdIsNull() {
+	public BotanyTypeCriteria andIdIsNull() {
 		isnull("id");
 		return this;
 	}
 	
-	public AtBotanyTypeCriteria andIdIsNotNull() {
+	public BotanyTypeCriteria andIdIsNotNull() {
 		notNull("id");
 		return this;
 	}
 	
-	public AtBotanyTypeCriteria andIdIsEmpty() {
+	public BotanyTypeCriteria andIdIsEmpty() {
 		empty("id");
 		return this;
 	}
 
-	public AtBotanyTypeCriteria andIdIsNotEmpty() {
+	public BotanyTypeCriteria andIdIsNotEmpty() {
 		notEmpty("id");
 		return this;
 	}
-       public AtBotanyTypeCriteria andIdEqualTo(java.lang.Integer value) {
+       public BotanyTypeCriteria andIdEqualTo(java.lang.Integer value) {
           addCriterion("id", value, ConditionMode.EQUAL, "id", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andIdNotEqualTo(java.lang.Integer value) {
+      public BotanyTypeCriteria andIdNotEqualTo(java.lang.Integer value) {
           addCriterion("id", value, ConditionMode.NOT_EQUAL, "id", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andIdGreaterThan(java.lang.Integer value) {
+      public BotanyTypeCriteria andIdGreaterThan(java.lang.Integer value) {
           addCriterion("id", value, ConditionMode.GREATER_THEN, "id", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andIdGreaterThanOrEqualTo(java.lang.Integer value) {
+      public BotanyTypeCriteria andIdGreaterThanOrEqualTo(java.lang.Integer value) {
           addCriterion("id", value, ConditionMode.GREATER_EQUAL, "id", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andIdLessThan(java.lang.Integer value) {
+      public BotanyTypeCriteria andIdLessThan(java.lang.Integer value) {
           addCriterion("id", value, ConditionMode.LESS_THEN, "id", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andIdLessThanOrEqualTo(java.lang.Integer value) {
+      public BotanyTypeCriteria andIdLessThanOrEqualTo(java.lang.Integer value) {
           addCriterion("id", value, ConditionMode.LESS_EQUAL, "id", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andIdBetween(java.lang.Integer value1, java.lang.Integer value2) {
+      public BotanyTypeCriteria andIdBetween(java.lang.Integer value1, java.lang.Integer value2) {
     	  addCriterion("id", value1, value2, ConditionMode.BETWEEN, "id", "java.lang.Integer", "Float");
     	  return this;
       }
 
-      public AtBotanyTypeCriteria andIdNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
+      public BotanyTypeCriteria andIdNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
           addCriterion("id", value1, value2, ConditionMode.NOT_BETWEEN, "id", "java.lang.Integer", "Float");
           return this;
       }
         
-      public AtBotanyTypeCriteria andIdIn(List<java.lang.Integer> values) {
+      public BotanyTypeCriteria andIdIn(List<java.lang.Integer> values) {
           addCriterion("id", values, ConditionMode.IN, "id", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andIdNotIn(List<java.lang.Integer> values) {
+      public BotanyTypeCriteria andIdNotIn(List<java.lang.Integer> values) {
           addCriterion("id", values, ConditionMode.NOT_IN, "id", "java.lang.Integer", "Float");
           return this;
       }
-	public AtBotanyTypeCriteria andTypeIsNull() {
+	public BotanyTypeCriteria andTypeIsNull() {
 		isnull("type");
 		return this;
 	}
 	
-	public AtBotanyTypeCriteria andTypeIsNotNull() {
+	public BotanyTypeCriteria andTypeIsNotNull() {
 		notNull("type");
 		return this;
 	}
 	
-	public AtBotanyTypeCriteria andTypeIsEmpty() {
+	public BotanyTypeCriteria andTypeIsEmpty() {
 		empty("type");
 		return this;
 	}
 
-	public AtBotanyTypeCriteria andTypeIsNotEmpty() {
+	public BotanyTypeCriteria andTypeIsNotEmpty() {
 		notEmpty("type");
 		return this;
 	}
-        public AtBotanyTypeCriteria andTypeLike(java.lang.String value) {
+        public BotanyTypeCriteria andTypeLike(java.lang.String value) {
     	   addCriterion("type", value, ConditionMode.FUZZY, "type", "java.lang.String", "Float");
     	   return this;
       }
 
-      public AtBotanyTypeCriteria andTypeNotLike(java.lang.String value) {
+      public BotanyTypeCriteria andTypeNotLike(java.lang.String value) {
           addCriterion("type", value, ConditionMode.NOT_FUZZY, "type", "java.lang.String", "Float");
           return this;
       }
-      public AtBotanyTypeCriteria andTypeEqualTo(java.lang.String value) {
+      public BotanyTypeCriteria andTypeEqualTo(java.lang.String value) {
           addCriterion("type", value, ConditionMode.EQUAL, "type", "java.lang.String", "String");
           return this;
       }
 
-      public AtBotanyTypeCriteria andTypeNotEqualTo(java.lang.String value) {
+      public BotanyTypeCriteria andTypeNotEqualTo(java.lang.String value) {
           addCriterion("type", value, ConditionMode.NOT_EQUAL, "type", "java.lang.String", "String");
           return this;
       }
 
-      public AtBotanyTypeCriteria andTypeGreaterThan(java.lang.String value) {
+      public BotanyTypeCriteria andTypeGreaterThan(java.lang.String value) {
           addCriterion("type", value, ConditionMode.GREATER_THEN, "type", "java.lang.String", "String");
           return this;
       }
 
-      public AtBotanyTypeCriteria andTypeGreaterThanOrEqualTo(java.lang.String value) {
+      public BotanyTypeCriteria andTypeGreaterThanOrEqualTo(java.lang.String value) {
           addCriterion("type", value, ConditionMode.GREATER_EQUAL, "type", "java.lang.String", "String");
           return this;
       }
 
-      public AtBotanyTypeCriteria andTypeLessThan(java.lang.String value) {
+      public BotanyTypeCriteria andTypeLessThan(java.lang.String value) {
           addCriterion("type", value, ConditionMode.LESS_THEN, "type", "java.lang.String", "String");
           return this;
       }
 
-      public AtBotanyTypeCriteria andTypeLessThanOrEqualTo(java.lang.String value) {
+      public BotanyTypeCriteria andTypeLessThanOrEqualTo(java.lang.String value) {
           addCriterion("type", value, ConditionMode.LESS_EQUAL, "type", "java.lang.String", "String");
           return this;
       }
 
-      public AtBotanyTypeCriteria andTypeBetween(java.lang.String value1, java.lang.String value2) {
+      public BotanyTypeCriteria andTypeBetween(java.lang.String value1, java.lang.String value2) {
     	  addCriterion("type", value1, value2, ConditionMode.BETWEEN, "type", "java.lang.String", "String");
     	  return this;
       }
 
-      public AtBotanyTypeCriteria andTypeNotBetween(java.lang.String value1, java.lang.String value2) {
+      public BotanyTypeCriteria andTypeNotBetween(java.lang.String value1, java.lang.String value2) {
           addCriterion("type", value1, value2, ConditionMode.NOT_BETWEEN, "type", "java.lang.String", "String");
           return this;
       }
         
-      public AtBotanyTypeCriteria andTypeIn(List<java.lang.String> values) {
+      public BotanyTypeCriteria andTypeIn(List<java.lang.String> values) {
           addCriterion("type", values, ConditionMode.IN, "type", "java.lang.String", "String");
           return this;
       }
 
-      public AtBotanyTypeCriteria andTypeNotIn(List<java.lang.String> values) {
+      public BotanyTypeCriteria andTypeNotIn(List<java.lang.String> values) {
           addCriterion("type", values, ConditionMode.NOT_IN, "type", "java.lang.String", "String");
           return this;
       }
-	public AtBotanyTypeCriteria andDelIsNull() {
+	public BotanyTypeCriteria andDelIsNull() {
 		isnull("del");
 		return this;
 	}
 	
-	public AtBotanyTypeCriteria andDelIsNotNull() {
+	public BotanyTypeCriteria andDelIsNotNull() {
 		notNull("del");
 		return this;
 	}
 	
-	public AtBotanyTypeCriteria andDelIsEmpty() {
+	public BotanyTypeCriteria andDelIsEmpty() {
 		empty("del");
 		return this;
 	}
 
-	public AtBotanyTypeCriteria andDelIsNotEmpty() {
+	public BotanyTypeCriteria andDelIsNotEmpty() {
 		notEmpty("del");
 		return this;
 	}
-       public AtBotanyTypeCriteria andDelEqualTo(java.lang.Integer value) {
+       public BotanyTypeCriteria andDelEqualTo(java.lang.Integer value) {
           addCriterion("del", value, ConditionMode.EQUAL, "del", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andDelNotEqualTo(java.lang.Integer value) {
+      public BotanyTypeCriteria andDelNotEqualTo(java.lang.Integer value) {
           addCriterion("del", value, ConditionMode.NOT_EQUAL, "del", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andDelGreaterThan(java.lang.Integer value) {
+      public BotanyTypeCriteria andDelGreaterThan(java.lang.Integer value) {
           addCriterion("del", value, ConditionMode.GREATER_THEN, "del", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andDelGreaterThanOrEqualTo(java.lang.Integer value) {
+      public BotanyTypeCriteria andDelGreaterThanOrEqualTo(java.lang.Integer value) {
           addCriterion("del", value, ConditionMode.GREATER_EQUAL, "del", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andDelLessThan(java.lang.Integer value) {
+      public BotanyTypeCriteria andDelLessThan(java.lang.Integer value) {
           addCriterion("del", value, ConditionMode.LESS_THEN, "del", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andDelLessThanOrEqualTo(java.lang.Integer value) {
+      public BotanyTypeCriteria andDelLessThanOrEqualTo(java.lang.Integer value) {
           addCriterion("del", value, ConditionMode.LESS_EQUAL, "del", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andDelBetween(java.lang.Integer value1, java.lang.Integer value2) {
+      public BotanyTypeCriteria andDelBetween(java.lang.Integer value1, java.lang.Integer value2) {
     	  addCriterion("del", value1, value2, ConditionMode.BETWEEN, "del", "java.lang.Integer", "Float");
     	  return this;
       }
 
-      public AtBotanyTypeCriteria andDelNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
+      public BotanyTypeCriteria andDelNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
           addCriterion("del", value1, value2, ConditionMode.NOT_BETWEEN, "del", "java.lang.Integer", "Float");
           return this;
       }
         
-      public AtBotanyTypeCriteria andDelIn(List<java.lang.Integer> values) {
+      public BotanyTypeCriteria andDelIn(List<java.lang.Integer> values) {
           addCriterion("del", values, ConditionMode.IN, "del", "java.lang.Integer", "Float");
           return this;
       }
 
-      public AtBotanyTypeCriteria andDelNotIn(List<java.lang.Integer> values) {
+      public BotanyTypeCriteria andDelNotIn(List<java.lang.Integer> values) {
           addCriterion("del", values, ConditionMode.NOT_IN, "del", "java.lang.Integer", "Float");
           return this;
       }

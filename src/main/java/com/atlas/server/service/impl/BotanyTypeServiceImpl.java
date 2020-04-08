@@ -15,18 +15,28 @@
  */
 package com.atlas.server.service.impl;
 
-import com.lambkit.common.service.BaseServiceMock;
+import com.lambkit.common.service.LambkitModelServiceImpl;
+import com.lambkit.core.aop.AopKit;
 
-import com.atlas.server.model.AtBotanyType;
-import com.atlas.server.service.AtBotanyTypeService;
+import com.atlas.server.service.BotanyTypeService;
+import com.atlas.server.model.BotanyType;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
-public class AtBotanyTypeServiceMock extends BaseServiceMock<AtBotanyType> implements AtBotanyTypeService {
+public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> implements BotanyTypeService {
+	
+	private BotanyType DAO = null;
+	
+	public BotanyType dao() {
+		if(DAO==null) {
+			DAO = AopKit.singleton(BotanyType.class);
+		}
+		return DAO;
+	}
 }

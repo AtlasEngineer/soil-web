@@ -24,32 +24,32 @@ import com.lambkit.db.datasource.ActiveRecordPluginWrapper;
 import com.lambkit.module.LambkitModule;
 
 import com.atlas.server.MschConfig;
-import com.atlas.server.model.AtBotany;
-import com.atlas.server.model.AtBotanyType;
+import com.atlas.server.model.BotanyType;
 import com.atlas.server.model.Catalogue;
+import com.atlas.server.model.CatalogueKeep;
 import com.atlas.server.model.CatalogueSample;
-import com.atlas.server.service.AtBotanyService;
-import com.atlas.server.service.AtBotanyTypeService;
+import com.atlas.server.service.BotanyTypeService;
 import com.atlas.server.service.CatalogueService;
+import com.atlas.server.service.CatalogueKeepService;
 import com.atlas.server.service.CatalogueSampleService;
-import com.atlas.server.service.impl.AtBotanyServiceImpl;
-import com.atlas.server.service.impl.AtBotanyServiceMock;
-import com.atlas.server.service.impl.AtBotanyTypeServiceImpl;
-import com.atlas.server.service.impl.AtBotanyTypeServiceMock;
+import com.atlas.server.service.impl.BotanyTypeServiceImpl;
+import com.atlas.server.service.impl.BotanyTypeServiceMock;
 import com.atlas.server.service.impl.CatalogueServiceImpl;
 import com.atlas.server.service.impl.CatalogueServiceMock;
+import com.atlas.server.service.impl.CatalogueKeepServiceImpl;
+import com.atlas.server.service.impl.CatalogueKeepServiceMock;
 import com.atlas.server.service.impl.CatalogueSampleServiceImpl;
 import com.atlas.server.service.impl.CatalogueSampleServiceMock;
-import com.atlas.server.web.tag.AtBotanyDirective;
-import com.atlas.server.web.tag.AtBotanyTypeDirective;
-import com.atlas.server.web.tag.CatalogueDirective;
-import com.atlas.server.web.tag.CatalogueSampleDirective;
+import com.atlas.server.web.tag.BotanyTypeMarker;
+import com.atlas.server.web.tag.CatalogueMarker;
+import com.atlas.server.web.tag.CatalogueKeepMarker;
+import com.atlas.server.web.tag.CatalogueSampleMarker;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
@@ -61,7 +61,7 @@ public class MschModule extends LambkitModule  {
 			mapping(arp);
 		}
 	}
-	
+
 	@Override
 	public void configMapping(String name, ActiveRecordPluginWrapper arp) {
 		super.configMapping(name, arp);
@@ -69,7 +69,7 @@ public class MschModule extends LambkitModule  {
 			mapping(arp);
 		}
 	}
-	
+
 	@Override
 	public void configRoute(Routes me) {
 		// TODO Auto-generated method stub
@@ -79,49 +79,49 @@ public class MschModule extends LambkitModule  {
 	public void onStart() {
 		// TODO Auto-generated method stub
 		addTag(this);
-		if("server".equals(getConfig().getDbconfig())) {
+		if("server".equals(getConfig().getServerType())) {
 			registerLocalService();
-		} else if("client".equals(getConfig().getDbconfig())) {
+		} else if("client".equals(getConfig().getServerType())) {
 			registerRemoteService();
-		} 
+		}
 	}
-	
+
 	public void mapping(ActiveRecordPluginWrapper arp) {
-		arp.addMapping("at_botany", "id", AtBotany.class);
-		arp.addMapping("at_botany_type", "id", AtBotanyType.class);
+		arp.addMapping("at_botany_type", "id", BotanyType.class);
 		arp.addMapping("catalogue", "c_id", Catalogue.class);
+		arp.addMapping("catalogue_keep", "id", CatalogueKeep.class);
 		arp.addMapping("catalogue_sample", "id", CatalogueSample.class);
 	}
-	
+
 	public void addTag(LambkitModule lk) {
-		lk.addTag("atBotany", new AtBotanyDirective());
-		lk.addTag("atBotanyType", new AtBotanyTypeDirective());
-		lk.addTag("catalogue", new CatalogueDirective());
-		lk.addTag("catalogueSample", new CatalogueSampleDirective());
+		lk.addTag("botanyType", new BotanyTypeMarker());
+		lk.addTag("catalogue", new CatalogueMarker());
+		lk.addTag("catalogueKeep", new CatalogueKeepMarker());
+		lk.addTag("catalogueSample", new CatalogueSampleMarker());
 	}
-			
+
 	public void registerLocalService() {
 		registerLocalService(getRpcGroup(), getRpcVersion(), getRpcPort());
 	}
-	
+
 	public void registerLocalService(String group, String version, int port) {
-		ServiceManager.me().mapping(AtBotanyService.class, AtBotanyServiceImpl.class, AtBotanyServiceMock.class, group, version, port);
-		ServiceManager.me().mapping(AtBotanyTypeService.class, AtBotanyTypeServiceImpl.class, AtBotanyTypeServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(BotanyTypeService.class, BotanyTypeServiceImpl.class, BotanyTypeServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(CatalogueService.class, CatalogueServiceImpl.class, CatalogueServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(CatalogueKeepService.class, CatalogueKeepServiceImpl.class, CatalogueKeepServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(CatalogueSampleService.class, CatalogueSampleServiceImpl.class, CatalogueSampleServiceMock.class, group, version, port);
 	}
-	
+
 	public void registerRemoteService() {
 		registerRemoteService(getRpcGroup(), getRpcVersion(), getRpcPort());
 	}
-	
+
 	public void registerRemoteService(String group, String version, int port) {
-		ServiceManager.me().remote(AtBotanyService.class, AtBotanyServiceMock.class, group, version, port);
-		ServiceManager.me().remote(AtBotanyTypeService.class, AtBotanyTypeServiceMock.class, group, version, port);
+		ServiceManager.me().remote(BotanyTypeService.class, BotanyTypeServiceMock.class, group, version, port);
 		ServiceManager.me().remote(CatalogueService.class, CatalogueServiceMock.class, group, version, port);
+		ServiceManager.me().remote(CatalogueKeepService.class, CatalogueKeepServiceMock.class, group, version, port);
 		ServiceManager.me().remote(CatalogueSampleService.class, CatalogueSampleServiceMock.class, group, version, port);
 	}
-	
+
 	public int getRpcPort() {
 		return Lambkit.config(RpcConfig.class).getDefaultPort();
 	}

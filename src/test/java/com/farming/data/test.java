@@ -1,6 +1,7 @@
 package com.farming.data;
 
 import java.io.*;
+import java.util.UUID;
 
 public class test {
 
@@ -14,7 +15,12 @@ public class test {
 //        System.out.println(tof);
 
 
-
+        for (int i = 0; i < 5; i++) {
+            //注意replaceAll前面的是正则表达式
+            String uuid = UUID.randomUUID().toString().replaceAll("-","");
+            System.out.println(uuid);
+//            System.out.println(uuid.length());
+        }
 
 
 

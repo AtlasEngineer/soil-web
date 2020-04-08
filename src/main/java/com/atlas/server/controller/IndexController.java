@@ -16,6 +16,7 @@ import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
+import com.jfinal.plugin.activerecord.SqlPara;
 import com.jfinal.upload.UploadFile;
 import com.lambkit.Lambkit;
 import com.lambkit.common.util.DateTimeUtils;
@@ -103,7 +104,7 @@ public class IndexController extends LambkitController {
 
 
     public void list() {
-        List<Record> list = Db.find("select * from at_botany_type ");
+        List<Record> list = Db.find("select * from at_botany_type");
         renderJson(Co.ok("data", list));
     }
 
@@ -304,7 +305,8 @@ public class IndexController extends LambkitController {
         renderJson(Co.ok("msg", "导入完成").set("map", map));
     }
     public void search(){
-        List<AtBotany> records=AtBotany.service().dao().findAll();
+
+        List<Sign> records=Sign.service().dao().findAll();
         renderJson(Co.ok("data",records));
     }
 

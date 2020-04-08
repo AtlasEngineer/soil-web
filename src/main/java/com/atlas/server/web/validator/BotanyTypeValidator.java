@@ -16,27 +16,27 @@
 package com.atlas.server.web.validator;
 
 import com.jfinal.core.Controller;
-
-import com.atlas.server.model.AtBotanyType;
 import com.lambkit.web.validator.LambkitValidator;
+
+import com.atlas.server.model.BotanyType;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
-public class AtBotanyTypeValidator extends LambkitValidator {
+public class BotanyTypeValidator extends LambkitValidator {
 
 	@Override
 	protected String getTableName(Controller c) {
-		return AtBotanyType.service().getTableName();
+		return BotanyType.service().getTableName();
 	}
 	
 	@Override
 	protected String getPrefix() {
-		return "model";//StrKit.firstCharToLowerCase(AtBotanyType.class.getSimpleName());
+		return "model";//StrKit.firstCharToLowerCase(BotanyType.class.getSimpleName());
 	}
 }

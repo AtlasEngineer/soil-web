@@ -27,7 +27,7 @@ import java.util.List;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
@@ -925,6 +925,237 @@ public class CatalogueCriteria extends Columns implements Serializable {
 
       public CatalogueCriteria andBotanyTypeNotIn(List<java.lang.Integer> values) {
           addCriterion("botany_type", values, ConditionMode.NOT_IN, "botanyType", "java.lang.Integer", "Float");
+          return this;
+      }
+	public CatalogueCriteria andImageIsNull() {
+		isnull("image");
+		return this;
+	}
+	
+	public CatalogueCriteria andImageIsNotNull() {
+		notNull("image");
+		return this;
+	}
+	
+	public CatalogueCriteria andImageIsEmpty() {
+		empty("image");
+		return this;
+	}
+
+	public CatalogueCriteria andImageIsNotEmpty() {
+		notEmpty("image");
+		return this;
+	}
+        public CatalogueCriteria andImageLike(java.lang.String value) {
+    	   addCriterion("image", value, ConditionMode.FUZZY, "image", "java.lang.String", "Float");
+    	   return this;
+      }
+
+      public CatalogueCriteria andImageNotLike(java.lang.String value) {
+          addCriterion("image", value, ConditionMode.NOT_FUZZY, "image", "java.lang.String", "Float");
+          return this;
+      }
+      public CatalogueCriteria andImageEqualTo(java.lang.String value) {
+          addCriterion("image", value, ConditionMode.EQUAL, "image", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andImageNotEqualTo(java.lang.String value) {
+          addCriterion("image", value, ConditionMode.NOT_EQUAL, "image", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andImageGreaterThan(java.lang.String value) {
+          addCriterion("image", value, ConditionMode.GREATER_THEN, "image", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andImageGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("image", value, ConditionMode.GREATER_EQUAL, "image", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andImageLessThan(java.lang.String value) {
+          addCriterion("image", value, ConditionMode.LESS_THEN, "image", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andImageLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("image", value, ConditionMode.LESS_EQUAL, "image", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andImageBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("image", value1, value2, ConditionMode.BETWEEN, "image", "java.lang.String", "String");
+    	  return this;
+      }
+
+      public CatalogueCriteria andImageNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("image", value1, value2, ConditionMode.NOT_BETWEEN, "image", "java.lang.String", "String");
+          return this;
+      }
+        
+      public CatalogueCriteria andImageIn(List<java.lang.String> values) {
+          addCriterion("image", values, ConditionMode.IN, "image", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andImageNotIn(List<java.lang.String> values) {
+          addCriterion("image", values, ConditionMode.NOT_IN, "image", "java.lang.String", "String");
+          return this;
+      }
+	public CatalogueCriteria andAddressIsNull() {
+		isnull("address");
+		return this;
+	}
+	
+	public CatalogueCriteria andAddressIsNotNull() {
+		notNull("address");
+		return this;
+	}
+	
+	public CatalogueCriteria andAddressIsEmpty() {
+		empty("address");
+		return this;
+	}
+
+	public CatalogueCriteria andAddressIsNotEmpty() {
+		notEmpty("address");
+		return this;
+	}
+        public CatalogueCriteria andAddressLike(java.lang.String value) {
+    	   addCriterion("address", value, ConditionMode.FUZZY, "address", "java.lang.String", "String");
+    	   return this;
+      }
+
+      public CatalogueCriteria andAddressNotLike(java.lang.String value) {
+          addCriterion("address", value, ConditionMode.NOT_FUZZY, "address", "java.lang.String", "String");
+          return this;
+      }
+      public CatalogueCriteria andAddressEqualTo(java.lang.String value) {
+          addCriterion("address", value, ConditionMode.EQUAL, "address", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andAddressNotEqualTo(java.lang.String value) {
+          addCriterion("address", value, ConditionMode.NOT_EQUAL, "address", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andAddressGreaterThan(java.lang.String value) {
+          addCriterion("address", value, ConditionMode.GREATER_THEN, "address", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andAddressGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("address", value, ConditionMode.GREATER_EQUAL, "address", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andAddressLessThan(java.lang.String value) {
+          addCriterion("address", value, ConditionMode.LESS_THEN, "address", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andAddressLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("address", value, ConditionMode.LESS_EQUAL, "address", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andAddressBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("address", value1, value2, ConditionMode.BETWEEN, "address", "java.lang.String", "String");
+    	  return this;
+      }
+
+      public CatalogueCriteria andAddressNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("address", value1, value2, ConditionMode.NOT_BETWEEN, "address", "java.lang.String", "String");
+          return this;
+      }
+        
+      public CatalogueCriteria andAddressIn(List<java.lang.String> values) {
+          addCriterion("address", values, ConditionMode.IN, "address", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andAddressNotIn(List<java.lang.String> values) {
+          addCriterion("address", values, ConditionMode.NOT_IN, "address", "java.lang.String", "String");
+          return this;
+      }
+	public CatalogueCriteria andValueIsNull() {
+		isnull("value");
+		return this;
+	}
+	
+	public CatalogueCriteria andValueIsNotNull() {
+		notNull("value");
+		return this;
+	}
+	
+	public CatalogueCriteria andValueIsEmpty() {
+		empty("value");
+		return this;
+	}
+
+	public CatalogueCriteria andValueIsNotEmpty() {
+		notEmpty("value");
+		return this;
+	}
+        public CatalogueCriteria andValueLike(java.lang.String value) {
+    	   addCriterion("value", value, ConditionMode.FUZZY, "value", "java.lang.String", "String");
+    	   return this;
+      }
+
+      public CatalogueCriteria andValueNotLike(java.lang.String value) {
+          addCriterion("value", value, ConditionMode.NOT_FUZZY, "value", "java.lang.String", "String");
+          return this;
+      }
+      public CatalogueCriteria andValueEqualTo(java.lang.String value) {
+          addCriterion("value", value, ConditionMode.EQUAL, "value", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andValueNotEqualTo(java.lang.String value) {
+          addCriterion("value", value, ConditionMode.NOT_EQUAL, "value", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andValueGreaterThan(java.lang.String value) {
+          addCriterion("value", value, ConditionMode.GREATER_THEN, "value", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andValueGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("value", value, ConditionMode.GREATER_EQUAL, "value", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andValueLessThan(java.lang.String value) {
+          addCriterion("value", value, ConditionMode.LESS_THEN, "value", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andValueLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("value", value, ConditionMode.LESS_EQUAL, "value", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andValueBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("value", value1, value2, ConditionMode.BETWEEN, "value", "java.lang.String", "String");
+    	  return this;
+      }
+
+      public CatalogueCriteria andValueNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("value", value1, value2, ConditionMode.NOT_BETWEEN, "value", "java.lang.String", "String");
+          return this;
+      }
+        
+      public CatalogueCriteria andValueIn(List<java.lang.String> values) {
+          addCriterion("value", values, ConditionMode.IN, "value", "java.lang.String", "String");
+          return this;
+      }
+
+      public CatalogueCriteria andValueNotIn(List<java.lang.String> values) {
+          addCriterion("value", values, ConditionMode.NOT_IN, "value", "java.lang.String", "String");
           return this;
       }
 }

@@ -20,38 +20,38 @@ import com.lambkit.Lambkit;
 import com.lambkit.common.service.ServiceKit;
 import com.lambkit.db.sql.column.Column;
 import com.atlas.server.MschConfig;
-import com.atlas.server.model.base.BaseAtBotanyType;
-import com.atlas.server.model.sql.AtBotanyTypeCriteria;
-import com.atlas.server.service.AtBotanyTypeService;
-import com.atlas.server.service.impl.AtBotanyTypeServiceImpl;
+import com.atlas.server.model.base.BaseCatalogueKeep;
+import com.atlas.server.model.sql.CatalogueKeepCriteria;
+import com.atlas.server.service.CatalogueKeepService;
+import com.atlas.server.service.impl.CatalogueKeepServiceImpl;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
-public class AtBotanyType extends BaseAtBotanyType<AtBotanyType> {
+public class CatalogueKeep extends BaseCatalogueKeep<CatalogueKeep> {
 
 	private static final long serialVersionUID = 1L;
 	
-	public static AtBotanyTypeService service() {
-		return ServiceKit.inject(AtBotanyTypeService.class, AtBotanyTypeServiceImpl.class);
+	public static CatalogueKeepService service() {
+		return ServiceKit.inject(CatalogueKeepService.class, CatalogueKeepServiceImpl.class);
 	}
 	
-	public static AtBotanyTypeCriteria sql() {
-		return new AtBotanyTypeCriteria();
+	public static CatalogueKeepCriteria sql() {
+		return new CatalogueKeepCriteria();
 	}
 	
-	public static AtBotanyTypeCriteria sql(Column column) {
-		AtBotanyTypeCriteria that = new AtBotanyTypeCriteria();
+	public static CatalogueKeepCriteria sql(Column column) {
+		CatalogueKeepCriteria that = new CatalogueKeepCriteria();
 		that.add(column);
         return that;
     }
 
-	public AtBotanyType() {
+	public CatalogueKeep() {
 		MschConfig config = Lambkit.config(MschConfig.class);
 		String dbconfig = config.getDbconfig();
 		if(StrKit.notBlank(dbconfig)) {

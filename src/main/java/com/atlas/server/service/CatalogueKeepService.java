@@ -13,30 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atlas.server.service.impl;
+package com.atlas.server.service;
 
-import com.lambkit.common.service.LambkitModelServiceImpl;
-import com.lambkit.core.aop.AopKit;
+import com.lambkit.common.service.LambkitService;
 
-import com.atlas.server.service.AtBotanyTypeService;
-import com.atlas.server.model.AtBotanyType;
+import com.atlas.server.model.CatalogueKeep;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
-public class AtBotanyTypeServiceImpl extends LambkitModelServiceImpl<AtBotanyType> implements AtBotanyTypeService {
-	
-	private AtBotanyType DAO = null;
-	
-	public AtBotanyType dao() {
-		if(DAO==null) {
-			DAO = AopKit.singleton(AtBotanyType.class);
-		}
-		return DAO;
-	}
+public interface CatalogueKeepService extends LambkitService<CatalogueKeep> {
 }

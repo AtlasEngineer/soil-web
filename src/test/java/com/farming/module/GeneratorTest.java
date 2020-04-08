@@ -16,7 +16,7 @@ public class GeneratorTest {
     public static void main(String[] args) {
             GeneratorConfig config = new GeneratorConfig();
             //生成java代码的存放地址
-            config.setOutRootDir("D:/Atlas_ainong");
+            config.setOutRootDir("F:/atlas/Atlas_ainong/src/main/java");
             //生成java代码的包地址
             config.setBasepackage("com.atlas.server");
             //生成前端文件文件夹
@@ -33,7 +33,7 @@ public class GeneratorTest {
             //需要去掉的前缀
             options.put("tableRemovePrefixes", "at_");
             //仅包含如下表格
-            options.put("includedTables", "at_integral,,at_sign,catalogue,catalogue_keep,catalogue_sample,at_botany_type");
+            options.put("includedTables", "catalogue,catalogue_keep,catalogue_sample,at_botany_type");
             options.put("hasMgrTable", true);
             Msch.generator(templatePath, options, config);
             System.exit(0);

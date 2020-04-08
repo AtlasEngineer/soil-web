@@ -28,17 +28,17 @@ import com.lambkit.common.model.LambkitModel;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public abstract class BaseCatalogueSample<M extends BaseCatalogueSample<M>> extends LambkitModel<M> implements IBean {
+public abstract class BaseCatalogueKeep<M extends BaseCatalogueKeep<M>> extends LambkitModel<M> implements IBean {
 
 	public String getTableName() {
-		return "catalogue_sample";
+		return "catalogue_keep";
 	}
     
-	public java.lang.String getId() {
+	public java.lang.Long getId() {
 		return this.get("id");
 	}
 
-	public void setId(java.lang.String id) {
+	public void setId(java.lang.Long id) {
 		this.set("id", id);
 	}
 	public java.lang.String getName() {
@@ -48,26 +48,19 @@ public abstract class BaseCatalogueSample<M extends BaseCatalogueSample<M>> exte
 	public void setName(java.lang.String name) {
 		this.set("name", name);
 	}
-	public java.lang.String getBrief() {
-		return this.get("brief");
-	}
-
-	public void setBrief(java.lang.String brief) {
-		this.set("brief", brief);
-	}
-	public java.lang.String getCatalogueId() {
-		return this.get("catalogue_id");
-	}
-
-	public void setCatalogueId(java.lang.String catalogueId) {
-		this.set("catalogue_id", catalogueId);
-	}
 	public java.lang.String getUrl() {
 		return this.get("url");
 	}
 
 	public void setUrl(java.lang.String url) {
 		this.set("url", url);
+	}
+	public java.lang.Integer getUserId() {
+		return this.get("user_id");
+	}
+
+	public void setUserId(java.lang.Integer userId) {
+		this.set("user_id", userId);
 	}
 	public java.lang.Integer getDel() {
 		return this.get("del");
@@ -76,26 +69,12 @@ public abstract class BaseCatalogueSample<M extends BaseCatalogueSample<M>> exte
 	public void setDel(java.lang.Integer del) {
 		this.set("del", del);
 	}
-	public java.lang.String getContSign() {
-		return this.get("cont_sign");
+	public java.lang.String getCatalogueId() {
+		return this.get("catalogue_id");
 	}
 
-	public void setContSign(java.lang.String contSign) {
-		this.set("cont_sign", contSign);
-	}
-	public java.lang.String getLon() {
-		return this.get("lon");
-	}
-
-	public void setLon(java.lang.String lon) {
-		this.set("lon", lon);
-	}
-	public java.lang.String getLat() {
-		return this.get("lat");
-	}
-
-	public void setLat(java.lang.String lat) {
-		this.set("lat", lat);
+	public void setCatalogueId(java.lang.String catalogueId) {
+		this.set("catalogue_id", catalogueId);
 	}
 	public java.util.Date getTime() {
 		return this.get("time");
@@ -104,12 +83,12 @@ public abstract class BaseCatalogueSample<M extends BaseCatalogueSample<M>> exte
 	public void setTime(java.util.Date time) {
 		this.set("time", time);
 	}
-	public java.lang.Integer getType() {
-		return this.get("type");
+	public java.lang.Long getSampleId() {
+		return this.get("sample_id");
 	}
 
-	public void setType(java.lang.Integer type) {
-		this.set("type", type);
+	public void setSampleId(java.lang.Long sampleId) {
+		this.set("sample_id", sampleId);
 	}
 	public java.lang.Integer getStatus() {
 		return this.get("status");

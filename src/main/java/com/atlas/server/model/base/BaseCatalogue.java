@@ -23,7 +23,7 @@ import com.lambkit.common.model.LambkitModel;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
@@ -103,5 +103,26 @@ public abstract class BaseCatalogue<M extends BaseCatalogue<M>> extends LambkitM
 
 	public void setBotanyType(java.lang.Integer botanyType) {
 		this.set("botany_type", botanyType);
+	}
+	public java.lang.String getImage() {
+		return this.get("image");
+	}
+
+	public void setImage(java.lang.String image) {
+		this.set("image", image);
+	}
+	public java.lang.String getAddress() {
+		return this.get("address");
+	}
+
+	public void setAddress(java.lang.String address) {
+		this.set("address", address);
+	}
+	public java.lang.String getValue() {
+		return this.get("value");
+	}
+
+	public void setValue(java.lang.String value) {
+		this.set("value", value);
 	}
 }

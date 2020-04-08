@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd"
-         updateCheck="false" 
+         updateCheck="false"
          monitoring="autodetect"
          dynamicConfig="true">
-         
+
         <diskStore path="java.io.tmpdir"/>
-    
-    <!-- 
+
+    <!--
     默认缓存
     
     属性说明：
@@ -20,16 +20,16 @@
         diskExpiryThreadIntervalSeconds：磁盘超期监控线程扫描时间间隔
         overflowToDisk：内存不足时，是否启用磁盘缓存
     -->
-    <defaultCache 
-        maxElementsInMemory="10000" 
+    <defaultCache
+        maxElementsInMemory="10000"
         eternal="false"
-        timeToIdleSeconds="1200" 
+        timeToIdleSeconds="1200"
         maxElementsOnDisk="10000000"
-        diskExpiryThreadIntervalSeconds="120" 
+        diskExpiryThreadIntervalSeconds="120"
         memoryStoreEvictionPolicy="LRU"
         overflowToDisk="true">
     </defaultCache>
-            
+
     <cache name="jpress"
            maxEntriesLocalHeap="500"
            eternal="false"
@@ -40,7 +40,7 @@
            diskExpiryThreadIntervalSeconds="1"
            memoryStoreEvictionPolicy="LFU"
             />
-    
+
     <cache name="session"
 		  maxElementsInMemory="10000"
 		  maxElementsOnDisk="100000000"
@@ -50,7 +50,7 @@
 		  overflowToDisk="true"
 		  diskPersistent="true"
   		 />
-  		 
+
     <cache name="action"
 		  maxElementsInMemory="10000"
 		  maxElementsOnDisk="100000000"
@@ -78,7 +78,7 @@
 		  overflowToDisk="true"
 		  diskPersistent="true"
   		 />
-    
+
     <cache name="token"
 		  maxElementsInMemory="10000"
 		  maxElementsOnDisk="1000000000"
@@ -88,7 +88,7 @@
 		  overflowToDisk="true"
 		  diskPersistent="true"
   		 />
-    
+
     <cache name="option"
            maxEntriesLocalHeap="5000"
            eternal="true"
@@ -96,7 +96,7 @@
            diskPersistent="true"
            memoryStoreEvictionPolicy="FIFO"
             />
-    
+
      <cache name="content"
          maxEntriesLocalHeap="10000"
          maxEntriesLocalDisk="100000"
@@ -108,7 +108,7 @@
          memoryStoreEvictionPolicy="LFU"
          transactionalMode="off"
           />
-          
+
      <cache name="content_list"
          maxEntriesLocalHeap="10000"
          maxEntriesLocalDisk="100000"
@@ -120,7 +120,7 @@
          memoryStoreEvictionPolicy="LFU"
          transactionalMode="off"
           />
-     
+
      <cache name="metadata"
          maxEntriesLocalHeap="10000"
          maxEntriesLocalDisk="100000"
@@ -132,7 +132,7 @@
          memoryStoreEvictionPolicy="LFU"
          transactionalMode="off"
           />
-     
+
      <cache name="user"
          maxEntriesLocalHeap="10000"
          maxEntriesLocalDisk="100000"
@@ -144,7 +144,7 @@
          memoryStoreEvictionPolicy="LFU"
          transactionalMode="off"
           />
-          
+
      <cache name="taxonomy"
          maxEntriesLocalHeap="10000"
          maxEntriesLocalDisk="100000"
@@ -156,8 +156,8 @@
          memoryStoreEvictionPolicy="LFU"
          transactionalMode="off"
           />
-          
-          
+
+
     <cache name="taxonomy_list"
          maxEntriesLocalHeap="10000"
          maxEntriesLocalDisk="100000"
@@ -169,7 +169,7 @@
          memoryStoreEvictionPolicy="LFU"
          transactionalMode="off"
           />
-          
+
      <cache name="comment"
          maxEntriesLocalHeap="10000"
          maxEntriesLocalDisk="100000"
@@ -181,7 +181,7 @@
          memoryStoreEvictionPolicy="LFU"
          transactionalMode="off"
           />
-          
+
      <cache name="mapping"
          maxEntriesLocalHeap="10000"
          maxEntriesLocalDisk="100000"
@@ -193,7 +193,7 @@
          memoryStoreEvictionPolicy="LFU"
          transactionalMode="off"
           />
-          
+
      <cache name="attachment"
          maxEntriesLocalHeap="10000"
          maxEntriesLocalDisk="100000"
@@ -205,7 +205,7 @@
          memoryStoreEvictionPolicy="LFU"
          transactionalMode="off"
           />
-          
+
    <cache name="wechat_dkf"
         maxEntriesLocalHeap="10000"
         eternal="false"
@@ -215,7 +215,7 @@
         memoryStoreEvictionPolicy="LFU"
         transactionalMode="off"
          />
-         
+
    <cache name="visitor_counter"
         maxEntriesLocalHeap="10000"
         eternal="true"
@@ -223,8 +223,8 @@
         memoryStoreEvictionPolicy="LFU"
         transactionalMode="off"
          />
-         
-         
+
+
          <!-- lambkit -->
          <cache name="mapData"
 		maxElementsInMemory="10000"
@@ -244,18 +244,18 @@
 		overflowToDisk="true"
 		diskPersistent="true"
 		/>
-		
+
 		<!-- shiro -->
-		<cache name="myRealm.authorizationCache" 
-           maxElementsInMemory="10000" 
-           overflowToDisk="true" 
-           eternal="true" 
-           timeToLiveSeconds="0" 
-           timeToIdleSeconds="0" 
-           diskPersistent="true" 
-           diskExpiryThreadIntervalSeconds="600"> 
-    </cache>    
-        
+		<cache name="myRealm.authorizationCache"
+           maxElementsInMemory="10000"
+           overflowToDisk="true"
+           eternal="true"
+           timeToLiveSeconds="0"
+           timeToIdleSeconds="0"
+           diskPersistent="true"
+           diskExpiryThreadIntervalSeconds="600">
+    </cache>
+
     <cache name="shiro-activeSessionCache"
            maxElementsInMemory="10000"
            overflowToDisk="true"
@@ -264,7 +264,7 @@
            timeToIdleSeconds="0"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"/>
-           
+
             <!-- session -->
     <cache name="SESSION"
 		  maxElementsInMemory="10000"
@@ -276,7 +276,7 @@
 		  diskPersistent="true"
   		 />
 		<!-- 客户的业务cache -->
-		
+
 		<!-- node manager -->
   	<cache name="nodelist"
            maxElementsInMemory="10000"
@@ -286,7 +286,7 @@
            timeToIdleSeconds="0"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"/>
-           
+
     <cache name="nodeapilist"
            maxElementsInMemory="10000"
            overflowToDisk="true"
@@ -295,7 +295,7 @@
            timeToIdleSeconds="0"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"/>
-    
+
     <!-- auth plugin -->
     <cache name="ehCacheSession"
            maxElementsInMemory="10000"
@@ -305,7 +305,7 @@
            timeToIdleSeconds="0"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"/>
-           
+
     <!-- wechat -->
     <cache name="__lambkit_wechat_access_tokens"
            maxElementsInMemory="10000"
@@ -315,7 +315,7 @@
            timeToIdleSeconds="0"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"/>
-           
+
     <!-- jwt -->
     <cache name="jwtcache"
            maxElementsInMemory="10000"
@@ -325,7 +325,7 @@
            timeToIdleSeconds="0"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"/>
-           
+
     <!-- upms -->
     <cache name="upmsCache"
            maxElementsInMemory="10000"

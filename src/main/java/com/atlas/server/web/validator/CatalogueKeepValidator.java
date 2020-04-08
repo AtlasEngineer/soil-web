@@ -13,45 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atlas.server.model.base;
+package com.atlas.server.web.validator;
 
-import com.jfinal.plugin.activerecord.IBean;
-import com.lambkit.common.model.LambkitModel;
+import com.jfinal.core.Controller;
+import com.lambkit.web.validator.LambkitValidator;
+
+import com.atlas.server.model.CatalogueKeep;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
-@SuppressWarnings("serial")
-public abstract class BaseAtBotanyType<M extends BaseAtBotanyType<M>> extends LambkitModel<M> implements IBean {
+public class CatalogueKeepValidator extends LambkitValidator {
 
-	public String getTableName() {
-		return "at_botany_type";
+	@Override
+	protected String getTableName(Controller c) {
+		return CatalogueKeep.service().getTableName();
 	}
-    
-	public java.lang.Integer getId() {
-		return this.get("id");
-	}
-
-	public void setId(java.lang.Integer id) {
-		this.set("id", id);
-	}
-	public java.lang.String getType() {
-		return this.get("type");
-	}
-
-	public void setType(java.lang.String type) {
-		this.set("type", type);
-	}
-	public java.lang.Integer getDel() {
-		return this.get("del");
-	}
-
-	public void setDel(java.lang.Integer del) {
-		this.set("del", del);
+	
+	@Override
+	protected String getPrefix() {
+		return "model";//StrKit.firstCharToLowerCase(CatalogueKeep.class.getSimpleName());
 	}
 }

@@ -13,30 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atlas.server.web.validator;
+package com.atlas.server.service;
 
-import com.jfinal.core.Controller;
+import com.lambkit.common.service.LambkitService;
 
-import com.atlas.server.model.AtBotany;
-import com.lambkit.web.validator.LambkitValidator;
+import com.atlas.server.model.BotanyType;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
-public class AtBotanyValidator extends LambkitValidator {
-
-	@Override
-	protected String getTableName(Controller c) {
-		return AtBotany.service().getTableName();
-	}
-	
-	@Override
-	protected String getPrefix() {
-		return "model";//StrKit.firstCharToLowerCase(AtBotany.class.getSimpleName());
-	}
+public interface BotanyTypeService extends LambkitService<BotanyType> {
 }

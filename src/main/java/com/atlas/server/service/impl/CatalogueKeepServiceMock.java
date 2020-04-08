@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atlas.server.service;
+package com.atlas.server.service.impl;
 
+import com.lambkit.common.service.BaseServiceMock;
 
-import com.lambkit.common.service.LambkitService;
-import com.atlas.server.model.AtBotanyType;
+import com.atlas.server.model.CatalogueKeep;
+import com.atlas.server.service.CatalogueKeepService;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
-public interface AtBotanyTypeService extends LambkitService<AtBotanyType> {
+public class CatalogueKeepServiceMock extends BaseServiceMock<CatalogueKeep> implements CatalogueKeepService {
 }

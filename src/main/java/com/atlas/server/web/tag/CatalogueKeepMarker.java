@@ -18,8 +18,8 @@ package com.atlas.server.web.tag;
 import java.io.IOException;
 import java.util.Map;
 
-import com.atlas.server.model.AtBotany;
-import com.atlas.server.service.AtBotanyService;
+import com.atlas.server.model.CatalogueKeep;
+import com.atlas.server.service.CatalogueKeepService;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.common.service.ServiceKit;
 import com.lambkit.web.tag.LambkitTemplateModel;
@@ -35,36 +35,46 @@ import freemarker.template.TemplateModel;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-01
+ * @date 2020-04-08
  * @version 1.0
  * @since 1.0
  */
 /**
- * at_botany标签<br>
+ * catalogue_keep标签<br>
  * 参数：{id:主键}
- * 返回值：{entity:at_botany信息}
+ * 返回值：{entity:catalogue_keep信息}
  * @author lambkit
  */
-public class AtBotanyDirective extends LambkitTemplateModel {
+public class CatalogueKeepMarker extends LambkitTemplateModel {
 
 	@Override
 	public void onRender(Environment env, Map params, TemplateModel[] loopVars,
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		// TODO Auto-generated method stub
 		String id = get(params, "id");
+		String name = get(params, "name");
+		String url = get(params, "url");
+		String userId = get(params, "user_id");
 		String del = get(params, "del");
 		String catalogueId = get(params, "catalogue_id");
+		String time = get(params, "time");
 		String sampleId = get(params, "sample_id");
+		String status = get(params, "status");
 		int pagenum = getInt(params, "pagenum", 0);
 		int pagesize = getInt(params, "pagesize", 0);
 		String wheresql = get(params, "sql", null);
-		String sql = " from at_botany where "; 
+		String sql = " from catalogue_keep where "; 
 		if(wheresql == null) {
 			sql += " 1=1 ";
-			if(StringUtils.hasText(id)) sql += " and id=" + id;//int
-			if(StringUtils.hasText(del)) sql += " and del=" + del;//int
-			if(StringUtils.hasText(catalogueId)) sql += " and catalogue_id=" + catalogueId;//int
-			if(StringUtils.hasText(sampleId)) sql += " and sample_id=" + sampleId;//int
+			if(StringUtils.hasText(id)) sql += " and id=" + id;//bigint
+			if(StringUtils.hasText(name)) sql += " and name like '%" + name + "%'";//varchar
+			if(StringUtils.hasText(url)) sql += " and url like '%" + url + "%'";//varchar
+			if(StringUtils.hasText(userId)) sql += " and user_id=" + userId;//int
+			if(StringUtils.hasText(del)) sql += " and del=" + del;//smallint
+			if(StringUtils.hasText(catalogueId)) sql += " and catalogue_id like '%" + catalogueId + "%'";//varchar
+			if(StringUtils.hasText(time)) sql += " and time like '%" + time + "%'";//datetime
+			if(StringUtils.hasText(sampleId)) sql += " and sample_id=" + sampleId;//bigint
+			if(StringUtils.hasText(status)) sql += " and status=" + status;//int
 		} else {
 			sql += wheresql;
 		}
@@ -75,7 +85,7 @@ public class AtBotanyDirective extends LambkitTemplateModel {
 			sql += " order by " + orderby;
 		}
 		
-		AtBotanyService service = AtBotany.service();
+		CatalogueKeepService service = CatalogueKeep.service();
 		
 		String tagEntityKeyname = get(params, "key", "entity");
 		if(pagenum==0) {
