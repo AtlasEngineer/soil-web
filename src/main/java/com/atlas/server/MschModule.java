@@ -15,6 +15,10 @@
  */
 package com.atlas.server;
 
+import com.atlas.server.model.*;
+import com.atlas.server.service.*;
+import com.atlas.server.service.impl.*;
+import com.atlas.server.web.tag.*;
 import com.jfinal.config.Routes;
 import com.jfinal.kit.StrKit;
 import com.lambkit.Lambkit;
@@ -24,51 +28,6 @@ import com.lambkit.db.datasource.ActiveRecordPluginWrapper;
 import com.lambkit.module.LambkitModule;
 
 import com.atlas.server.MschConfig;
-import com.atlas.server.model.BotanyType;
-import com.atlas.server.model.InsectPests;
-import com.atlas.server.model.InsectSpecies;
-import com.atlas.server.model.InsectType;
-import com.atlas.server.model.PestsSample;
-import com.atlas.server.model.SpeciesPests;
-import com.atlas.server.model.Catalogue;
-import com.atlas.server.model.CatalogueKeep;
-import com.atlas.server.model.CatalogueSample;
-import com.atlas.server.service.BotanyTypeService;
-import com.atlas.server.service.InsectPestsService;
-import com.atlas.server.service.InsectSpeciesService;
-import com.atlas.server.service.InsectTypeService;
-import com.atlas.server.service.PestsSampleService;
-import com.atlas.server.service.SpeciesPestsService;
-import com.atlas.server.service.CatalogueService;
-import com.atlas.server.service.CatalogueKeepService;
-import com.atlas.server.service.CatalogueSampleService;
-import com.atlas.server.service.impl.BotanyTypeServiceImpl;
-import com.atlas.server.service.impl.BotanyTypeServiceMock;
-import com.atlas.server.service.impl.InsectPestsServiceImpl;
-import com.atlas.server.service.impl.InsectPestsServiceMock;
-import com.atlas.server.service.impl.InsectSpeciesServiceImpl;
-import com.atlas.server.service.impl.InsectSpeciesServiceMock;
-import com.atlas.server.service.impl.InsectTypeServiceImpl;
-import com.atlas.server.service.impl.InsectTypeServiceMock;
-import com.atlas.server.service.impl.PestsSampleServiceImpl;
-import com.atlas.server.service.impl.PestsSampleServiceMock;
-import com.atlas.server.service.impl.SpeciesPestsServiceImpl;
-import com.atlas.server.service.impl.SpeciesPestsServiceMock;
-import com.atlas.server.service.impl.CatalogueServiceImpl;
-import com.atlas.server.service.impl.CatalogueServiceMock;
-import com.atlas.server.service.impl.CatalogueKeepServiceImpl;
-import com.atlas.server.service.impl.CatalogueKeepServiceMock;
-import com.atlas.server.service.impl.CatalogueSampleServiceImpl;
-import com.atlas.server.service.impl.CatalogueSampleServiceMock;
-import com.atlas.server.web.tag.BotanyTypeMarker;
-import com.atlas.server.web.tag.InsectPestsMarker;
-import com.atlas.server.web.tag.InsectSpeciesMarker;
-import com.atlas.server.web.tag.InsectTypeMarker;
-import com.atlas.server.web.tag.PestsSampleMarker;
-import com.atlas.server.web.tag.SpeciesPestsMarker;
-import com.atlas.server.web.tag.CatalogueMarker;
-import com.atlas.server.web.tag.CatalogueKeepMarker;
-import com.atlas.server.web.tag.CatalogueSampleMarker;
 
 /**
  * @author yangyong 
@@ -121,6 +80,9 @@ public class MschModule extends LambkitModule  {
 		arp.addMapping("catalogue", "c_id", Catalogue.class);
 		arp.addMapping("catalogue_keep", "id", CatalogueKeep.class);
 		arp.addMapping("catalogue_sample", "id", CatalogueSample.class);
+		arp.addMapping("at_answer", "id", Answer.class);
+		arp.addMapping("at_question", "id", Question.class);
+		arp.addMapping("at_reply", "id", Reply.class);
 	}
 
 	public void addTag(LambkitModule lk) {
@@ -133,6 +95,9 @@ public class MschModule extends LambkitModule  {
 		lk.addTag("catalogue", new CatalogueMarker());
 		lk.addTag("catalogueKeep", new CatalogueKeepMarker());
 		lk.addTag("catalogueSample", new CatalogueSampleMarker());
+		lk.addTag("answer", new AnswerMarker());
+		lk.addTag("question", new QuestionMarker());
+		lk.addTag("reply", new ReplyMarker());
 	}
 
 	public void registerLocalService() {
@@ -149,6 +114,9 @@ public class MschModule extends LambkitModule  {
 		ServiceManager.me().mapping(CatalogueService.class, CatalogueServiceImpl.class, CatalogueServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(CatalogueKeepService.class, CatalogueKeepServiceImpl.class, CatalogueKeepServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(CatalogueSampleService.class, CatalogueSampleServiceImpl.class, CatalogueSampleServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(AnswerService.class, AnswerServiceImpl.class, AnswerServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(QuestionService.class, QuestionServiceImpl.class, QuestionServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(ReplyService.class, ReplyServiceImpl.class, ReplyServiceMock.class, group, version, port);
 	}
 
 	public void registerRemoteService() {
@@ -165,6 +133,9 @@ public class MschModule extends LambkitModule  {
 		ServiceManager.me().remote(CatalogueService.class, CatalogueServiceMock.class, group, version, port);
 		ServiceManager.me().remote(CatalogueKeepService.class, CatalogueKeepServiceMock.class, group, version, port);
 		ServiceManager.me().remote(CatalogueSampleService.class, CatalogueSampleServiceMock.class, group, version, port);
+		ServiceManager.me().remote(AnswerService.class, AnswerServiceMock.class, group, version, port);
+		ServiceManager.me().remote(QuestionService.class, QuestionServiceMock.class, group, version, port);
+		ServiceManager.me().remote(ReplyService.class, ReplyServiceMock.class, group, version, port);
 	}
 
 	public int getRpcPort() {

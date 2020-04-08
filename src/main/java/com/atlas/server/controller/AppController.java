@@ -1,13 +1,12 @@
 package com.atlas.server.controller;
 
 
-
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.atlas.lambkit.start.BaiDuConfig;
 import com.atlas.server.model.Catalogue;
 import com.atlas.server.model.CatalogueSample;
-import com.atlas.server.model.PestsSample;
 import com.atlas.server.utils.AiDiscenerUtils;
 import com.atlas.server.utils.Co;
 import com.atlas.server.utils.ZipUtils;
@@ -25,7 +24,6 @@ import com.lambkit.component.swagger.annotation.Params;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.controller.LambkitController;
 import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -198,7 +196,7 @@ public class AppController extends LambkitController {
                     // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
                     options.put("brief", "{\"name\":" + f.getName() + ",\"id\":" + id + ",\"url\":" + "/eatalogue/sample/" + id + "/" + f.getName() + "}");
                     // 上传图片入库
-                    JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
+                    org.json.JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
                     // 打印上传结果
                     System.out.println(res.toString(2));//不是格式
                     if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
@@ -342,7 +340,7 @@ public class AppController extends LambkitController {
                 // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
                 options.put("brief", "{name:" + f.getName() + ",id:" + id + ",,url:" + "/eatalogue/diseases/" + id + "/" + f.getName() + "}");
                 // 上传图片入库
-                JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
+                org.json.JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
                 // 打印上传结果
                 System.out.println(res.toString(2));
                 String fileext = PathUtils.getExtensionName(f.getName());
