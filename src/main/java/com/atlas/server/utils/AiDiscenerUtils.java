@@ -42,7 +42,7 @@ public class AiDiscenerUtils {
         // 页码, 这里从第一页开始, 也就是展示相似度最高的两张图片               //按分类查询时,
         options.put("pn", "0");
         // 条数, 只显示两条
-        options.put("rn", "10");
+        options.put("rn", "8");
 
         String images = rootPath + url;
 
@@ -59,7 +59,7 @@ public class AiDiscenerUtils {
                 result = JSON.parseObject(res.toString(2)).getString("result");
                 jsonArray = JSONArray.parseArray(result);
                 for (int x = 0; x < jsonArray.size(); x++) {
-                    String briefid = JSON.parseObject(jsonArray.getJSONObject(x).get("brief").toString()).getString("id");
+                    String briefid = jsonArray.getJSONObject(x).getJSONObject("brief").getString("id");
                     if (map.containsKey(briefid)) {
                         continue;
                     } else {

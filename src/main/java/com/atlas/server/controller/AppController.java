@@ -194,7 +194,7 @@ public class AppController extends LambkitController {
                 String name = f.getName().split("\\.")[0];
                 if ("jpg".equalsIgnoreCase(fileext) || "png".equalsIgnoreCase(fileext) || "bmp".equalsIgnoreCase(fileext)) {
                     // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
-                    options.put("brief", "{\"name\":" + f.getName() + ",\"id\":" + id + ",\"url\":" + "/eatalogue/sample/" + id + "/" + f.getName() + "}");
+                    options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/sample/" + id + "/" + f.getName() + "\"}");
                     // 上传图片入库
                     org.json.JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
                     // 打印上传结果
@@ -338,7 +338,7 @@ public class AppController extends LambkitController {
                 }
                 //System.out.println("f.length()" + f.length());
                 // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
-                options.put("brief", "{name:" + f.getName() + ",id:" + id + ",,url:" + "/eatalogue/diseases/" + id + "/" + f.getName() + "}");
+                options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/sample/" + id + "/" + f.getName() + "\"}");
                 // 上传图片入库
                 org.json.JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
                 // 打印上传结果
