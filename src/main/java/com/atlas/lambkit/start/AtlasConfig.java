@@ -8,7 +8,11 @@ import com.jfinal.json.JFinalJsonFactory;
 import com.lambkit.LambkitApplicationContext;
 import com.lambkit.db.mgr.MgrdbManager;
 import com.lambkit.module.LambkitModule;
-
+import com.lambkit.module.admin.AdminModule;
+import com.lambkit.module.cms.CmsModule;
+import com.lambkit.module.oss.OssModule;
+import com.lambkit.module.pay.PayModule;
+import com.lambkit.module.ucenter.UcenterModule;
 import com.lambkit.module.upms.jwt.UpmsJwtUserService;
 import com.lambkit.module.upms.server.UpmsModule;
 import com.lambkit.plugin.jwt.JwtTokenPlugin;
@@ -23,6 +27,7 @@ public class AtlasConfig extends LambkitApplicationContext {
             module.addModule(mgrModule);
         }
         module.addModule(new UpmsModule());
+
         module.addModule(new MschModule());
         module.addModule(new LambkitModule() {
             @Override
