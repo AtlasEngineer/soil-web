@@ -76,6 +76,7 @@ public class AiDiscenerUtils {
                 jb.fluentPut("score", entry.getValue());
                 jb.fluentPut("sim", score);
                 jb.fluentPut("name", catalogue.getName());
+                jb.fluentPut("ename",catalogue.getEname());
                 jb.fluentPut("id", catalogue.getId());
                 list.add(jb);
             }
@@ -142,6 +143,7 @@ public class AiDiscenerUtils {
                 jb.remove("acquaintance");
                 jb.remove("species_id");
                 jb.fluentPut("score", jsonObject.toString());
+                jb.fluentPut("ename", catalogue1.get("ename"));
             }
             System.out.println("success");
             return Ret.ok("list", list);

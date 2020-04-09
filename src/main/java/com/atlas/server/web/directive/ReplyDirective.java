@@ -30,10 +30,14 @@ public class ReplyDirective extends LambkitDirective {
 	public void onRender(Env env, Scope scope, Writer writer) {
 		// TODO Auto-generated method stub
 		String id = getPara("id", scope);
-		String aId = getPara("a_id", scope);
-		String userId = getPara("user_id", scope);
+		String commentId = getPara("comment_id", scope);
+		String replyId = getPara("reply_id", scope);
 		String content = getPara("content", scope);
 		String del = getPara("del", scope);
+		String replyType = getPara("reply_type", scope);
+		String fromUid = getPara("from_uid", scope);
+		String toUid = getPara("to_uid", scope);
+		String time = getPara("time", scope);
 		int pagenum = getParaToInt("pagenum", scope, 0);
 		int pagesize = getParaToInt("pagesize", scope, 0);
 		String wheresql = getPara("sql", null);
@@ -41,10 +45,14 @@ public class ReplyDirective extends LambkitDirective {
 		if(wheresql == null) {
 			sql += " 1=1 ";
 			if(StringUtils.hasText(id)) sql += " and id=" + id;//int
-			if(StringUtils.hasText(aId)) sql += " and a_id=" + aId;//int
-			if(StringUtils.hasText(userId)) sql += " and user_id=" + userId;//int
+			if(StringUtils.hasText(commentId)) sql += " and comment_id=" + commentId;//int
+			if(StringUtils.hasText(replyId)) sql += " and reply_id=" + replyId;//int
 			if(StringUtils.hasText(content)) sql += " and content=" + content;//int
 			if(StringUtils.hasText(del)) sql += " and del=" + del;//int
+			if(StringUtils.hasText(replyType)) sql += " and reply_type like '%" + replyType + "%'";//varchar
+			if(StringUtils.hasText(fromUid)) sql += " and from_uid=" + fromUid;//int
+			if(StringUtils.hasText(toUid)) sql += " and to_uid=" + toUid;//int
+			if(StringUtils.hasText(time)) sql += " and time like '%" + time + "%'";//timestamp
 		} else {
 			sql += wheresql;
 		}

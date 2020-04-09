@@ -35,7 +35,7 @@ import freemarker.template.TemplateModel;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-09
  * @version 1.0
  * @since 1.0
  */
@@ -52,10 +52,14 @@ public class ReplyMarker extends LambkitTemplateModel {
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		// TODO Auto-generated method stub
 		String id = get(params, "id");
-		String aId = get(params, "a_id");
-		String userId = get(params, "user_id");
+		String commentId = get(params, "comment_id");
+		String replyId = get(params, "reply_id");
 		String content = get(params, "content");
 		String del = get(params, "del");
+		String replyType = get(params, "reply_type");
+		String fromUid = get(params, "from_uid");
+		String toUid = get(params, "to_uid");
+		String time = get(params, "time");
 		int pagenum = getInt(params, "pagenum", 0);
 		int pagesize = getInt(params, "pagesize", 0);
 		String wheresql = get(params, "sql", null);
@@ -63,10 +67,14 @@ public class ReplyMarker extends LambkitTemplateModel {
 		if(wheresql == null) {
 			sql += " 1=1 ";
 			if(StringUtils.hasText(id)) sql += " and id=" + id;//int
-			if(StringUtils.hasText(aId)) sql += " and a_id=" + aId;//int
-			if(StringUtils.hasText(userId)) sql += " and user_id=" + userId;//int
+			if(StringUtils.hasText(commentId)) sql += " and comment_id=" + commentId;//int
+			if(StringUtils.hasText(replyId)) sql += " and reply_id=" + replyId;//int
 			if(StringUtils.hasText(content)) sql += " and content=" + content;//int
 			if(StringUtils.hasText(del)) sql += " and del=" + del;//int
+			if(StringUtils.hasText(replyType)) sql += " and reply_type like '%" + replyType + "%'";//varchar
+			if(StringUtils.hasText(fromUid)) sql += " and from_uid=" + fromUid;//int
+			if(StringUtils.hasText(toUid)) sql += " and to_uid=" + toUid;//int
+			if(StringUtils.hasText(time)) sql += " and time like '%" + time + "%'";//timestamp
 		} else {
 			sql += wheresql;
 		}

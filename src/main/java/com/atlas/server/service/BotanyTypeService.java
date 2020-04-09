@@ -15,6 +15,7 @@
  */
 package com.atlas.server.service;
 
+import com.atlas.server.utils.Co;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitService;
 
@@ -45,6 +46,12 @@ public interface BotanyTypeService extends LambkitService<BotanyType> {
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "news.allById")
     public Record searchNewsById(Integer id,String ip);
+
+
+    //收藏
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "add.news")
+    public Co addNews(Integer news_id,Integer status);
 
 
 

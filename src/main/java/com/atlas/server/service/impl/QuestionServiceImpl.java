@@ -32,6 +32,7 @@ import com.lambkit.plugin.jwt.JwtKit;
 import com.lambkit.web.RequestManager;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -125,14 +126,45 @@ public class QuestionServiceImpl extends LambkitModelServiceImpl<Question> imple
 
     	Integer num=Db.queryInt("select count(*) from at_answer a where a.q_id="+question.getId()+" ");
 
-    	List<Answer> list=Answer.service().find(Answer.sql().andQIdEqualTo(question.getId()));
-		for (Answer answer:list) {
-			Answer ans=Answer.service().dao().findById(answer.getId());
-			Reply reply=Reply.service().dao().findFirst(Reply.sql().andAIdEqualTo(ans.getId()).example());
-			ans.put("reply",reply);
-		}
+
+
+        List<Answer> replyDOList = Answer.service().dao().find(Answer.sql().andQIdEqualTo(question.getId()).example());
+        if (replyDOList == null || replyDOList.size() == 0) {
+            return question;
+        }
+
+        List<Reply> replyDTOList = new ArrayList<>();
+        List<Reply> parentList = new ArrayList<>();
+        for (Answer replyDO : replyDOList) {
+            List<Reply> reply = Reply.service().dao().find(Reply.sql().andCommentIdEqualTo(replyDO.getId()).example());
+            for (Reply replyDTO:reply) {
+                if (Integer.parseInt(replyDTO.getReplyType()) == replyDO.getId()) {
+                    replyDTOList.add(replyDTO);
+                    parentList.add(replyDTO);
+                } else {
+                    boolean foundParent = false;
+                    if (replyDTOList.size() > 0) {
+                        for (Reply parent : parentList) {
+                            if (parent.getId().equals(replyDTO.getReplyId())) {
+                                if (parent.getNext() == null) {
+                                    parent.setNext(new ArrayList<Reply>());
+                                }
+                                parent.getNext().add(replyDTO);
+                                parentList.add(replyDTO);
+                                foundParent = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!foundParent) {
+                        throw new RuntimeException("sort reply error,should not go here.");
+                    }
+                }
+            }
+
+        }
 		question.put("num",num);
-		question.put("list",list);
+        question.put("replyDTOList",replyDTOList);
 
 		return question;
 	}

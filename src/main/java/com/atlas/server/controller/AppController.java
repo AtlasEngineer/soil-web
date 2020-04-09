@@ -175,7 +175,7 @@ public class AppController extends LambkitController {
             List<String> baiDu = new ArrayList<>();  //上传百度失败的图片
             HashMap<String, String> options = new HashMap<String, String>();
             // 文件标签, 这个先不填, 实际项目时, 根据实际需求来
-            Catalogue catalogue = Catalogue.service().dao().findFirst(Catalogue.sql().andIdEqualTo(id).example());
+
             options.put("tags", "5");
             //  images 目录下的base目录训练图片, test是测试图片, 这里把训练图片全部入库
             File images = new File(s);
@@ -338,7 +338,7 @@ public class AppController extends LambkitController {
                 }
                 //System.out.println("f.length()" + f.length());
                 // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
-                options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/sample/" + id + "/" + f.getName() + "\"}");
+                options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/diseases/" + id + "/" + f.getName() + "\"}");
                 // 上传图片入库
                 org.json.JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
                 // 打印上传结果
@@ -356,7 +356,7 @@ public class AppController extends LambkitController {
                         CatalogueSample catalogueSample = new CatalogueSample();
                         catalogueSample.setId(f.getName().split("\\.")[0]);
                         catalogueSample.setName(f.getName());
-                        catalogueSample.setBrief("{name:" + f.getName() + ",id:" + id + ",url:" + "/eatalogue/diseases/" + id + "/" + f.getName() + "}");
+                        catalogueSample.setBrief("{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/diseases/" + id + "/" + f.getName() + "\"}");
                         catalogueSample.setCatalogueId(id);
                         catalogueSample.setUrl("/eatalogue/diseases/" + id + "/" + f.getName());
                         catalogueSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
@@ -397,6 +397,29 @@ public class AppController extends LambkitController {
                 System.out.println("删除失败");
             }
         }
+    }
+
+
+
+
+    public void update() throws InterruptedException {
+
+        HashMap<String, String> options = new HashMap<String, String>();
+        String id = getPara("id");//种类id
+        List<String> list=new ArrayList<>();
+
+        List<CatalogueSample> catalogueSample=CatalogueSample.service().dao().find("select * from catalogue_sample c where c.catalogue_id='"+id+"'");
+        for (CatalogueSample c:catalogueSample){
+            Thread.sleep(1000);
+            System.out.println(c.getContSign());
+            options.put("brief",c.getBrief());
+            org.json.JSONObject res = client.similarUpdateContSign(c.getContSign(),options);
+            System.out.println(res.toString(2));
+            if(StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))){
+                list.add(c.getName());
+            }
+        }
+        renderJson("data",list);
     }
 
 

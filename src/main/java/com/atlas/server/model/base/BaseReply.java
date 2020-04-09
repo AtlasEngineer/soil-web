@@ -19,16 +19,28 @@ import com.jfinal.plugin.activerecord.IBean;
 
 import com.lambkit.common.model.LambkitModel;
 
+import java.util.List;
+
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-09
  * @version 1.0
  * @since 1.0
  */
 @SuppressWarnings("serial")
 public abstract class BaseReply<M extends BaseReply<M>> extends LambkitModel<M> implements IBean {
+
+	public List<M> next;
+
+	public List<M> getNext() {
+		return next;
+	}
+
+	public void setNext(List<M> next) {
+		this.next = next;
+	}
 
 	public String getTableName() {
 		return "at_reply";
@@ -41,19 +53,19 @@ public abstract class BaseReply<M extends BaseReply<M>> extends LambkitModel<M> 
 	public void setId(java.lang.Integer id) {
 		this.set("id", id);
 	}
-	public java.lang.Integer getAId() {
-		return this.get("a_id");
+	public java.lang.Integer getCommentId() {
+		return this.get("comment_id");
 	}
 
-	public void setAId(java.lang.Integer aId) {
-		this.set("a_id", aId);
+	public void setCommentId(java.lang.Integer commentId) {
+		this.set("comment_id", commentId);
 	}
-	public java.lang.Integer getUserId() {
-		return this.get("user_id");
+	public java.lang.Integer getReplyId() {
+		return this.get("reply_id");
 	}
 
-	public void setUserId(java.lang.Integer userId) {
-		this.set("user_id", userId);
+	public void setReplyId(java.lang.Integer replyId) {
+		this.set("reply_id", replyId);
 	}
 	public java.lang.Integer getContent() {
 		return this.get("content");
@@ -68,5 +80,33 @@ public abstract class BaseReply<M extends BaseReply<M>> extends LambkitModel<M> 
 
 	public void setDel(java.lang.Integer del) {
 		this.set("del", del);
+	}
+	public java.lang.String getReplyType() {
+		return this.get("reply_type");
+	}
+
+	public void setReplyType(java.lang.String replyType) {
+		this.set("reply_type", replyType);
+	}
+	public java.lang.Integer getFromUid() {
+		return this.get("from_uid");
+	}
+
+	public void setFromUid(java.lang.Integer fromUid) {
+		this.set("from_uid", fromUid);
+	}
+	public java.lang.Integer getToUid() {
+		return this.get("to_uid");
+	}
+
+	public void setToUid(java.lang.Integer toUid) {
+		this.set("to_uid", toUid);
+	}
+	public java.util.Date getTime() {
+		return this.get("time");
+	}
+
+	public void setTime(java.util.Date time) {
+		this.set("time", time);
 	}
 }
