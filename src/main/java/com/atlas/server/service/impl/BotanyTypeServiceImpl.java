@@ -17,11 +17,17 @@ package com.atlas.server.service.impl;
 
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
+import com.lambkit.Lambkit;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.core.aop.AopKit;
 
 import com.atlas.server.service.BotanyTypeService;
 import com.atlas.server.model.BotanyType;
+import com.lambkit.core.cache.impl.RedisCacheImpl;
+import com.lambkit.module.upms.rpc.model.UpmsUser;
+import com.lambkit.plugin.jwt.JwtConfig;
+import com.lambkit.plugin.jwt.JwtKit;
+import com.lambkit.web.RequestManager;
 
 import java.util.List;
 
@@ -51,8 +57,50 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
 	}
 
 	@Override
-	public Record searchNewsById(Integer id) {
+	public Record searchNewsById(Integer id,String ip) {
+
+		String token = RequestManager.me().getRequest().getHeader("Authorization");
+
+		JwtConfig config = Lambkit.config(JwtConfig.class);
+		String tokenPrefix = config.getTokenPrefix();
+		String authToken = token.substring(tokenPrefix.length());
+		String username = JwtKit.getJwtUser(authToken);
+		if (username == null) {
+			return null;
+		}
+		System.out.println("username : " + username);
+		UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+		if (upmsUser == null) {
+			return null;
+		}
+		RedisCacheImpl redis = new RedisCacheImpl();
+		Integer t_id=redis.get("news",upmsUser.getUserId());
 		Record record= Db.findFirst("select * from news where del=0 and id="+id+"");
-		return record;
+		if(t_id!=null){
+
+			return  record;
+		}else {
+			redis.put("news", upmsUser.getUserId(),id);
+
+			Integer num=record.getInt("volume");
+			num++;
+			String sql="update news set volume="+num+" where id="+id+" ";
+			Integer result=Db.update(sql);
+
+			if(result>0){
+				return record;
+			}else {
+				return  null;
+			}
+		}
+
+
+
+
+
+
+
+
+
 	}
 }
