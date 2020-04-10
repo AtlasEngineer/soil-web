@@ -15,9 +15,13 @@
  */
 package com.atlas.server.service;
 
+import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.LambkitService;
 
 import com.atlas.server.model.CatalogueKeep;
+import com.lambkit.core.api.route.ApiBody;
+import com.lambkit.core.api.route.ApiMapping;
+import com.lambkit.core.api.route.ApiRenderJFinalJson;
 
 /**
  * @author yangyong 
@@ -28,4 +32,11 @@ import com.atlas.server.model.CatalogueKeep;
  * @since 1.0
  */
 public interface CatalogueKeepService extends LambkitService<CatalogueKeep> {
+
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "catalougeKeep.all")
+    public Page all(Integer pageNum, Integer pageSize);
+
+
+
 }

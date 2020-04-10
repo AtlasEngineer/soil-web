@@ -35,7 +35,7 @@ import freemarker.template.TemplateModel;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-10
  * @version 1.0
  * @since 1.0
  */
@@ -56,6 +56,9 @@ public class AnswerMarker extends LambkitTemplateModel {
 		String userId = get(params, "user_id");
 		String content = get(params, "content");
 		String del = get(params, "del");
+		String time = get(params, "time");
+		String uname = get(params, "uname");
+		String url = get(params, "url");
 		int pagenum = getInt(params, "pagenum", 0);
 		int pagesize = getInt(params, "pagesize", 0);
 		String wheresql = get(params, "sql", null);
@@ -67,6 +70,9 @@ public class AnswerMarker extends LambkitTemplateModel {
 			if(StringUtils.hasText(userId)) sql += " and user_id=" + userId;//int
 			if(StringUtils.hasText(content)) sql += " and content like '%" + content + "%'";//varchar
 			if(StringUtils.hasText(del)) sql += " and del=" + del;//int
+			if(StringUtils.hasText(time)) sql += " and time like '%" + time + "%'";//timestamp
+			if(StringUtils.hasText(uname)) sql += " and uname like '%" + uname + "%'";//varchar
+			if(StringUtils.hasText(url)) sql += " and url like '%" + url + "%'";//varchar
 		} else {
 			sql += wheresql;
 		}

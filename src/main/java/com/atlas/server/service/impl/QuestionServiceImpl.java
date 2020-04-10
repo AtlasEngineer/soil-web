@@ -18,6 +18,7 @@ package com.atlas.server.service.impl;
 import com.atlas.server.model.Answer;
 import com.atlas.server.model.InsectSpecies;
 import com.atlas.server.model.Reply;
+import com.atlas.server.model.sql.AnswerCriteria;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.Lambkit;
@@ -125,46 +126,11 @@ public class QuestionServiceImpl extends LambkitModelServiceImpl<Question> imple
     	Question question=Question.service().dao().findById(id);
 
     	Integer num=Db.queryInt("select count(*) from at_answer a where a.q_id="+question.getId()+" ");
+        AnswerCriteria sql=new AnswerCriteria();
+        Page<Answer> answerPage=Answer.service().dao().paginate(1,5,sql.example());
 
 
-
-        List<Answer> replyDOList = Answer.service().dao().find(Answer.sql().andQIdEqualTo(question.getId()).example());
-        if (replyDOList == null || replyDOList.size() == 0) {
-            return question;
-        }
-
-        List<Reply> replyDTOList = new ArrayList<>();
-        List<Reply> parentList = new ArrayList<>();
-        for (Answer replyDO : replyDOList) {
-            List<Reply> reply = Reply.service().dao().find(Reply.sql().andCommentIdEqualTo(replyDO.getId()).example());
-            for (Reply replyDTO:reply) {
-                if (Integer.parseInt(replyDTO.getReplyType()) == replyDO.getId()) {
-                    replyDTOList.add(replyDTO);
-                    parentList.add(replyDTO);
-                } else {
-                    boolean foundParent = false;
-                    if (replyDTOList.size() > 0) {
-                        for (Reply parent : parentList) {
-                            if (parent.getId().equals(replyDTO.getReplyId())) {
-                                if (parent.getNext() == null) {
-                                    parent.setNext(new ArrayList<Reply>());
-                                }
-                                parent.getNext().add(replyDTO);
-                                parentList.add(replyDTO);
-                                foundParent = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!foundParent) {
-                        throw new RuntimeException("sort reply error,should not go here.");
-                    }
-                }
-            }
-
-        }
 		question.put("num",num);
-        question.put("replyDTOList",replyDTOList);
 
 		return question;
 	}

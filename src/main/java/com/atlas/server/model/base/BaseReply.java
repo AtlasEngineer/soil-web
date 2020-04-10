@@ -19,28 +19,16 @@ import com.jfinal.plugin.activerecord.IBean;
 
 import com.lambkit.common.model.LambkitModel;
 
-import java.util.List;
-
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-09
+ * @date 2020-04-10
  * @version 1.0
  * @since 1.0
  */
 @SuppressWarnings("serial")
 public abstract class BaseReply<M extends BaseReply<M>> extends LambkitModel<M> implements IBean {
-
-	public List<M> next;
-
-	public List<M> getNext() {
-		return next;
-	}
-
-	public void setNext(List<M> next) {
-		this.next = next;
-	}
 
 	public String getTableName() {
 		return "at_reply";
@@ -53,26 +41,68 @@ public abstract class BaseReply<M extends BaseReply<M>> extends LambkitModel<M> 
 	public void setId(java.lang.Integer id) {
 		this.set("id", id);
 	}
-	public java.lang.Integer getCommentId() {
-		return this.get("comment_id");
+	public java.lang.Integer getTorrid() {
+		return this.get("torrid");
 	}
 
-	public void setCommentId(java.lang.Integer commentId) {
-		this.set("comment_id", commentId);
+	public void setTorrid(java.lang.Integer torrid) {
+		this.set("torrid", torrid);
 	}
-	public java.lang.Integer getReplyId() {
-		return this.get("reply_id");
-	}
-
-	public void setReplyId(java.lang.Integer replyId) {
-		this.set("reply_id", replyId);
-	}
-	public java.lang.Integer getContent() {
-		return this.get("content");
+	public java.lang.Integer getTorr() {
+		return this.get("torr");
 	}
 
-	public void setContent(java.lang.Integer content) {
-		this.set("content", content);
+	public void setTorr(java.lang.Integer torr) {
+		this.set("torr", torr);
+	}
+	public java.lang.Integer getUid() {
+		return this.get("uid");
+	}
+
+	public void setUid(java.lang.Integer uid) {
+		this.set("uid", uid);
+	}
+	public java.lang.Integer getTouid() {
+		return this.get("touid");
+	}
+
+	public void setTouid(java.lang.Integer touid) {
+		this.set("touid", touid);
+	}
+	public java.lang.String getUname() {
+		return this.get("uname");
+	}
+
+	public void setUname(java.lang.String uname) {
+		this.set("uname", uname);
+	}
+	public java.lang.String getTouname() {
+		return this.get("touname");
+	}
+
+	public void setTouname(java.lang.String touname) {
+		this.set("touname", touname);
+	}
+	public java.lang.String getUheadurl() {
+		return this.get("uheadurl");
+	}
+
+	public void setUheadurl(java.lang.String uheadurl) {
+		this.set("uheadurl", uheadurl);
+	}
+	public java.lang.String getRcontent() {
+		return this.get("rcontent");
+	}
+
+	public void setRcontent(java.lang.String rcontent) {
+		this.set("rcontent", rcontent);
+	}
+	public java.util.Date getRtime() {
+		return this.get("rtime");
+	}
+
+	public void setRtime(java.util.Date rtime) {
+		this.set("rtime", rtime);
 	}
 	public java.lang.Integer getDel() {
 		return this.get("del");
@@ -80,33 +110,5 @@ public abstract class BaseReply<M extends BaseReply<M>> extends LambkitModel<M> 
 
 	public void setDel(java.lang.Integer del) {
 		this.set("del", del);
-	}
-	public java.lang.String getReplyType() {
-		return this.get("reply_type");
-	}
-
-	public void setReplyType(java.lang.String replyType) {
-		this.set("reply_type", replyType);
-	}
-	public java.lang.Integer getFromUid() {
-		return this.get("from_uid");
-	}
-
-	public void setFromUid(java.lang.Integer fromUid) {
-		this.set("from_uid", fromUid);
-	}
-	public java.lang.Integer getToUid() {
-		return this.get("to_uid");
-	}
-
-	public void setToUid(java.lang.Integer toUid) {
-		this.set("to_uid", toUid);
-	}
-	public java.util.Date getTime() {
-		return this.get("time");
-	}
-
-	public void setTime(java.util.Date time) {
-		this.set("time", time);
 	}
 }

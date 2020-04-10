@@ -30,14 +30,16 @@ public class ReplyDirective extends LambkitDirective {
 	public void onRender(Env env, Scope scope, Writer writer) {
 		// TODO Auto-generated method stub
 		String id = getPara("id", scope);
-		String commentId = getPara("comment_id", scope);
-		String replyId = getPara("reply_id", scope);
-		String content = getPara("content", scope);
+		String torrid = getPara("torrid", scope);
+		String torr = getPara("torr", scope);
+		String uid = getPara("uid", scope);
+		String touid = getPara("touid", scope);
+		String uname = getPara("uname", scope);
+		String touname = getPara("touname", scope);
+		String uheadurl = getPara("uheadurl", scope);
+		String rcontent = getPara("rcontent", scope);
+		String rtime = getPara("rtime", scope);
 		String del = getPara("del", scope);
-		String replyType = getPara("reply_type", scope);
-		String fromUid = getPara("from_uid", scope);
-		String toUid = getPara("to_uid", scope);
-		String time = getPara("time", scope);
 		int pagenum = getParaToInt("pagenum", scope, 0);
 		int pagesize = getParaToInt("pagesize", scope, 0);
 		String wheresql = getPara("sql", null);
@@ -45,14 +47,16 @@ public class ReplyDirective extends LambkitDirective {
 		if(wheresql == null) {
 			sql += " 1=1 ";
 			if(StringUtils.hasText(id)) sql += " and id=" + id;//int
-			if(StringUtils.hasText(commentId)) sql += " and comment_id=" + commentId;//int
-			if(StringUtils.hasText(replyId)) sql += " and reply_id=" + replyId;//int
-			if(StringUtils.hasText(content)) sql += " and content=" + content;//int
+			if(StringUtils.hasText(torrid)) sql += " and torrid=" + torrid;//int
+			if(StringUtils.hasText(torr)) sql += " and torr=" + torr;//int
+			if(StringUtils.hasText(uid)) sql += " and uid=" + uid;//int
+			if(StringUtils.hasText(touid)) sql += " and touid=" + touid;//int
+			if(StringUtils.hasText(uname)) sql += " and uname like '%" + uname + "%'";//varchar
+			if(StringUtils.hasText(touname)) sql += " and touname like '%" + touname + "%'";//varchar
+			if(StringUtils.hasText(uheadurl)) sql += " and uheadurl like '%" + uheadurl + "%'";//varchar
+			if(StringUtils.hasText(rcontent)) sql += " and rcontent like '%" + rcontent + "%'";//varchar
+			if(StringUtils.hasText(rtime)) sql += " and rtime like '%" + rtime + "%'";//timestamp
 			if(StringUtils.hasText(del)) sql += " and del=" + del;//int
-			if(StringUtils.hasText(replyType)) sql += " and reply_type like '%" + replyType + "%'";//varchar
-			if(StringUtils.hasText(fromUid)) sql += " and from_uid=" + fromUid;//int
-			if(StringUtils.hasText(toUid)) sql += " and to_uid=" + toUid;//int
-			if(StringUtils.hasText(time)) sql += " and time like '%" + time + "%'";//timestamp
 		} else {
 			sql += wheresql;
 		}

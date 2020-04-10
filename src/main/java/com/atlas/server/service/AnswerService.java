@@ -15,20 +15,37 @@
  */
 package com.atlas.server.service;
 
+import com.atlas.server.utils.AnswerNode;
+import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.LambkitService;
 
 import com.atlas.server.model.Answer;
+import com.lambkit.core.api.route.ApiBody;
+import com.lambkit.core.api.route.ApiMapping;
+import com.lambkit.core.api.route.ApiRenderJFinalJson;
+
+import java.util.List;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-10
  * @version 1.0
  * @since 1.0
  */
 public interface AnswerService extends LambkitService<Answer> {
 
+    //增加评论
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "add.answer")
+    public Answer addAnswer(Answer answer);
+
+
+    //查询所有评论
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "answer.all")
+    public List<AnswerNode> all();
 
 
 

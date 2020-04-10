@@ -27,7 +27,7 @@ import java.util.List;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-10
  * @version 1.0
  * @since 1.0
  */
@@ -531,6 +531,228 @@ public class AnswerCriteria extends Columns implements Serializable {
 
       public AnswerCriteria andDelNotIn(List<java.lang.Integer> values) {
           addCriterion("del", values, ConditionMode.NOT_IN, "del", "java.lang.Integer", "Float");
+          return this;
+      }
+	public AnswerCriteria andTimeIsNull() {
+		isnull("time");
+		return this;
+	}
+	
+	public AnswerCriteria andTimeIsNotNull() {
+		notNull("time");
+		return this;
+	}
+	
+	public AnswerCriteria andTimeIsEmpty() {
+		empty("time");
+		return this;
+	}
+
+	public AnswerCriteria andTimeIsNotEmpty() {
+		notEmpty("time");
+		return this;
+	}
+       public AnswerCriteria andTimeEqualTo(java.util.Date value) {
+          addCriterion("time", value, ConditionMode.EQUAL, "time", "java.util.Date", "String");
+          return this;
+      }
+
+      public AnswerCriteria andTimeNotEqualTo(java.util.Date value) {
+          addCriterion("time", value, ConditionMode.NOT_EQUAL, "time", "java.util.Date", "String");
+          return this;
+      }
+
+      public AnswerCriteria andTimeGreaterThan(java.util.Date value) {
+          addCriterion("time", value, ConditionMode.GREATER_THEN, "time", "java.util.Date", "String");
+          return this;
+      }
+
+      public AnswerCriteria andTimeGreaterThanOrEqualTo(java.util.Date value) {
+          addCriterion("time", value, ConditionMode.GREATER_EQUAL, "time", "java.util.Date", "String");
+          return this;
+      }
+
+      public AnswerCriteria andTimeLessThan(java.util.Date value) {
+          addCriterion("time", value, ConditionMode.LESS_THEN, "time", "java.util.Date", "String");
+          return this;
+      }
+
+      public AnswerCriteria andTimeLessThanOrEqualTo(java.util.Date value) {
+          addCriterion("time", value, ConditionMode.LESS_EQUAL, "time", "java.util.Date", "String");
+          return this;
+      }
+
+      public AnswerCriteria andTimeBetween(java.util.Date value1, java.util.Date value2) {
+    	  addCriterion("time", value1, value2, ConditionMode.BETWEEN, "time", "java.util.Date", "String");
+    	  return this;
+      }
+
+      public AnswerCriteria andTimeNotBetween(java.util.Date value1, java.util.Date value2) {
+          addCriterion("time", value1, value2, ConditionMode.NOT_BETWEEN, "time", "java.util.Date", "String");
+          return this;
+      }
+        
+      public AnswerCriteria andTimeIn(List<java.util.Date> values) {
+          addCriterion("time", values, ConditionMode.IN, "time", "java.util.Date", "String");
+          return this;
+      }
+
+      public AnswerCriteria andTimeNotIn(List<java.util.Date> values) {
+          addCriterion("time", values, ConditionMode.NOT_IN, "time", "java.util.Date", "String");
+          return this;
+      }
+	public AnswerCriteria andUnameIsNull() {
+		isnull("uname");
+		return this;
+	}
+	
+	public AnswerCriteria andUnameIsNotNull() {
+		notNull("uname");
+		return this;
+	}
+	
+	public AnswerCriteria andUnameIsEmpty() {
+		empty("uname");
+		return this;
+	}
+
+	public AnswerCriteria andUnameIsNotEmpty() {
+		notEmpty("uname");
+		return this;
+	}
+        public AnswerCriteria andUnameLike(java.lang.String value) {
+    	   addCriterion("uname", value, ConditionMode.FUZZY, "uname", "java.lang.String", "String");
+    	   return this;
+      }
+
+      public AnswerCriteria andUnameNotLike(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.NOT_FUZZY, "uname", "java.lang.String", "String");
+          return this;
+      }
+      public AnswerCriteria andUnameEqualTo(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.EQUAL, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUnameNotEqualTo(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.NOT_EQUAL, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUnameGreaterThan(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.GREATER_THEN, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUnameGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.GREATER_EQUAL, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUnameLessThan(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.LESS_THEN, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUnameLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.LESS_EQUAL, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUnameBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("uname", value1, value2, ConditionMode.BETWEEN, "uname", "java.lang.String", "String");
+    	  return this;
+      }
+
+      public AnswerCriteria andUnameNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("uname", value1, value2, ConditionMode.NOT_BETWEEN, "uname", "java.lang.String", "String");
+          return this;
+      }
+        
+      public AnswerCriteria andUnameIn(List<java.lang.String> values) {
+          addCriterion("uname", values, ConditionMode.IN, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUnameNotIn(List<java.lang.String> values) {
+          addCriterion("uname", values, ConditionMode.NOT_IN, "uname", "java.lang.String", "String");
+          return this;
+      }
+	public AnswerCriteria andUrlIsNull() {
+		isnull("url");
+		return this;
+	}
+	
+	public AnswerCriteria andUrlIsNotNull() {
+		notNull("url");
+		return this;
+	}
+	
+	public AnswerCriteria andUrlIsEmpty() {
+		empty("url");
+		return this;
+	}
+
+	public AnswerCriteria andUrlIsNotEmpty() {
+		notEmpty("url");
+		return this;
+	}
+        public AnswerCriteria andUrlLike(java.lang.String value) {
+    	   addCriterion("url", value, ConditionMode.FUZZY, "url", "java.lang.String", "String");
+    	   return this;
+      }
+
+      public AnswerCriteria andUrlNotLike(java.lang.String value) {
+          addCriterion("url", value, ConditionMode.NOT_FUZZY, "url", "java.lang.String", "String");
+          return this;
+      }
+      public AnswerCriteria andUrlEqualTo(java.lang.String value) {
+          addCriterion("url", value, ConditionMode.EQUAL, "url", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUrlNotEqualTo(java.lang.String value) {
+          addCriterion("url", value, ConditionMode.NOT_EQUAL, "url", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUrlGreaterThan(java.lang.String value) {
+          addCriterion("url", value, ConditionMode.GREATER_THEN, "url", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUrlGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("url", value, ConditionMode.GREATER_EQUAL, "url", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUrlLessThan(java.lang.String value) {
+          addCriterion("url", value, ConditionMode.LESS_THEN, "url", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUrlLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("url", value, ConditionMode.LESS_EQUAL, "url", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUrlBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("url", value1, value2, ConditionMode.BETWEEN, "url", "java.lang.String", "String");
+    	  return this;
+      }
+
+      public AnswerCriteria andUrlNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("url", value1, value2, ConditionMode.NOT_BETWEEN, "url", "java.lang.String", "String");
+          return this;
+      }
+        
+      public AnswerCriteria andUrlIn(List<java.lang.String> values) {
+          addCriterion("url", values, ConditionMode.IN, "url", "java.lang.String", "String");
+          return this;
+      }
+
+      public AnswerCriteria andUrlNotIn(List<java.lang.String> values) {
+          addCriterion("url", values, ConditionMode.NOT_IN, "url", "java.lang.String", "String");
           return this;
       }
 }
