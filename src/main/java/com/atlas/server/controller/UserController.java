@@ -159,9 +159,9 @@ public class UserController extends LambkitController {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
             return;
         }
-        String password = getPara("pass");
-        String newpass = getPara("newpass");
-        String checknewpass = getPara("checknewpass");
+        String password = getPara("pass"); //原密码
+        String newpass = getPara("newpass");//新密码
+        String checknewpass = getPara("checknewpass");//确认密码
         if (StringUtils.isBlank(password)) {
             renderJson(Co.ok("data", Ret.fail("errorMsg", "原不能为空")));
             return;
