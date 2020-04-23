@@ -90,8 +90,7 @@ public class UserController extends LambkitController {
             Lambkit.getCache().put("jwtcache", username + "_username", username);
             System.out.println("token:" + token);
 
-
-            renderJson(Co.ok("data", Co.by("token", token).set("state", "ok").set("userMsg", upmsUser.put("role_id", roles))));
+            renderJson(Co.ok("data", Co.ok("token", token).set("state", "ok").set("userMsg", upmsUser.put("role_id", roles))));
         }
 
 
