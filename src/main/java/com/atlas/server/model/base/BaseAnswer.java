@@ -23,7 +23,7 @@ import com.lambkit.common.model.LambkitModel;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-10
  * @version 1.0
  * @since 1.0
  */
@@ -68,5 +68,26 @@ public abstract class BaseAnswer<M extends BaseAnswer<M>> extends LambkitModel<M
 
 	public void setDel(java.lang.Integer del) {
 		this.set("del", del);
+	}
+	public java.util.Date getTime() {
+		return this.get("time");
+	}
+
+	public void setTime(java.util.Date time) {
+		this.set("time", time);
+	}
+	public java.lang.String getUname() {
+		return this.get("uname");
+	}
+
+	public void setUname(java.lang.String uname) {
+		this.set("uname", uname);
+	}
+	public java.lang.String getUrl() {
+		return this.get("url");
+	}
+
+	public void setUrl(java.lang.String url) {
+		this.set("url", url);
 	}
 }

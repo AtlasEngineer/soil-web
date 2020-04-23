@@ -27,7 +27,7 @@ import java.util.List;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-10
  * @version 1.0
  * @since 1.0
  */
@@ -252,208 +252,652 @@ public class ReplyCriteria extends Columns implements Serializable {
           addCriterion("id", values, ConditionMode.NOT_IN, "id", "java.lang.Integer", "Float");
           return this;
       }
-	public ReplyCriteria andAIdIsNull() {
-		isnull("a_id");
+	public ReplyCriteria andTorridIsNull() {
+		isnull("torrid");
 		return this;
 	}
 	
-	public ReplyCriteria andAIdIsNotNull() {
-		notNull("a_id");
+	public ReplyCriteria andTorridIsNotNull() {
+		notNull("torrid");
 		return this;
 	}
 	
-	public ReplyCriteria andAIdIsEmpty() {
-		empty("a_id");
+	public ReplyCriteria andTorridIsEmpty() {
+		empty("torrid");
 		return this;
 	}
 
-	public ReplyCriteria andAIdIsNotEmpty() {
-		notEmpty("a_id");
+	public ReplyCriteria andTorridIsNotEmpty() {
+		notEmpty("torrid");
 		return this;
 	}
-       public ReplyCriteria andAIdEqualTo(java.lang.Integer value) {
-          addCriterion("a_id", value, ConditionMode.EQUAL, "aId", "java.lang.Integer", "Float");
+       public ReplyCriteria andTorridEqualTo(java.lang.Integer value) {
+          addCriterion("torrid", value, ConditionMode.EQUAL, "torrid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andAIdNotEqualTo(java.lang.Integer value) {
-          addCriterion("a_id", value, ConditionMode.NOT_EQUAL, "aId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorridNotEqualTo(java.lang.Integer value) {
+          addCriterion("torrid", value, ConditionMode.NOT_EQUAL, "torrid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andAIdGreaterThan(java.lang.Integer value) {
-          addCriterion("a_id", value, ConditionMode.GREATER_THEN, "aId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorridGreaterThan(java.lang.Integer value) {
+          addCriterion("torrid", value, ConditionMode.GREATER_THEN, "torrid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andAIdGreaterThanOrEqualTo(java.lang.Integer value) {
-          addCriterion("a_id", value, ConditionMode.GREATER_EQUAL, "aId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorridGreaterThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("torrid", value, ConditionMode.GREATER_EQUAL, "torrid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andAIdLessThan(java.lang.Integer value) {
-          addCriterion("a_id", value, ConditionMode.LESS_THEN, "aId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorridLessThan(java.lang.Integer value) {
+          addCriterion("torrid", value, ConditionMode.LESS_THEN, "torrid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andAIdLessThanOrEqualTo(java.lang.Integer value) {
-          addCriterion("a_id", value, ConditionMode.LESS_EQUAL, "aId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorridLessThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("torrid", value, ConditionMode.LESS_EQUAL, "torrid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andAIdBetween(java.lang.Integer value1, java.lang.Integer value2) {
-    	  addCriterion("a_id", value1, value2, ConditionMode.BETWEEN, "aId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorridBetween(java.lang.Integer value1, java.lang.Integer value2) {
+    	  addCriterion("torrid", value1, value2, ConditionMode.BETWEEN, "torrid", "java.lang.Integer", "Float");
     	  return this;
       }
 
-      public ReplyCriteria andAIdNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
-          addCriterion("a_id", value1, value2, ConditionMode.NOT_BETWEEN, "aId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorridNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
+          addCriterion("torrid", value1, value2, ConditionMode.NOT_BETWEEN, "torrid", "java.lang.Integer", "Float");
           return this;
       }
         
-      public ReplyCriteria andAIdIn(List<java.lang.Integer> values) {
-          addCriterion("a_id", values, ConditionMode.IN, "aId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorridIn(List<java.lang.Integer> values) {
+          addCriterion("torrid", values, ConditionMode.IN, "torrid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andAIdNotIn(List<java.lang.Integer> values) {
-          addCriterion("a_id", values, ConditionMode.NOT_IN, "aId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorridNotIn(List<java.lang.Integer> values) {
+          addCriterion("torrid", values, ConditionMode.NOT_IN, "torrid", "java.lang.Integer", "Float");
           return this;
       }
-	public ReplyCriteria andUserIdIsNull() {
-		isnull("user_id");
+	public ReplyCriteria andTorrIsNull() {
+		isnull("torr");
 		return this;
 	}
 	
-	public ReplyCriteria andUserIdIsNotNull() {
-		notNull("user_id");
+	public ReplyCriteria andTorrIsNotNull() {
+		notNull("torr");
 		return this;
 	}
 	
-	public ReplyCriteria andUserIdIsEmpty() {
-		empty("user_id");
+	public ReplyCriteria andTorrIsEmpty() {
+		empty("torr");
 		return this;
 	}
 
-	public ReplyCriteria andUserIdIsNotEmpty() {
-		notEmpty("user_id");
+	public ReplyCriteria andTorrIsNotEmpty() {
+		notEmpty("torr");
 		return this;
 	}
-       public ReplyCriteria andUserIdEqualTo(java.lang.Integer value) {
-          addCriterion("user_id", value, ConditionMode.EQUAL, "userId", "java.lang.Integer", "Float");
+       public ReplyCriteria andTorrEqualTo(java.lang.Integer value) {
+          addCriterion("torr", value, ConditionMode.EQUAL, "torr", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andUserIdNotEqualTo(java.lang.Integer value) {
-          addCriterion("user_id", value, ConditionMode.NOT_EQUAL, "userId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorrNotEqualTo(java.lang.Integer value) {
+          addCriterion("torr", value, ConditionMode.NOT_EQUAL, "torr", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andUserIdGreaterThan(java.lang.Integer value) {
-          addCriterion("user_id", value, ConditionMode.GREATER_THEN, "userId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorrGreaterThan(java.lang.Integer value) {
+          addCriterion("torr", value, ConditionMode.GREATER_THEN, "torr", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andUserIdGreaterThanOrEqualTo(java.lang.Integer value) {
-          addCriterion("user_id", value, ConditionMode.GREATER_EQUAL, "userId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorrGreaterThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("torr", value, ConditionMode.GREATER_EQUAL, "torr", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andUserIdLessThan(java.lang.Integer value) {
-          addCriterion("user_id", value, ConditionMode.LESS_THEN, "userId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorrLessThan(java.lang.Integer value) {
+          addCriterion("torr", value, ConditionMode.LESS_THEN, "torr", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andUserIdLessThanOrEqualTo(java.lang.Integer value) {
-          addCriterion("user_id", value, ConditionMode.LESS_EQUAL, "userId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorrLessThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("torr", value, ConditionMode.LESS_EQUAL, "torr", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andUserIdBetween(java.lang.Integer value1, java.lang.Integer value2) {
-    	  addCriterion("user_id", value1, value2, ConditionMode.BETWEEN, "userId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorrBetween(java.lang.Integer value1, java.lang.Integer value2) {
+    	  addCriterion("torr", value1, value2, ConditionMode.BETWEEN, "torr", "java.lang.Integer", "Float");
     	  return this;
       }
 
-      public ReplyCriteria andUserIdNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
-          addCriterion("user_id", value1, value2, ConditionMode.NOT_BETWEEN, "userId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorrNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
+          addCriterion("torr", value1, value2, ConditionMode.NOT_BETWEEN, "torr", "java.lang.Integer", "Float");
           return this;
       }
         
-      public ReplyCriteria andUserIdIn(List<java.lang.Integer> values) {
-          addCriterion("user_id", values, ConditionMode.IN, "userId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorrIn(List<java.lang.Integer> values) {
+          addCriterion("torr", values, ConditionMode.IN, "torr", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andUserIdNotIn(List<java.lang.Integer> values) {
-          addCriterion("user_id", values, ConditionMode.NOT_IN, "userId", "java.lang.Integer", "Float");
+      public ReplyCriteria andTorrNotIn(List<java.lang.Integer> values) {
+          addCriterion("torr", values, ConditionMode.NOT_IN, "torr", "java.lang.Integer", "Float");
           return this;
       }
-	public ReplyCriteria andContentIsNull() {
-		isnull("content");
+	public ReplyCriteria andUidIsNull() {
+		isnull("uid");
 		return this;
 	}
 	
-	public ReplyCriteria andContentIsNotNull() {
-		notNull("content");
+	public ReplyCriteria andUidIsNotNull() {
+		notNull("uid");
 		return this;
 	}
 	
-	public ReplyCriteria andContentIsEmpty() {
-		empty("content");
+	public ReplyCriteria andUidIsEmpty() {
+		empty("uid");
 		return this;
 	}
 
-	public ReplyCriteria andContentIsNotEmpty() {
-		notEmpty("content");
+	public ReplyCriteria andUidIsNotEmpty() {
+		notEmpty("uid");
 		return this;
 	}
-       public ReplyCriteria andContentEqualTo(java.lang.Integer value) {
-          addCriterion("content", value, ConditionMode.EQUAL, "content", "java.lang.Integer", "Float");
+       public ReplyCriteria andUidEqualTo(java.lang.Integer value) {
+          addCriterion("uid", value, ConditionMode.EQUAL, "uid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andContentNotEqualTo(java.lang.Integer value) {
-          addCriterion("content", value, ConditionMode.NOT_EQUAL, "content", "java.lang.Integer", "Float");
+      public ReplyCriteria andUidNotEqualTo(java.lang.Integer value) {
+          addCriterion("uid", value, ConditionMode.NOT_EQUAL, "uid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andContentGreaterThan(java.lang.Integer value) {
-          addCriterion("content", value, ConditionMode.GREATER_THEN, "content", "java.lang.Integer", "Float");
+      public ReplyCriteria andUidGreaterThan(java.lang.Integer value) {
+          addCriterion("uid", value, ConditionMode.GREATER_THEN, "uid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andContentGreaterThanOrEqualTo(java.lang.Integer value) {
-          addCriterion("content", value, ConditionMode.GREATER_EQUAL, "content", "java.lang.Integer", "Float");
+      public ReplyCriteria andUidGreaterThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("uid", value, ConditionMode.GREATER_EQUAL, "uid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andContentLessThan(java.lang.Integer value) {
-          addCriterion("content", value, ConditionMode.LESS_THEN, "content", "java.lang.Integer", "Float");
+      public ReplyCriteria andUidLessThan(java.lang.Integer value) {
+          addCriterion("uid", value, ConditionMode.LESS_THEN, "uid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andContentLessThanOrEqualTo(java.lang.Integer value) {
-          addCriterion("content", value, ConditionMode.LESS_EQUAL, "content", "java.lang.Integer", "Float");
+      public ReplyCriteria andUidLessThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("uid", value, ConditionMode.LESS_EQUAL, "uid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andContentBetween(java.lang.Integer value1, java.lang.Integer value2) {
-    	  addCriterion("content", value1, value2, ConditionMode.BETWEEN, "content", "java.lang.Integer", "Float");
+      public ReplyCriteria andUidBetween(java.lang.Integer value1, java.lang.Integer value2) {
+    	  addCriterion("uid", value1, value2, ConditionMode.BETWEEN, "uid", "java.lang.Integer", "Float");
     	  return this;
       }
 
-      public ReplyCriteria andContentNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
-          addCriterion("content", value1, value2, ConditionMode.NOT_BETWEEN, "content", "java.lang.Integer", "Float");
+      public ReplyCriteria andUidNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
+          addCriterion("uid", value1, value2, ConditionMode.NOT_BETWEEN, "uid", "java.lang.Integer", "Float");
           return this;
       }
         
-      public ReplyCriteria andContentIn(List<java.lang.Integer> values) {
-          addCriterion("content", values, ConditionMode.IN, "content", "java.lang.Integer", "Float");
+      public ReplyCriteria andUidIn(List<java.lang.Integer> values) {
+          addCriterion("uid", values, ConditionMode.IN, "uid", "java.lang.Integer", "Float");
           return this;
       }
 
-      public ReplyCriteria andContentNotIn(List<java.lang.Integer> values) {
-          addCriterion("content", values, ConditionMode.NOT_IN, "content", "java.lang.Integer", "Float");
+      public ReplyCriteria andUidNotIn(List<java.lang.Integer> values) {
+          addCriterion("uid", values, ConditionMode.NOT_IN, "uid", "java.lang.Integer", "Float");
+          return this;
+      }
+	public ReplyCriteria andTouidIsNull() {
+		isnull("touid");
+		return this;
+	}
+	
+	public ReplyCriteria andTouidIsNotNull() {
+		notNull("touid");
+		return this;
+	}
+	
+	public ReplyCriteria andTouidIsEmpty() {
+		empty("touid");
+		return this;
+	}
+
+	public ReplyCriteria andTouidIsNotEmpty() {
+		notEmpty("touid");
+		return this;
+	}
+       public ReplyCriteria andTouidEqualTo(java.lang.Integer value) {
+          addCriterion("touid", value, ConditionMode.EQUAL, "touid", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public ReplyCriteria andTouidNotEqualTo(java.lang.Integer value) {
+          addCriterion("touid", value, ConditionMode.NOT_EQUAL, "touid", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public ReplyCriteria andTouidGreaterThan(java.lang.Integer value) {
+          addCriterion("touid", value, ConditionMode.GREATER_THEN, "touid", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public ReplyCriteria andTouidGreaterThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("touid", value, ConditionMode.GREATER_EQUAL, "touid", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public ReplyCriteria andTouidLessThan(java.lang.Integer value) {
+          addCriterion("touid", value, ConditionMode.LESS_THEN, "touid", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public ReplyCriteria andTouidLessThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("touid", value, ConditionMode.LESS_EQUAL, "touid", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public ReplyCriteria andTouidBetween(java.lang.Integer value1, java.lang.Integer value2) {
+    	  addCriterion("touid", value1, value2, ConditionMode.BETWEEN, "touid", "java.lang.Integer", "Float");
+    	  return this;
+      }
+
+      public ReplyCriteria andTouidNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
+          addCriterion("touid", value1, value2, ConditionMode.NOT_BETWEEN, "touid", "java.lang.Integer", "Float");
+          return this;
+      }
+        
+      public ReplyCriteria andTouidIn(List<java.lang.Integer> values) {
+          addCriterion("touid", values, ConditionMode.IN, "touid", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public ReplyCriteria andTouidNotIn(List<java.lang.Integer> values) {
+          addCriterion("touid", values, ConditionMode.NOT_IN, "touid", "java.lang.Integer", "Float");
+          return this;
+      }
+	public ReplyCriteria andUnameIsNull() {
+		isnull("uname");
+		return this;
+	}
+	
+	public ReplyCriteria andUnameIsNotNull() {
+		notNull("uname");
+		return this;
+	}
+	
+	public ReplyCriteria andUnameIsEmpty() {
+		empty("uname");
+		return this;
+	}
+
+	public ReplyCriteria andUnameIsNotEmpty() {
+		notEmpty("uname");
+		return this;
+	}
+        public ReplyCriteria andUnameLike(java.lang.String value) {
+    	   addCriterion("uname", value, ConditionMode.FUZZY, "uname", "java.lang.String", "Float");
+    	   return this;
+      }
+
+      public ReplyCriteria andUnameNotLike(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.NOT_FUZZY, "uname", "java.lang.String", "Float");
+          return this;
+      }
+      public ReplyCriteria andUnameEqualTo(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.EQUAL, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUnameNotEqualTo(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.NOT_EQUAL, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUnameGreaterThan(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.GREATER_THEN, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUnameGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.GREATER_EQUAL, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUnameLessThan(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.LESS_THEN, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUnameLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("uname", value, ConditionMode.LESS_EQUAL, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUnameBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("uname", value1, value2, ConditionMode.BETWEEN, "uname", "java.lang.String", "String");
+    	  return this;
+      }
+
+      public ReplyCriteria andUnameNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("uname", value1, value2, ConditionMode.NOT_BETWEEN, "uname", "java.lang.String", "String");
+          return this;
+      }
+        
+      public ReplyCriteria andUnameIn(List<java.lang.String> values) {
+          addCriterion("uname", values, ConditionMode.IN, "uname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUnameNotIn(List<java.lang.String> values) {
+          addCriterion("uname", values, ConditionMode.NOT_IN, "uname", "java.lang.String", "String");
+          return this;
+      }
+	public ReplyCriteria andTounameIsNull() {
+		isnull("touname");
+		return this;
+	}
+	
+	public ReplyCriteria andTounameIsNotNull() {
+		notNull("touname");
+		return this;
+	}
+	
+	public ReplyCriteria andTounameIsEmpty() {
+		empty("touname");
+		return this;
+	}
+
+	public ReplyCriteria andTounameIsNotEmpty() {
+		notEmpty("touname");
+		return this;
+	}
+        public ReplyCriteria andTounameLike(java.lang.String value) {
+    	   addCriterion("touname", value, ConditionMode.FUZZY, "touname", "java.lang.String", "String");
+    	   return this;
+      }
+
+      public ReplyCriteria andTounameNotLike(java.lang.String value) {
+          addCriterion("touname", value, ConditionMode.NOT_FUZZY, "touname", "java.lang.String", "String");
+          return this;
+      }
+      public ReplyCriteria andTounameEqualTo(java.lang.String value) {
+          addCriterion("touname", value, ConditionMode.EQUAL, "touname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andTounameNotEqualTo(java.lang.String value) {
+          addCriterion("touname", value, ConditionMode.NOT_EQUAL, "touname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andTounameGreaterThan(java.lang.String value) {
+          addCriterion("touname", value, ConditionMode.GREATER_THEN, "touname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andTounameGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("touname", value, ConditionMode.GREATER_EQUAL, "touname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andTounameLessThan(java.lang.String value) {
+          addCriterion("touname", value, ConditionMode.LESS_THEN, "touname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andTounameLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("touname", value, ConditionMode.LESS_EQUAL, "touname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andTounameBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("touname", value1, value2, ConditionMode.BETWEEN, "touname", "java.lang.String", "String");
+    	  return this;
+      }
+
+      public ReplyCriteria andTounameNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("touname", value1, value2, ConditionMode.NOT_BETWEEN, "touname", "java.lang.String", "String");
+          return this;
+      }
+        
+      public ReplyCriteria andTounameIn(List<java.lang.String> values) {
+          addCriterion("touname", values, ConditionMode.IN, "touname", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andTounameNotIn(List<java.lang.String> values) {
+          addCriterion("touname", values, ConditionMode.NOT_IN, "touname", "java.lang.String", "String");
+          return this;
+      }
+	public ReplyCriteria andUheadurlIsNull() {
+		isnull("uheadurl");
+		return this;
+	}
+	
+	public ReplyCriteria andUheadurlIsNotNull() {
+		notNull("uheadurl");
+		return this;
+	}
+	
+	public ReplyCriteria andUheadurlIsEmpty() {
+		empty("uheadurl");
+		return this;
+	}
+
+	public ReplyCriteria andUheadurlIsNotEmpty() {
+		notEmpty("uheadurl");
+		return this;
+	}
+        public ReplyCriteria andUheadurlLike(java.lang.String value) {
+    	   addCriterion("uheadurl", value, ConditionMode.FUZZY, "uheadurl", "java.lang.String", "String");
+    	   return this;
+      }
+
+      public ReplyCriteria andUheadurlNotLike(java.lang.String value) {
+          addCriterion("uheadurl", value, ConditionMode.NOT_FUZZY, "uheadurl", "java.lang.String", "String");
+          return this;
+      }
+      public ReplyCriteria andUheadurlEqualTo(java.lang.String value) {
+          addCriterion("uheadurl", value, ConditionMode.EQUAL, "uheadurl", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUheadurlNotEqualTo(java.lang.String value) {
+          addCriterion("uheadurl", value, ConditionMode.NOT_EQUAL, "uheadurl", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUheadurlGreaterThan(java.lang.String value) {
+          addCriterion("uheadurl", value, ConditionMode.GREATER_THEN, "uheadurl", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUheadurlGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("uheadurl", value, ConditionMode.GREATER_EQUAL, "uheadurl", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUheadurlLessThan(java.lang.String value) {
+          addCriterion("uheadurl", value, ConditionMode.LESS_THEN, "uheadurl", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUheadurlLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("uheadurl", value, ConditionMode.LESS_EQUAL, "uheadurl", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUheadurlBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("uheadurl", value1, value2, ConditionMode.BETWEEN, "uheadurl", "java.lang.String", "String");
+    	  return this;
+      }
+
+      public ReplyCriteria andUheadurlNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("uheadurl", value1, value2, ConditionMode.NOT_BETWEEN, "uheadurl", "java.lang.String", "String");
+          return this;
+      }
+        
+      public ReplyCriteria andUheadurlIn(List<java.lang.String> values) {
+          addCriterion("uheadurl", values, ConditionMode.IN, "uheadurl", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andUheadurlNotIn(List<java.lang.String> values) {
+          addCriterion("uheadurl", values, ConditionMode.NOT_IN, "uheadurl", "java.lang.String", "String");
+          return this;
+      }
+	public ReplyCriteria andRcontentIsNull() {
+		isnull("rcontent");
+		return this;
+	}
+	
+	public ReplyCriteria andRcontentIsNotNull() {
+		notNull("rcontent");
+		return this;
+	}
+	
+	public ReplyCriteria andRcontentIsEmpty() {
+		empty("rcontent");
+		return this;
+	}
+
+	public ReplyCriteria andRcontentIsNotEmpty() {
+		notEmpty("rcontent");
+		return this;
+	}
+        public ReplyCriteria andRcontentLike(java.lang.String value) {
+    	   addCriterion("rcontent", value, ConditionMode.FUZZY, "rcontent", "java.lang.String", "String");
+    	   return this;
+      }
+
+      public ReplyCriteria andRcontentNotLike(java.lang.String value) {
+          addCriterion("rcontent", value, ConditionMode.NOT_FUZZY, "rcontent", "java.lang.String", "String");
+          return this;
+      }
+      public ReplyCriteria andRcontentEqualTo(java.lang.String value) {
+          addCriterion("rcontent", value, ConditionMode.EQUAL, "rcontent", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRcontentNotEqualTo(java.lang.String value) {
+          addCriterion("rcontent", value, ConditionMode.NOT_EQUAL, "rcontent", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRcontentGreaterThan(java.lang.String value) {
+          addCriterion("rcontent", value, ConditionMode.GREATER_THEN, "rcontent", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRcontentGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("rcontent", value, ConditionMode.GREATER_EQUAL, "rcontent", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRcontentLessThan(java.lang.String value) {
+          addCriterion("rcontent", value, ConditionMode.LESS_THEN, "rcontent", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRcontentLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("rcontent", value, ConditionMode.LESS_EQUAL, "rcontent", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRcontentBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("rcontent", value1, value2, ConditionMode.BETWEEN, "rcontent", "java.lang.String", "String");
+    	  return this;
+      }
+
+      public ReplyCriteria andRcontentNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("rcontent", value1, value2, ConditionMode.NOT_BETWEEN, "rcontent", "java.lang.String", "String");
+          return this;
+      }
+        
+      public ReplyCriteria andRcontentIn(List<java.lang.String> values) {
+          addCriterion("rcontent", values, ConditionMode.IN, "rcontent", "java.lang.String", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRcontentNotIn(List<java.lang.String> values) {
+          addCriterion("rcontent", values, ConditionMode.NOT_IN, "rcontent", "java.lang.String", "String");
+          return this;
+      }
+	public ReplyCriteria andRtimeIsNull() {
+		isnull("rtime");
+		return this;
+	}
+	
+	public ReplyCriteria andRtimeIsNotNull() {
+		notNull("rtime");
+		return this;
+	}
+	
+	public ReplyCriteria andRtimeIsEmpty() {
+		empty("rtime");
+		return this;
+	}
+
+	public ReplyCriteria andRtimeIsNotEmpty() {
+		notEmpty("rtime");
+		return this;
+	}
+       public ReplyCriteria andRtimeEqualTo(java.util.Date value) {
+          addCriterion("rtime", value, ConditionMode.EQUAL, "rtime", "java.util.Date", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRtimeNotEqualTo(java.util.Date value) {
+          addCriterion("rtime", value, ConditionMode.NOT_EQUAL, "rtime", "java.util.Date", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRtimeGreaterThan(java.util.Date value) {
+          addCriterion("rtime", value, ConditionMode.GREATER_THEN, "rtime", "java.util.Date", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRtimeGreaterThanOrEqualTo(java.util.Date value) {
+          addCriterion("rtime", value, ConditionMode.GREATER_EQUAL, "rtime", "java.util.Date", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRtimeLessThan(java.util.Date value) {
+          addCriterion("rtime", value, ConditionMode.LESS_THEN, "rtime", "java.util.Date", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRtimeLessThanOrEqualTo(java.util.Date value) {
+          addCriterion("rtime", value, ConditionMode.LESS_EQUAL, "rtime", "java.util.Date", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRtimeBetween(java.util.Date value1, java.util.Date value2) {
+    	  addCriterion("rtime", value1, value2, ConditionMode.BETWEEN, "rtime", "java.util.Date", "String");
+    	  return this;
+      }
+
+      public ReplyCriteria andRtimeNotBetween(java.util.Date value1, java.util.Date value2) {
+          addCriterion("rtime", value1, value2, ConditionMode.NOT_BETWEEN, "rtime", "java.util.Date", "String");
+          return this;
+      }
+        
+      public ReplyCriteria andRtimeIn(List<java.util.Date> values) {
+          addCriterion("rtime", values, ConditionMode.IN, "rtime", "java.util.Date", "String");
+          return this;
+      }
+
+      public ReplyCriteria andRtimeNotIn(List<java.util.Date> values) {
+          addCriterion("rtime", values, ConditionMode.NOT_IN, "rtime", "java.util.Date", "String");
           return this;
       }
 	public ReplyCriteria andDelIsNull() {

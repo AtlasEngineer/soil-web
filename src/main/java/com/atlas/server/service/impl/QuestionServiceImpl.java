@@ -18,6 +18,7 @@ package com.atlas.server.service.impl;
 import com.atlas.server.model.Answer;
 import com.atlas.server.model.InsectSpecies;
 import com.atlas.server.model.Reply;
+import com.atlas.server.model.sql.AnswerCriteria;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.Lambkit;
@@ -32,6 +33,7 @@ import com.lambkit.plugin.jwt.JwtKit;
 import com.lambkit.web.RequestManager;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -124,15 +126,11 @@ public class QuestionServiceImpl extends LambkitModelServiceImpl<Question> imple
     	Question question=Question.service().dao().findById(id);
 
     	Integer num=Db.queryInt("select count(*) from at_answer a where a.q_id="+question.getId()+" ");
+        AnswerCriteria sql=new AnswerCriteria();
+        Page<Answer> answerPage=Answer.service().dao().paginate(1,5,sql.example());
 
-    	List<Answer> list=Answer.service().find(Answer.sql().andQIdEqualTo(question.getId()));
-		for (Answer answer:list) {
-			Answer ans=Answer.service().dao().findById(answer.getId());
-			Reply reply=Reply.service().dao().findFirst(Reply.sql().andAIdEqualTo(ans.getId()).example());
-			ans.put("reply",reply);
-		}
+
 		question.put("num",num);
-		question.put("list",list);
 
 		return question;
 	}

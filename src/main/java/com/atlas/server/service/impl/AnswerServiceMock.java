@@ -15,18 +15,31 @@
  */
 package com.atlas.server.service.impl;
 
+import com.atlas.server.utils.AnswerNode;
+import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.BaseServiceMock;
 
 import com.atlas.server.model.Answer;
 import com.atlas.server.service.AnswerService;
 
+import java.util.List;
+
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-10
  * @version 1.0
  * @since 1.0
  */
 public class AnswerServiceMock extends BaseServiceMock<Answer> implements AnswerService {
+    @Override
+    public Answer addAnswer(Answer answer) {
+        return null;
+    }
+
+    @Override
+    public List<AnswerNode> all() {
+        return null;
+    }
 }

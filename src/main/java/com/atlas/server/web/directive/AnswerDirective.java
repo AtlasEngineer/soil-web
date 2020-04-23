@@ -34,6 +34,9 @@ public class AnswerDirective extends LambkitDirective {
 		String userId = getPara("user_id", scope);
 		String content = getPara("content", scope);
 		String del = getPara("del", scope);
+		String time = getPara("time", scope);
+		String uname = getPara("uname", scope);
+		String url = getPara("url", scope);
 		int pagenum = getParaToInt("pagenum", scope, 0);
 		int pagesize = getParaToInt("pagesize", scope, 0);
 		String wheresql = getPara("sql", null);
@@ -45,6 +48,9 @@ public class AnswerDirective extends LambkitDirective {
 			if(StringUtils.hasText(userId)) sql += " and user_id=" + userId;//int
 			if(StringUtils.hasText(content)) sql += " and content like '%" + content + "%'";//varchar
 			if(StringUtils.hasText(del)) sql += " and del=" + del;//int
+			if(StringUtils.hasText(time)) sql += " and time like '%" + time + "%'";//timestamp
+			if(StringUtils.hasText(uname)) sql += " and uname like '%" + uname + "%'";//varchar
+			if(StringUtils.hasText(url)) sql += " and url like '%" + url + "%'";//varchar
 		} else {
 			sql += wheresql;
 		}

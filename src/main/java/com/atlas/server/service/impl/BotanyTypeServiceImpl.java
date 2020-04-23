@@ -15,6 +15,7 @@
  */
 package com.atlas.server.service.impl;
 
+import com.atlas.server.utils.Co;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.Lambkit;
@@ -76,6 +77,12 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
 		RedisCacheImpl redis = new RedisCacheImpl();
 		Integer t_id=redis.get("news",upmsUser.getUserId());
 		Record record= Db.findFirst("select * from news where del=0 and id="+id+"");
+		Integer status=Db.queryInt("select status from news_collection c where c.user_id="+upmsUser.getUserId()+" and c.news_id="+id+"");
+		if(status>0){
+			record.set("is_Collection",false);
+		}else{
+			record.set("is_Collection",true);
+		}
 		if(t_id!=null){
 
 			return  record;
@@ -93,14 +100,38 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
 				return  null;
 			}
 		}
+	}
 
+	@Override
+	public Co addNews( Integer news_id, Integer status) {
+		String token = RequestManager.me().getRequest().getHeader("Authorization");
 
+		JwtConfig config = Lambkit.config(JwtConfig.class);
+		String tokenPrefix = config.getTokenPrefix();
+		String authToken = token.substring(tokenPrefix.length());
+		String username = JwtKit.getJwtUser(authToken);
+		if (username == null) {
+			return null;
+		}
+		System.out.println("username : " + username);
+		UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+		if (upmsUser == null) {
+			return null;
+		}
+		String sql="";
 
-
-
-
-
-
+		Record record=Db.findFirst("select status from news_collection c where c.user_id="+upmsUser.getUserId()+" and c.news_id="+news_id+"");
+		if (record==null){
+			sql="insert into news_collection (user_id,news_id,status) value ("+upmsUser.getUserId()+","+news_id+","+status+") ";
+		}else {
+			sql="UPDATE  news_collection SET status="+status+" WHERE user_id="+upmsUser.getUserId()+" and news_id="+news_id+"";
+		}
+       Integer result=Db.update(sql);
+		if(result>0){
+			return  Co.ok("msg","成功");
+		}else {
+			return  Co.fail("msg","失败");
+		}
 
 	}
 }

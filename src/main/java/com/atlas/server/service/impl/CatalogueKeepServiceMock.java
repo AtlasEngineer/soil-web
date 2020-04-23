@@ -15,6 +15,7 @@
  */
 package com.atlas.server.service.impl;
 
+import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.BaseServiceMock;
 
 import com.atlas.server.model.CatalogueKeep;
@@ -29,4 +30,8 @@ import com.atlas.server.service.CatalogueKeepService;
  * @since 1.0
  */
 public class CatalogueKeepServiceMock extends BaseServiceMock<CatalogueKeep> implements CatalogueKeepService {
+    @Override
+    public Page all(Integer pageNum, Integer pageSize) {
+        return null;
+    }
 }

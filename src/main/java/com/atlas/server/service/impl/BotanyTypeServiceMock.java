@@ -15,6 +15,7 @@
  */
 package com.atlas.server.service.impl;
 
+import com.atlas.server.utils.Co;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.BaseServiceMock;
 
@@ -39,6 +40,11 @@ public class BotanyTypeServiceMock extends BaseServiceMock<BotanyType> implement
 
     @Override
     public Record searchNewsById(Integer id,String ip) {
+        return null;
+    }
+
+    @Override
+    public Co addNews( Integer news_id, Integer status) {
         return null;
     }
 }

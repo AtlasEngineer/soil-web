@@ -15,18 +15,36 @@
  */
 package com.atlas.server.service.impl;
 
+import com.atlas.server.model.Answer;
 import com.lambkit.common.service.BaseServiceMock;
 
 import com.atlas.server.model.Reply;
 import com.atlas.server.service.ReplyService;
 
+import java.util.List;
+
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-10
  * @version 1.0
  * @since 1.0
  */
 public class ReplyServiceMock extends BaseServiceMock<Reply> implements ReplyService {
+    @Override
+    public Reply addReply(Reply reply) {
+        return null;
+    }
+
+    @Override
+    public List<Reply> allByTid(Integer tid) {
+        return null;
+    }
+
+    @Override
+    public List<Reply> allByRid(Integer rid) {
+        return null;
+    }
+
 }

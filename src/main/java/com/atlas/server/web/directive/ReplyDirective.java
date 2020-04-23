@@ -30,9 +30,15 @@ public class ReplyDirective extends LambkitDirective {
 	public void onRender(Env env, Scope scope, Writer writer) {
 		// TODO Auto-generated method stub
 		String id = getPara("id", scope);
-		String aId = getPara("a_id", scope);
-		String userId = getPara("user_id", scope);
-		String content = getPara("content", scope);
+		String torrid = getPara("torrid", scope);
+		String torr = getPara("torr", scope);
+		String uid = getPara("uid", scope);
+		String touid = getPara("touid", scope);
+		String uname = getPara("uname", scope);
+		String touname = getPara("touname", scope);
+		String uheadurl = getPara("uheadurl", scope);
+		String rcontent = getPara("rcontent", scope);
+		String rtime = getPara("rtime", scope);
 		String del = getPara("del", scope);
 		int pagenum = getParaToInt("pagenum", scope, 0);
 		int pagesize = getParaToInt("pagesize", scope, 0);
@@ -41,9 +47,15 @@ public class ReplyDirective extends LambkitDirective {
 		if(wheresql == null) {
 			sql += " 1=1 ";
 			if(StringUtils.hasText(id)) sql += " and id=" + id;//int
-			if(StringUtils.hasText(aId)) sql += " and a_id=" + aId;//int
-			if(StringUtils.hasText(userId)) sql += " and user_id=" + userId;//int
-			if(StringUtils.hasText(content)) sql += " and content=" + content;//int
+			if(StringUtils.hasText(torrid)) sql += " and torrid=" + torrid;//int
+			if(StringUtils.hasText(torr)) sql += " and torr=" + torr;//int
+			if(StringUtils.hasText(uid)) sql += " and uid=" + uid;//int
+			if(StringUtils.hasText(touid)) sql += " and touid=" + touid;//int
+			if(StringUtils.hasText(uname)) sql += " and uname like '%" + uname + "%'";//varchar
+			if(StringUtils.hasText(touname)) sql += " and touname like '%" + touname + "%'";//varchar
+			if(StringUtils.hasText(uheadurl)) sql += " and uheadurl like '%" + uheadurl + "%'";//varchar
+			if(StringUtils.hasText(rcontent)) sql += " and rcontent like '%" + rcontent + "%'";//varchar
+			if(StringUtils.hasText(rtime)) sql += " and rtime like '%" + rtime + "%'";//timestamp
 			if(StringUtils.hasText(del)) sql += " and del=" + del;//int
 		} else {
 			sql += wheresql;

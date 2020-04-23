@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.atlas.lambkit.start.BaiDuConfig;
 import com.atlas.server.model.Catalogue;
 import com.atlas.server.model.CatalogueSample;
+import com.atlas.server.model.PestsSample;
 import com.atlas.server.utils.AiDiscenerUtils;
 import com.atlas.server.utils.Co;
 import com.atlas.server.utils.ZipUtils;
@@ -173,15 +174,19 @@ public class AppController extends LambkitController {
         String s ="D:/upload/sample/" + id; //现在改为种类id为文件夹得名字
 
             List<String> baiDu = new ArrayList<>();  //上传百度失败的图片
+        List<String> no = new ArrayList<>();  //样本没有shang传的图片
             HashMap<String, String> options = new HashMap<String, String>();
             // 文件标签, 这个先不填, 实际项目时, 根据实际需求来
-            Catalogue catalogue = Catalogue.service().dao().findFirst(Catalogue.sql().andIdEqualTo(id).example());
+
             options.put("tags", "5");
             //  images 目录下的base目录训练图片, test是测试图片, 这里把训练图片全部入库
             File images = new File(s);
             // 获取目录下的所有图片
             File[] fi = images.listFiles();
             for (File f : fi) {
+                String fileext = PathUtils.getExtensionName(f.getName());
+                String name = f.getName().split("\\.")[0];
+                if ("jpg".equalsIgnoreCase(fileext) || "png".equalsIgnoreCase(fileext) || "bmp".equalsIgnoreCase(fileext)) {
                 if (ZipUtils.checkFileSizeIsLimit(f.length(), 3, "M")) {
                     System.out.println("小于3m啊啊啊啊啊啊");
                 } else {
@@ -189,10 +194,6 @@ public class AppController extends LambkitController {
                     String path = rootPath + "/upload/" + f.getName();
                     ZipUtils.yasuoImage(path, f);
                 }
-
-                String fileext = PathUtils.getExtensionName(f.getName());
-                String name = f.getName().split("\\.")[0];
-                if ("jpg".equalsIgnoreCase(fileext) || "png".equalsIgnoreCase(fileext) || "bmp".equalsIgnoreCase(fileext)) {
                     // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
                     options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/sample/" + id + "/" + f.getName() + "\"}");
                     // 上传图片入库
@@ -204,6 +205,10 @@ public class AppController extends LambkitController {
                         baiDu.add(f.getName());
                     } else {
                         CatalogueSample catalogueSample = CatalogueSample.service().dao().findById(name);
+                        if (catalogueSample==null){
+                            no.add(name);
+                            continue;
+                        }
                         catalogueSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
                         boolean result = catalogueSample.update();
                         if (result) {
@@ -238,7 +243,7 @@ public class AppController extends LambkitController {
     @ApiOperation(url = "/cern/addDiseases", tag = "/cern", httpMethod = "get", description = "添加病虫害样本")
     public void addDiseases () throws IOException {
         String filepath = getPara("filepath");//zip路径
-        String id = getPara("id");//种类id
+        Integer id = getParaToInt("id");//种类id
 
         System.out.println(filepath);
         String rootPath = PathKit.getWebRootPath().replace("\\", "/");
@@ -323,7 +328,6 @@ public class AppController extends LambkitController {
             }
             HashMap<String, String> options = new HashMap<String, String>();
             // 文件标签, 这个先不填, 实际项目时, 根据实际需求来
-            Catalogue catalogue = Catalogue.service().dao().findFirst(Catalogue.sql().andIdEqualTo(id).example());
             //  images 目录下的base目录训练图片, test是测试图片, 这里把训练图片全部入库
             File images = new File(s);
             // 获取目录下的所有图片
@@ -338,9 +342,9 @@ public class AppController extends LambkitController {
                 }
                 //System.out.println("f.length()" + f.length());
                 // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
-                options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/sample/" + id + "/" + f.getName() + "\"}");
+                options.put("brief", "{\"name\":\"" + f.getName() + "\",\"pests_id\":\"" + id + "\",\"url\":\"" + "/eatalogue/diseases/" + id + "/" + f.getName() + "\"}");
                 // 上传图片入库
-                org.json.JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
+                org.json.JSONObject res = client_B.similarAdd(f.getAbsolutePath(), options);
                 // 打印上传结果
                 System.out.println(res.toString(2));
                 String fileext = PathUtils.getExtensionName(f.getName());
@@ -353,17 +357,17 @@ public class AppController extends LambkitController {
                             System.out.println(f.getName() + "的图片上传百度图片失败，删除本地的图片");
                         }
                     } else {
-                        CatalogueSample catalogueSample = new CatalogueSample();
-                        catalogueSample.setId(f.getName().split("\\.")[0]);
-                        catalogueSample.setName(f.getName());
-                        catalogueSample.setBrief("{name:" + f.getName() + ",id:" + id + ",url:" + "/eatalogue/diseases/" + id + "/" + f.getName() + "}");
-                        catalogueSample.setCatalogueId(id);
-                        catalogueSample.setUrl("/eatalogue/diseases/" + id + "/" + f.getName());
-                        catalogueSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
-                        catalogueSample.setTime(new Date());
-                        catalogueSample.setType(0);
-                        catalogueSample.setStatus(0);//0 导入,1识别,2.上报
-                        boolean result = catalogueSample.save();
+                        PestsSample pestsSample = new PestsSample();
+                        pestsSample.setId(f.getName().split("\\.")[0]);
+                        pestsSample.setName(f.getName());
+                        pestsSample.setBrief("{\"name\":\"" + f.getName() + "\",\"pests_id\":\"" + id + "\",\"url\":\"" + "/eatalogue/diseases/" + id + "/" + f.getName() + "\"}");
+                        pestsSample.setPestsId(id);
+                        pestsSample.setUrl("/eatalogue/diseases/" + id + "/" + f.getName());
+                        pestsSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
+                        pestsSample.setTime(new Date());
+                        pestsSample.setType(0);
+                        pestsSample.setStatus(0);//0 导入,1识别,2.上报
+                        boolean result = pestsSample.save();
                         if (result) {
                             System.out.println(f.getName() + "添加数据库成功");
                         } else {
@@ -397,6 +401,31 @@ public class AppController extends LambkitController {
                 System.out.println("删除失败");
             }
         }
+    }
+
+
+
+
+
+
+    public void update() throws InterruptedException {
+
+        HashMap<String, String> options = new HashMap<String, String>();
+        String id = getPara("id");//种类id
+        List<String> list=new ArrayList<>();
+
+        List<CatalogueSample> catalogueSample=CatalogueSample.service().dao().find("select * from catalogue_sample c where c.catalogue_id='"+id+"'");
+        for (CatalogueSample c:catalogueSample){
+            Thread.sleep(1000);
+            System.out.println(c.getContSign());
+            options.put("brief",c.getBrief());
+            org.json.JSONObject res = client.similarUpdateContSign(c.getContSign(),options);
+            System.out.println(res.toString(2));
+            if(StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))){
+                list.add(c.getName());
+            }
+        }
+        renderJson("data",list);
     }
 
 

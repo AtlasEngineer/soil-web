@@ -15,6 +15,8 @@
  */
 package com.atlas.server.service.impl;
 
+import com.atlas.server.model.sql.CatalogueKeepCriteria;
+import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.core.aop.AopKit;
 
@@ -38,5 +40,16 @@ public class CatalogueKeepServiceImpl extends LambkitModelServiceImpl<CatalogueK
 			DAO = AopKit.singleton(CatalogueKeep.class);
 		}
 		return DAO;
+	}
+
+	@Override
+	public Page all(Integer pageNum, Integer pageSize) {
+		if (pageNum == null || pageSize == null) {
+			pageNum = 1;
+			pageSize = 10;
+		}
+		CatalogueKeepCriteria sql=new CatalogueKeepCriteria();
+		Page page=CatalogueKeep.service().dao().paginate(pageNum,pageSize,sql.example());
+		return page;
 	}
 }

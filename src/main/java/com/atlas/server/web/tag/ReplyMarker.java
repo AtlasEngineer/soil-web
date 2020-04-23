@@ -35,7 +35,7 @@ import freemarker.template.TemplateModel;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-10
  * @version 1.0
  * @since 1.0
  */
@@ -52,9 +52,15 @@ public class ReplyMarker extends LambkitTemplateModel {
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		// TODO Auto-generated method stub
 		String id = get(params, "id");
-		String aId = get(params, "a_id");
-		String userId = get(params, "user_id");
-		String content = get(params, "content");
+		String torrid = get(params, "torrid");
+		String torr = get(params, "torr");
+		String uid = get(params, "uid");
+		String touid = get(params, "touid");
+		String uname = get(params, "uname");
+		String touname = get(params, "touname");
+		String uheadurl = get(params, "uheadurl");
+		String rcontent = get(params, "rcontent");
+		String rtime = get(params, "rtime");
 		String del = get(params, "del");
 		int pagenum = getInt(params, "pagenum", 0);
 		int pagesize = getInt(params, "pagesize", 0);
@@ -63,9 +69,15 @@ public class ReplyMarker extends LambkitTemplateModel {
 		if(wheresql == null) {
 			sql += " 1=1 ";
 			if(StringUtils.hasText(id)) sql += " and id=" + id;//int
-			if(StringUtils.hasText(aId)) sql += " and a_id=" + aId;//int
-			if(StringUtils.hasText(userId)) sql += " and user_id=" + userId;//int
-			if(StringUtils.hasText(content)) sql += " and content=" + content;//int
+			if(StringUtils.hasText(torrid)) sql += " and torrid=" + torrid;//int
+			if(StringUtils.hasText(torr)) sql += " and torr=" + torr;//int
+			if(StringUtils.hasText(uid)) sql += " and uid=" + uid;//int
+			if(StringUtils.hasText(touid)) sql += " and touid=" + touid;//int
+			if(StringUtils.hasText(uname)) sql += " and uname like '%" + uname + "%'";//varchar
+			if(StringUtils.hasText(touname)) sql += " and touname like '%" + touname + "%'";//varchar
+			if(StringUtils.hasText(uheadurl)) sql += " and uheadurl like '%" + uheadurl + "%'";//varchar
+			if(StringUtils.hasText(rcontent)) sql += " and rcontent like '%" + rcontent + "%'";//varchar
+			if(StringUtils.hasText(rtime)) sql += " and rtime like '%" + rtime + "%'";//timestamp
 			if(StringUtils.hasText(del)) sql += " and del=" + del;//int
 		} else {
 			sql += wheresql;
