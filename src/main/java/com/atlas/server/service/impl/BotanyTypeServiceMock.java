@@ -34,6 +34,7 @@ import java.util.List;
  * @since 1.0
  */
 public class BotanyTypeServiceMock extends BaseServiceMock<BotanyType> implements BotanyTypeService {
+
     @Override
     public Page all(Integer pageNum, Integer pageSize) {
         return null;

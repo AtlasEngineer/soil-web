@@ -42,7 +42,8 @@ import java.util.List;
  * @since 1.0
  */
 public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> implements BotanyTypeService {
-	
+
+    
 	private BotanyType DAO = null;
 	
 	public BotanyType dao() {

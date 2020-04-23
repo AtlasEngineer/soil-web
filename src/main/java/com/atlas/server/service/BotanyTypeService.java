@@ -37,6 +37,7 @@ import java.util.List;
  */
 public interface BotanyTypeService extends LambkitService<BotanyType> {
 
+
     //查询所有新闻
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "news.all")
