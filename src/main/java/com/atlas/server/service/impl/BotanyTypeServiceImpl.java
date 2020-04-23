@@ -17,6 +17,7 @@ package com.atlas.server.service.impl;
 
 import com.atlas.server.utils.Co;
 import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.Lambkit;
 import com.lambkit.common.service.LambkitModelServiceImpl;
@@ -52,9 +53,13 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
 	}
 
 	@Override
-	public List<Record> all() {
-		List<Record> list= Db.find("select * from news where del=0");
-		return list;
+	public Page all(Integer pageNum, Integer pageSize) {
+		if(pageNum==null||pageSize==null){
+			pageNum=1;
+			pageSize=5;
+		}
+		Page page=Db.paginate(pageNum,pageSize,"select *","from news where del=0");
+		return page;
 	}
 
 	@Override
@@ -84,7 +89,6 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
 			record.set("is_Collection",true);
 		}
 		if(t_id!=null){
-
 			return  record;
 		}else {
 			redis.put("news", upmsUser.getUserId(),id);

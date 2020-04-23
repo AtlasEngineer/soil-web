@@ -14,6 +14,7 @@ public class ApiRoute extends Routes {
         add("/", IndexController.class,"/WEB-INF/app");
         add("/user", UserController.class,"/WEB-INF/app");
         add("/app", AppController.class,"/WEB-INF/app");
+        add("/upload", UploadController.class,"/WEB-INF/app");
         addInterceptor(new JwtTokenInterceptor());
     }
 }

@@ -16,6 +16,7 @@
 package com.atlas.server.service.impl;
 
 import com.atlas.server.utils.Co;
+import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.BaseServiceMock;
 
@@ -34,7 +35,7 @@ import java.util.List;
  */
 public class BotanyTypeServiceMock extends BaseServiceMock<BotanyType> implements BotanyTypeService {
     @Override
-    public List<Record> all() {
+    public Page all(Integer pageNum, Integer pageSize) {
         return null;
     }
 

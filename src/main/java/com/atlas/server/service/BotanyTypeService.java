@@ -16,6 +16,7 @@
 package com.atlas.server.service;
 
 import com.atlas.server.utils.Co;
+import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitService;
 
@@ -39,7 +40,7 @@ public interface BotanyTypeService extends LambkitService<BotanyType> {
     //查询所有新闻
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "news.all")
-    public List<Record> all();
+    public Page all(Integer pageNum, Integer pageSize );
 
 
     //查询新闻详情
