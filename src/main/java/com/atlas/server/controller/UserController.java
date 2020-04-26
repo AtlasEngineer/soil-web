@@ -218,10 +218,9 @@ public class UserController extends LambkitController {
         String username = getPara("username");//用户名
         String password = getPara("password");//密码
         String qrpassword = getPara("repassword");//确认密码
-        String realName = getPara("fullname");//真实姓名
+        String code = getPara("code");//验证码
 
         String phone = getPara("phone");//手机号/联系方式
-
 
         String regxusename = "[0-9a-zA-Z]{3,12}";
         if (StringUtils.isBlank(username)) {
@@ -250,9 +249,6 @@ public class UserController extends LambkitController {
         } else if (!password.equals(qrpassword)) {
             renderJson(Co.ok("data", Ret.fail("errorMsg", "密码与确认密码不一致")));
             return;
-        } else if (StringUtils.isBlank(realName)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "请填写真实姓名")));
-            return;
         } else if (StringUtils.isBlank(phone)) {
             renderJson(Co.ok("data", Ret.fail("errorMsg", "请填写手机号")));
             return;
@@ -270,17 +266,17 @@ public class UserController extends LambkitController {
         }
         boolean flag = false;
 
-        flag = orReg(1, username, realName, password, phone);
+        flag = orReg(1, username, password, phone);
 
 
         if (flag) {
-            renderJson(Co.ok("data", Ret.ok("msg", "注册成功")));
+            renderJson(Co.ok("data", Co.ok("msg", "注册成功")));
         } else {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "注册失败")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "注册失败")));
         }
     }
 
-    private boolean orReg(Integer roleId, String username, String realName, String password, String phone) {
+    private boolean orReg(Integer roleId, String username, String password, String phone) {
         //注册
         boolean flag = Db.tx(new IAtom() {
             public boolean run() throws SQLException {
@@ -290,7 +286,6 @@ public class UserController extends LambkitController {
 
                 upmsUser.setUsername(username);
                 upmsUser.setPhone(phone);
-                upmsUser.setRealname(realName);
                 upmsUser.set("creatime", new Date());
                 String salt = StrKit.getRandomUUID();
                 upmsUser.setSalt(salt);
@@ -313,6 +308,17 @@ public class UserController extends LambkitController {
         });
         return flag;
     }
+
+
+
+    @Clear
+    @ApiOperation(url = "/user/getCode", tag = "/user", httpMethod = "post", description = "获取验证码")
+    public void getCode() {
+
+
+
+    }
+
 
 
 }

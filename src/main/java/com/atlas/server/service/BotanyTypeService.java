@@ -47,7 +47,7 @@ public interface BotanyTypeService extends LambkitService<BotanyType> {
     //查询新闻详情
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "news.allById")
-    public Record searchNewsById(Integer id,String ip);
+    public Record searchNewsById(Integer id);
 
 
     //收藏

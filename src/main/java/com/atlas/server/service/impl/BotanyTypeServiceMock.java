@@ -41,7 +41,7 @@ public class BotanyTypeServiceMock extends BaseServiceMock<BotanyType> implement
     }
 
     @Override
-    public Record searchNewsById(Integer id,String ip) {
+    public Record searchNewsById(Integer id) {
         return null;
     }
 

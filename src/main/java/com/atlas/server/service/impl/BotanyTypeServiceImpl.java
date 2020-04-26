@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> implements BotanyTypeService {
 
-    
+
 	private BotanyType DAO = null;
 	
 	public BotanyType dao() {
@@ -64,7 +64,7 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
 	}
 
 	@Override
-	public Record searchNewsById(Integer id,String ip) {
+	public Record searchNewsById(Integer id) {
 
 		String token = RequestManager.me().getRequest().getHeader("Authorization");
 
@@ -83,15 +83,15 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
 		RedisCacheImpl redis = new RedisCacheImpl();
 		Integer t_id=redis.get("news",upmsUser.getUserId());
 		Record record= Db.findFirst("select * from news where del=0 and id="+id+"");
-		Integer status=Db.queryInt("select status from news_collection c where c.user_id="+upmsUser.getUserId()+" and c.news_id="+id+"");
+		Integer status=Db.queryInt("select status from news_collection c where c.user_id="+upmsUser.getUserId()+" and c.news_id="+id+""); //0收藏 1取消收藏
 		if(status>0){
 			record.set("is_Collection",false);
 		}else{
 			record.set("is_Collection",true);
 		}
-		if(t_id!=null){
+		if(t_id!=null){  //在redis里存在用户看过该文章直接返回详情
 			return  record;
-		}else {
+		}else {    //先加入redis，在返回详情
 			redis.put("news", upmsUser.getUserId(),id);
 
 			Integer num=record.getInt("volume");
