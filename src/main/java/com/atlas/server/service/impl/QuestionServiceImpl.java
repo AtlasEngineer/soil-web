@@ -33,6 +33,7 @@ import com.lambkit.plugin.jwt.JwtKit;
 import com.lambkit.web.RequestManager;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +65,14 @@ public class QuestionServiceImpl extends LambkitModelServiceImpl<Question> imple
             pageSize = 10;
         }
         Page<Question> page = Question.service().dao().paginate(pageNum, pageSize, Question.sql().andDelEqualTo(0).example());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        for (Question question:page.getList()){
+            Integer num=Db.queryInt("SELECT count(*) from at_answer  a where a.q_id="+question.getId()+"");
+            UpmsUser upmsUser=UpmsUser.service().dao().findById(question.getUserId());
+            question.put("auth",upmsUser.getRealname());
+            question.put("num",num);
+            question.put("time",formatter.format(question.getTime()));
+        }
         return page;
     }
 

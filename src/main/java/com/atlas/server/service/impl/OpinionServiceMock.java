@@ -15,39 +15,22 @@
  */
 package com.atlas.server.service.impl;
 
-import com.atlas.server.model.InsectPests;
-import com.atlas.server.model.InsectSpecies;
-import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.BaseServiceMock;
 
-import com.atlas.server.model.Catalogue;
-import com.atlas.server.service.CatalogueService;
-
-import java.util.List;
+import com.atlas.server.model.Opinion;
+import com.atlas.server.service.OpinionService;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-27
  * @version 1.0
  * @since 1.0
  */
-public class CatalogueServiceMock extends BaseServiceMock<Catalogue> implements CatalogueService {
-
-
+public class OpinionServiceMock extends BaseServiceMock<Opinion> implements OpinionService {
     @Override
-    public Page all(Integer pageNum, Integer pageSize,String name) {
-        return null;
-    }
-
-    @Override
-    public Page all(Integer id,Integer pageNum, Integer pageSize,Integer type,String name) {
-        return null;
-    }
-
-    @Override
-    public InsectPests insectPestsbyId(Integer id) {
-        return null;
+    public boolean addOpinion(Opinion opinion) {
+        return false;
     }
 }

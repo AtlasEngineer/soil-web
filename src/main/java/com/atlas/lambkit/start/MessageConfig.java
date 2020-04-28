@@ -7,10 +7,10 @@ import com.lambkit.core.config.annotation.PropertieConfig;
 public class MessageConfig {
 
     private String appId = "vS5dVko0KR9rSvP4PF3n63";
-    private String appKey = "01sw0Pt61b6Tv8NXit4ZN3";
-    private String masterSecret = "2BnYzLuUtk6gGK102CxMP9";
+    private String appKey = "2BnYzLuUtk6gGK102CxMP9";
+    private String masterSecret = "tgbDVxj7zg6xwvMDqDr7P";
     //短信模板id
-    private String smsTemplateId = "00001";
+    private String smsTemplateId = "0001";
 
 
 

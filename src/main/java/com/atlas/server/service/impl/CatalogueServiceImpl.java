@@ -18,8 +18,12 @@ package com.atlas.server.service.impl;
 import com.atlas.server.model.InsectPests;
 import com.atlas.server.model.InsectSpecies;
 import com.atlas.server.model.SpeciesPests;
+import com.atlas.server.model.sql.InsectSpeciesCriteria;
+import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
+import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitModelServiceImpl;
+import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
 
 import com.atlas.server.service.CatalogueService;
@@ -48,30 +52,56 @@ public class CatalogueServiceImpl extends LambkitModelServiceImpl<Catalogue> imp
 	}
 
 	@Override
-	public Page all(Integer pageNum, Integer pageSize) {
-		if(pageNum==null||pageSize==null){
-			pageNum=1;
-			pageSize=10;
+	public Page all(Integer pageNum, Integer pageSize,String name) {
+		if (pageSize == null) {
+			pageSize = 10;
 		}
-		Page<InsectSpecies> page=InsectSpecies.service().dao().paginate(pageNum,pageSize,InsectSpecies.sql().example());
+		if (pageNum == null) {
+			pageNum = 1;
+		}
+		InsectSpeciesCriteria sql=new InsectSpeciesCriteria();
+
+		if(StringUtils.isNotBlank(name)){
+			sql.andNameEqualTo("%"+name+"%");
+		}
+		Page<InsectSpecies> page=InsectSpecies.service().dao().paginate(pageNum,pageSize,sql.example());
 		return page;
 	}
 
 	@Override
-	public List<InsectPests> all(Integer id) {
-		List<InsectPests> insectPests=new ArrayList<>();
-
-		List<SpeciesPests> speciesPests=SpeciesPests.service().find(SpeciesPests.sql().andSpeciesIdEqualTo(id).example());
-		for (SpeciesPests pests:speciesPests){
-			InsectPests insect=InsectPests.service().dao().findById(pests.getPestsId());
-			insectPests.add(insect);
+	public Page all(Integer id,Integer pageNum, Integer pageSize,Integer type,String name) {
+		if (pageSize == null) {
+			pageSize = 10;
 		}
-		return insectPests;
+		if (pageNum == null) {
+			pageNum = 1;
+		}
+		Page<Record> page=null;
+		if(type==0){//病害
+			if(StringUtils.isNotBlank(name)){
+				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=0 and p.`name` LIKE '%"+name+"%' ");
+			}else {
+				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=0");
+			}
+		}
+		if(type==1){ //虫害
+			if(StringUtils.isNotBlank(name)){
+				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=1 and p.`name` LIKE '%"+name+"%' ");
+			}else {
+				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=1");
+			}
+		}
+		return page;
 	}
 
+
 	@Override
-	public InsectPests searchInsectPestsById(Integer id) {
-		InsectPests insect=InsectPests.service().dao().findById(id);
-		return insect;
+	public InsectPests insectPestsbyId(Integer id) {
+		InsectPests pests=InsectPests.service().dao().findById(id);
+		List list=Db.find("select i.`name` from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id left join  at_insect_species i on s.species_id=i.id where s.pests_id=1561 and p.type=0");
+		List<Record> imgList = Db.find(" SELECT c.url from at_pests_sample c   where c.pests_id="+id+" and c.del=0 LIMIT 3");
+		pests.put("host",list);
+		pests.put("imgList",imgList);
+		return pests;
 	}
 }

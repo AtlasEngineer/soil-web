@@ -75,8 +75,10 @@ public class MschModule extends LambkitModule  {
 		arp.addMapping("at_insect_pests", "id", InsectPests.class);
 		arp.addMapping("at_insect_species", "id", InsectSpecies.class);
 		arp.addMapping("at_insect_type", "id", InsectType.class);
+		arp.addMapping("at_pests_keep", "id", PestsKeep.class);
 		arp.addMapping("at_pests_sample", "id", PestsSample.class);
 		arp.addMapping("at_species_pests", "id", SpeciesPests.class);
+		arp.addMapping("at_opinion", "id", Opinion.class);
 		arp.addMapping("catalogue", "c_id", Catalogue.class);
 		arp.addMapping("catalogue_keep", "id", CatalogueKeep.class);
 		arp.addMapping("catalogue_sample", "id", CatalogueSample.class);
@@ -90,8 +92,10 @@ public class MschModule extends LambkitModule  {
 		lk.addTag("insectPests", new InsectPestsMarker());
 		lk.addTag("insectSpecies", new InsectSpeciesMarker());
 		lk.addTag("insectType", new InsectTypeMarker());
+		lk.addTag("pestsKeep", new PestsKeepMarker());
 		lk.addTag("pestsSample", new PestsSampleMarker());
 		lk.addTag("speciesPests", new SpeciesPestsMarker());
+		lk.addTag("opinion", new OpinionMarker());
 		lk.addTag("catalogue", new CatalogueMarker());
 		lk.addTag("catalogueKeep", new CatalogueKeepMarker());
 		lk.addTag("catalogueSample", new CatalogueSampleMarker());
@@ -117,6 +121,8 @@ public class MschModule extends LambkitModule  {
 		ServiceManager.me().mapping(AnswerService.class, AnswerServiceImpl.class, AnswerServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(QuestionService.class, QuestionServiceImpl.class, QuestionServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(ReplyService.class, ReplyServiceImpl.class, ReplyServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(PestsKeepService.class, PestsKeepServiceImpl.class, PestsKeepServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(OpinionService.class, OpinionServiceImpl.class, OpinionServiceMock.class, group, version, port);
 	}
 
 	public void registerRemoteService() {
@@ -136,6 +142,8 @@ public class MschModule extends LambkitModule  {
 		ServiceManager.me().remote(AnswerService.class, AnswerServiceMock.class, group, version, port);
 		ServiceManager.me().remote(QuestionService.class, QuestionServiceMock.class, group, version, port);
 		ServiceManager.me().remote(ReplyService.class, ReplyServiceMock.class, group, version, port);
+		ServiceManager.me().remote(OpinionService.class, OpinionServiceMock.class, group, version, port);
+		ServiceManager.me().remote(PestsKeepService.class, PestsKeepServiceMock.class, group, version, port);
 	}
 
 	public int getRpcPort() {

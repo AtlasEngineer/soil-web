@@ -15,44 +15,17 @@
  */
 package com.atlas.server.service;
 
-import com.atlas.server.model.Answer;
-import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.LambkitService;
 
-import com.atlas.server.model.Reply;
-import com.lambkit.core.api.route.ApiBody;
-import com.lambkit.core.api.route.ApiMapping;
-import com.lambkit.core.api.route.ApiRenderJFinalJson;
-
-import java.util.List;
+import com.atlas.server.model.PestsKeep;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-10
+ * @date 2020-04-27
  * @version 1.0
  * @since 1.0
  */
-public interface ReplyService extends LambkitService<Reply> {
-
-    //增加回复
-    @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "add.reply")
-    public Reply addReply(Reply reply);
-
-
-    //找到对某个评论的回复
-    @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "reply.allByTid")
-    public List<Reply> allByTid(Integer tid);
-
-
-    //找到对某个回复的所有回复
-    @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "reply.allByRid")
-    public List<Reply> allByRid(Integer rid);
-
-
-
+public interface PestsKeepService extends LambkitService<PestsKeep> {
 }

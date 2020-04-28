@@ -1,6 +1,10 @@
 package com.farming.data;
 
+import com.atlas.server.utils.Base64Util;
+
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 public class test {
@@ -15,14 +19,15 @@ public class test {
 //        System.out.println(tof);
 
 
-        for (int i = 0; i < 5; i++) {
-            //注意replaceAll前面的是正则表达式
-            String uuid = UUID.randomUUID().toString().replaceAll("-","");
-            System.out.println(uuid);
-//            System.out.println(uuid.length());
-        }
-
-
-
-    }
+        SimpleDateFormat sft = new SimpleDateFormat("yyyy-MM-dd");
+                 String sftBirth = "1998-09-11";
+                 Date date = null;
+               try{
+                        date = sft.parse(sftBirth);
+                     }catch(Exception e){
+                         e.printStackTrace();
+                     }
+                int age = Base64Util.getAgeByBirth(date);
+                System.out.print("年龄=" + age + "岁");
+            }
 }

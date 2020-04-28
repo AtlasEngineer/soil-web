@@ -15,39 +15,28 @@
  */
 package com.atlas.server.service.impl;
 
-import com.atlas.server.model.InsectPests;
-import com.atlas.server.model.InsectSpecies;
-import com.jfinal.plugin.activerecord.Page;
-import com.lambkit.common.service.BaseServiceMock;
+import com.lambkit.common.service.LambkitModelServiceImpl;
+import com.lambkit.core.aop.AopKit;
 
-import com.atlas.server.model.Catalogue;
-import com.atlas.server.service.CatalogueService;
-
-import java.util.List;
+import com.atlas.server.service.PestsKeepService;
+import com.atlas.server.model.PestsKeep;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-27
  * @version 1.0
  * @since 1.0
  */
-public class CatalogueServiceMock extends BaseServiceMock<Catalogue> implements CatalogueService {
-
-
-    @Override
-    public Page all(Integer pageNum, Integer pageSize,String name) {
-        return null;
-    }
-
-    @Override
-    public Page all(Integer id,Integer pageNum, Integer pageSize,Integer type,String name) {
-        return null;
-    }
-
-    @Override
-    public InsectPests insectPestsbyId(Integer id) {
-        return null;
-    }
+public class PestsKeepServiceImpl extends LambkitModelServiceImpl<PestsKeep> implements PestsKeepService {
+	
+	private PestsKeep DAO = null;
+	
+	public PestsKeep dao() {
+		if(DAO==null) {
+			DAO = AopKit.singleton(PestsKeep.class);
+		}
+		return DAO;
+	}
 }

@@ -238,9 +238,23 @@ public class IndexController extends LambkitController {
 
 
     public void text123(){
-        List<InsectPests> records=InsectPests.service().dao().find("SELECT c.`name`,count(*) as count from at_insect_pests c GROUP BY c.`name` ORDER BY count desc");
-        renderJson(Co.fail("data", records));
+        List<SpeciesPests> records=SpeciesPests.service().dao().findAll();
 
+         List<InsectPests> yes=new ArrayList<>();
+
+         List<InsectPests> no=new ArrayList<>();
+
+        for (SpeciesPests pests:records){
+            SpeciesPests speciesPests=SpeciesPests.service().dao().findById(pests.getId());
+
+            InsectPests insectPests=InsectPests.service().dao().findById(speciesPests.getPestsId());
+            if(insectPests==null){
+                no.add(insectPests);
+            }else {
+                yes.add(insectPests);
+            }
+        }
+      renderJson(Co.ok("data",Co.by("yes",yes).set("no",no)));
 
     }
 

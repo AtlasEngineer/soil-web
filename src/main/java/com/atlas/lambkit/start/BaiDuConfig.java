@@ -4,16 +4,6 @@ import com.baidu.aip.imagesearch.AipImageSearch;
 
 public class BaiDuConfig {
 
-    /**
-     * 你申请的APPID
-     */
-    public   String APP_ID = "18873097";
-
-    public   String B_APP_ID="19323131";
-
-    public   String B_API_KEY = "O4Y9bCNy9edlpz9wfjI9eBmQ";
-
-    public   String B_SECRET_KEY = "L6Pdxns2a9QEVvyxkw4CdLcqRUWGVM38";
 
     public String getB_APP_ID() {
         return B_APP_ID;
@@ -63,16 +53,58 @@ public class BaiDuConfig {
         this.SECRET_KEY = SECRET_KEY;
     }
 
+
     /**
-     * 你申请的API Key
+     * 植物识别
      */
+
+    public   String APP_ID = "18873097";
+
     public   String API_KEY = "vODvYhuaebLQBK6jyNa5HE9r";
 
-
-    /**
-     * 你申请的Secret Key
-     */
     public   String SECRET_KEY = "nHbfsqMtGuLMcSd5ibGUEGkkt5Wk42DN";
 
 
+    /**
+     * 病害识别
+     */
+    public   String B_APP_ID="19323131";
+
+    public   String B_API_KEY = "O4Y9bCNy9edlpz9wfjI9eBmQ";
+
+    public   String B_SECRET_KEY = "L6Pdxns2a9QEVvyxkw4CdLcqRUWGVM38";
+
+
+    /**
+     * 虫害识别
+     */
+    public   String C_APP_ID="19638331";
+
+    public   String C_API_KEY = "9m3yxTyMo02fqIGBW5pwV1xy";
+
+    public   String C_SECRET_KEY = "tVZzk0G5PgsSy1GddRvtOEyrnbPpdyrW";
+
+    public String getC_APP_ID() {
+        return C_APP_ID;
+    }
+
+    public void setC_APP_ID(String c_APP_ID) {
+        C_APP_ID = c_APP_ID;
+    }
+
+    public String getC_API_KEY() {
+        return C_API_KEY;
+    }
+
+    public void setC_API_KEY(String c_API_KEY) {
+        C_API_KEY = c_API_KEY;
+    }
+
+    public String getC_SECRET_KEY() {
+        return C_SECRET_KEY;
+    }
+
+    public void setC_SECRET_KEY(String c_SECRET_KEY) {
+        C_SECRET_KEY = c_SECRET_KEY;
+    }
 }

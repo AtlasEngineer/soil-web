@@ -1,5 +1,9 @@
 package com.atlas.server.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.atlas.lambkit.start.MessageConfig;
+import com.atlas.server.utils.Base64Util;
 import com.atlas.server.utils.Co;
 import com.jfinal.aop.Clear;
 import com.jfinal.kit.Ret;
@@ -13,6 +17,7 @@ import com.lambkit.common.util.StringUtils;
 import com.lambkit.component.swagger.annotation.ApiOperation;
 import com.lambkit.component.swagger.annotation.Param;
 import com.lambkit.component.swagger.annotation.Params;
+import com.lambkit.core.cache.impl.RedisCacheImpl;
 import com.lambkit.db.sql.column.Example;
 import com.lambkit.module.upms.UpmsManager;
 import com.lambkit.module.upms.rpc.api.UpmsUserService;
@@ -22,13 +27,17 @@ import com.lambkit.plugin.jwt.JwtKit;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.RequestManager;
 import com.lambkit.web.controller.LambkitController;
+import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class UserController extends LambkitController {
+
 
     /**
      * @Description: web登录
@@ -136,6 +145,11 @@ public class UserController extends LambkitController {
     }
 
 
+    /**
+     * @Description: 更新用户密码
+     * @Author: yangxueyang
+     * @Date: 2019/9/23
+     */
     @Clear()
     @ApiOperation(url = "/user/updatePwd", tag = "/user", httpMethod = "get", description = "更新用户密码")
     public void updatePwd() {
@@ -162,38 +176,88 @@ public class UserController extends LambkitController {
         String newpass = getPara("newpass");//新密码
         String checknewpass = getPara("checknewpass");//确认密码
         if (StringUtils.isBlank(password)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "原不能为空")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "原不能为空")));
             return;
         }
         if (StringUtils.isBlank(newpass)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "新密码不能为空")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "新密码不能为空")));
             return;
         }
         if (StringUtils.isBlank(checknewpass)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "确认密码不能为空")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "确认密码不能为空")));
             return;
         }
         if (!newpass.equals(checknewpass)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "确认密码与新密码不一致")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "确认密码与新密码不一致")));
             return;
         }
         //校验原密码
         String ypassword = upmsUser.getPassword();
         String md5pswd = EncryptUtils.MD5(password + upmsUser.getSalt());
         if (!ypassword.equals(md5pswd)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "原密码错误！")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "原密码错误！")));
             return;
         } else {
             String newpassMd5 = EncryptUtils.MD5(newpass + upmsUser.getSalt());
             upmsUser.setPassword(newpassMd5);
             boolean update = upmsUser.update();
             if (update) {
-                renderJson(Co.ok("data", Ret.ok("msg", "修改成功")));
+                renderJson(Co.ok("data", Co.ok("msg", "修改成功")));
                 return;
             } else {
-                renderJson(Co.ok("data", Ret.fail("errorMsg", "修改失败！")));
+                renderJson(Co.fail("data", Co.fail("errorMsg", "修改失败！")));
                 return;
             }
+        }
+
+
+    }
+
+
+    /**
+     * @Description: 忘記密碼
+     * @Author: yangxueyang
+     * @Date: 2019/9/23
+     */
+    @Clear()
+    @ApiOperation(url = "/user/forgetPwd", tag = "/user", httpMethod = "get", description = "更新用户密码")
+    public void forgetPwd() {
+
+        String phone = getPara("phone");//手机号联系方式
+
+        String newpass = getPara("newpass");//新密码
+        String checknewpass = getPara("checknewpass");//确认密码
+
+        RedisCacheImpl redis = new RedisCacheImpl();
+        String getCode = redis.get("code", phone);
+
+
+        if (StringUtils.isBlank(newpass)) {
+            renderJson(Co.ok("data", Co.fail("errorMsg", "新密码不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(checknewpass)) {
+            renderJson(Co.ok("data", Co.fail("errorMsg", "确认密码不能为空")));
+            return;
+        }
+        if (!newpass.equals(checknewpass)) {
+            renderJson(Co.ok("data", Co.fail("errorMsg", "确认密码与新密码不一致")));
+            return;
+        }
+        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andPhoneEqualTo(phone).example());
+
+        if (upmsUser==null) {
+            renderJson(Co.fail("data", Co.fail("errorMsg", "改用戶為空！")));
+        }
+
+        String newpassMd5 = EncryptUtils.MD5(newpass + upmsUser.getSalt());
+        upmsUser.setPassword(newpassMd5);
+        boolean update = upmsUser.update();
+        if (update) {
+            renderJson(Co.ok("data", Co.ok("msg", "修改成功")));
+
+        } else {
+            renderJson(Co.fail("data", Co.fail("errorMsg", "修改失败！")));
         }
 
 
@@ -220,37 +284,46 @@ public class UserController extends LambkitController {
         String qrpassword = getPara("repassword");//确认密码
         String code = getPara("code");//验证码
 
-        String phone = getPara("phone");//手机号/联系方式
+
+        String phone = getPara("phone");//手机号联系方式
+
+        RedisCacheImpl redis = new RedisCacheImpl();
+        String getCode = redis.get("code", phone);
+
+        if (!code.equals(getCode)) {
+            renderJson(Co.ok("data", Co.fail("errorMsg", "验证码不正确")));
+            return;
+        }
 
         String regxusename = "[0-9a-zA-Z]{3,12}";
         if (StringUtils.isBlank(username)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "请填写用户名")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "请填写用户名")));
             return;
         }
         UpmsUser first1 = UpmsUser.service().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
         if (first1 != null && first1.getInt("del") == 0) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "该用户名已被注册")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "该用户名已被注册")));
             return;
         } else if (!username.matches(regxusename)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "用户名格式不正确，必须为3-12位字母和数字")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "用户名格式不正确，必须为3-12位字母和数字")));
             return;
         } else if (StringUtils.isBlank(password)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "请填写密码")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "请填写密码")));
             return;
         }
 
-        String regxPassword = "(?!^[0-9]+$)(?!^[A-z]+$)(?!^[^A-z0-9]+$)^[^\\s\\u4e00-\\u9fa5]{8,20}$";
+        String regxPassword = "^[a-zA-Z0-9]{6,20}$";
         if (!password.matches(regxPassword)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "密码格式不正确")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "密码格式不正确")));
             return;
         } else if (StringUtils.isBlank(qrpassword)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "请填写确认密码")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "请填写确认密码")));
             return;
         } else if (!password.equals(qrpassword)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "密码与确认密码不一致")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "密码与确认密码不一致")));
             return;
         } else if (StringUtils.isBlank(phone)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "请填写手机号")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "请填写手机号")));
             return;
         } else if (StringUtils.isNotBlank(phone)) {
             String regxPhone = "^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\\d{8}$";
@@ -272,7 +345,7 @@ public class UserController extends LambkitController {
         if (flag) {
             renderJson(Co.ok("data", Co.ok("msg", "注册成功")));
         } else {
-            renderJson(Co.ok("data", Co.fail("errorMsg", "注册失败")));
+            renderJson(Co.fail("data", Co.fail("errorMsg", "注册失败")));
         }
     }
 
@@ -292,8 +365,9 @@ public class UserController extends LambkitController {
                 String md5pswd = EncryptUtils.MD5(password + upmsUser.getSalt());
                 upmsUser.setPassword(md5pswd);
                 upmsUser.setLocked(0);//锁定账户需要审核
-                upmsUser.set("del", 0);
                 upmsUser.setCtime(DateTimeUtils.getCurrentTimeLong());
+                upmsUser.setRealname(username);
+                upmsUser.set("autograph","一花一世界   一岁一枯荣");
                 upmsUser.setAvatar(getPara("avatar", "/resources/zheng-admin/images/avatar.jpg"));
                 UpmsUser user = upmsUserService.createUser(upmsUser);
                 if (user == null) {
@@ -310,15 +384,345 @@ public class UserController extends LambkitController {
     }
 
 
-
+    /**
+     * @Description: 获取验证码
+     * @Author: yangxueyang
+     * @Date:
+     */
     @Clear
     @ApiOperation(url = "/user/getCode", tag = "/user", httpMethod = "post", description = "获取验证码")
     public void getCode() {
+        String phone = getPara("phone");
+        MessageConfig config = Lambkit.config(MessageConfig.class);
 
+        if (StringUtils.isBlank(phone)) {
+            renderJson(Co.fail("data", Ret.fail("errorMsg", "手机号为空！")));
+            return;
+        }
+
+        String code = String.format("%04d", new Random().nextInt(9999));
+
+        if (StringUtils.isBlank(code)) {
+            renderJson(Co.fail("data", Co.fail("errorMsg", "获取失败！")));
+            return;
+        }
+
+        RedisCacheImpl redis = new RedisCacheImpl();
+        redis.put("code", phone, code, 60 * 2);
+
+        String result = sendMessage(phone, config, code);
+        if ("success".equals(result)) {
+            renderJson(Co.ok("data", Co.ok("msg", "获取成功")));
+        } else {
+            renderJson(Co.fail("data", Co.fail("errorMsg", "获取失败！")));
+        }
+    }
+
+
+
+    /**
+     * @Description: 验证验证码
+     * @Author: yangxueyang
+     * @Date:
+     */
+    @Clear
+    @ApiOperation(url = "/user/verifyCode", tag = "/user", httpMethod = "post", description = "验证验证码")
+    public void verifyCode() {
+        String phone = getPara("phone");
+        String code=getPara("code");
+
+
+        if (StringUtils.isBlank(phone)) {
+            renderJson(Co.fail("data", Co.fail("errorMsg", "手机号为空！")));
+            return;
+        }
+
+        if (StringUtils.isBlank(code)) {
+            renderJson(Co.fail("data", Co.fail("errorMsg", "验证码为空！")));
+            return;
+        }
+
+
+        RedisCacheImpl redis = new RedisCacheImpl();
+        String getCode=redis.get("code", phone);
+
+        if(getCode.equals(code)){
+            renderJson(Co.ok("data", Co.ok("msg", "验证成功")));
+        } else {
+            renderJson(Co.fail("data", Co.fail("errorMsg", "验证失败！")));
+        }
+    }
+
+
+
+    /**
+     * @Description: 修改用戶信息
+     * @Author: yangxueyang
+     * @Date:
+     */
+    @Clear
+    @ApiOperation(url = "/user/updateInfo", tag = "/user", httpMethod = "post", description = "修改用户信息")
+    public void updateInfo() {
+
+        String userName = getPara("userName");     //用户名
+        String realName = getPara("realName");    //真实姓名
+        String autograph = getPara("autograph"); //签名
+
+        Integer sex = getParaToInt("sex"); //性别（0男 1女）
+
+        String birthday = getPara("birthday"); //生日
+
+
+        String address = getPara("address");  //住址
+        String workunit = getPara("workunit"); //工作
+
+
+        if (StringUtils.isBlank(userName)) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "用户名不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(realName)) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "真实姓名不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(autograph)) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "签名不能为空")));
+            return;
+        }
+        if (sex == null) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "性别不能为空")));
+            return;
+        }
+
+        if (StringUtils.isBlank(birthday)) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "生日不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(address)) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "住址不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(workunit)) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "工作不能为空")));
+            return;
+        }
+
+        String token = RequestManager.me().getRequest().getHeader("Authorization");
+        if (StringUtils.isBlank(token)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请登录")));
+            return;
+        }
+        JwtConfig config = Lambkit.config(JwtConfig.class);
+        String tokenPrefix = config.getTokenPrefix();
+        String authToken = token.substring(tokenPrefix.length());
+        String username = JwtKit.getJwtUser(authToken);
+        if (username == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "token异常")));
+            return;
+        }
+        System.out.println("username : " + username);
+        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+        if (upmsUser == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
+            return;
+        }
+        SimpleDateFormat sft = new SimpleDateFormat("yyyy-MM-dd");
+
+        Date date = null;
+        try {
+            date = sft.parse(birthday);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        int age = Base64Util.getAgeByBirth(date);
+
+        upmsUser.setRealname(realName);
+        upmsUser.setUsername(username);
+        upmsUser.set("age", age);
+        upmsUser.set("sex", 1);
+        upmsUser.set("workunit", workunit);
+        upmsUser.set("autograph", autograph);
+        upmsUser.set("workaddress", address);
+        upmsUser.set("birthday", birthday);
+
+        boolean result = upmsUser.update();
+
+        if (result) {
+            renderJson(Co.ok("data", Ret.ok("msg", "修改成功")));
+
+        } else {
+            renderJson(Co.fail("data", Ret.fail("errorMsg", "修改失败！")));
+
+        }
 
 
     }
 
+
+    //發短信
+    public static String sendMessage(String phone, MessageConfig config, String code) {
+        String pathUrl = "https://openapi-smsp.getui.com/v1/sps/push_sms_list"; //短信群推url
+        JSONObject requestDataObject = new JSONObject();
+        requestDataObject.put("appId", config.getAppId());
+        requestDataObject.put("authToken", doPostOrGet(config));
+        requestDataObject.put("smsTemplateId", config.getSmsTemplateId());
+        System.out.println(EncryptUtils.MD5(phone));
+        Map<String, String> param = new HashMap<String, String>();
+        param.put("phone", Base64Util.getBase64(phone));
+
+        param.put("code", code);
+        requestDataObject.put("smsParam", param);
+        List<String> phoneNum = new ArrayList<String>();
+        for (int i = 0; i < 1; i++) {
+            phoneNum.add(EncryptUtils.md5(phone));
+        }
+        requestDataObject.put("recNum", phoneNum);
+
+        System.out.println(requestDataObject.toString());
+
+        OutputStreamWriter out = null;
+        BufferedReader br = null;
+        String result = "";
+        String message = "";
+        try {
+            URL url = new URL(pathUrl);
+            //打开和url之间的连接
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            //请求方式
+            conn.setRequestMethod("POST");
+            //conn.setRequestMethod("GET");
+            //设置通用的请求属性
+            conn.setRequestProperty("accept", "*/*");
+            conn.setRequestProperty("connection", "Keep-Alive");
+            conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)");
+            conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+            //DoOutput设置是否向httpUrlConnection输出，DoInput设置是否从httpUrlConnection读入，此外发送post请求必须设置这两个
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            /**
+             * 下面的三句代码，就是调用第三方http接口
+             */
+            //获取URLConnection对象对应的输出流
+            out = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
+            //发送请求参数即数据
+            out.write(requestDataObject.toString());
+            //flush输出流的缓冲
+            out.flush();
+            /**
+             * 下面的代码相当于，获取调用第三方http接口后返回的结果
+             */
+            //获取URLConnection对象对应的输入流
+            InputStream is = conn.getInputStream();
+            //构造一个字符流缓存
+            br = new BufferedReader(new InputStreamReader(is));
+            String str = "";
+            while ((str = br.readLine()) != null) {
+                result += str;
+            }
+            System.out.println(result);
+            message = JSON.parseObject(result).getString("msg");
+            //关闭流
+            is.close();
+            //断开连接，disconnect是在底层tcp socket链接空闲时才切断，如果正在被其他线程使用就不切断。
+            conn.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return message;
+    }
+
+
+    //获取授权的方法
+    public static String doPostOrGet(MessageConfig config) {
+
+        String pathUrl = "https://openapi-smsp.getui.com/v1/sps/auth_sign";
+        long timestamp = System.currentTimeMillis();
+
+        //sha256加密，使用org.apache.commons包中自带的加密方法，需将加密后数据一起上传
+        String sign = DigestUtils.sha256Hex(String.format("%s%d%s", config.getAppKey(), timestamp, config.getMasterSecret()));
+        JSONObject requestDataObject = new JSONObject();
+        requestDataObject.put("sign", sign);
+        requestDataObject.put("timestamp", timestamp);
+        requestDataObject.put("appId", config.getAppId());
+
+
+        OutputStreamWriter out = null;
+        BufferedReader br = null;
+        String result = "";
+        String authToken = "";
+        try {
+            URL url = new URL(pathUrl);
+            //打开和url之间的连接
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            //请求方式
+            conn.setRequestMethod("POST");
+            //conn.setRequestMethod("GET");
+
+            //设置通用的请求属性
+            conn.setRequestProperty("accept", "*/*");
+            conn.setRequestProperty("connection", "Keep-Alive");
+            conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)");
+            conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+
+            //DoOutput设置是否向httpUrlConnection输出，DoInput设置是否从httpUrlConnection读入，此外发送post请求必须设置这两个
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+
+            /**
+             * 下面的三句代码，就是调用第三方http接口
+             */
+            //获取URLConnection对象对应的输出流
+            out = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
+            //发送请求参数即数据
+            out.write(requestDataObject.toString());
+            //flush输出流的缓冲
+            out.flush();
+
+            /**
+             * 下面的代码相当于，获取调用第三方http接口后返回的结果
+             */
+            //获取URLConnection对象对应的输入流
+            InputStream is = conn.getInputStream();
+            //构造一个字符流缓存
+            br = new BufferedReader(new InputStreamReader(is));
+            String str = "";
+            while ((str = br.readLine()) != null) {
+                result += str;
+            }
+            System.out.println(result);
+            String msg = JSON.parseObject(result).getString("data");
+            authToken = JSON.parseObject(msg).getString("authToken");
+            //关闭流
+            is.close();
+            //断开连接，disconnect是在底层tcp socket链接空闲时才切断，如果正在被其他线程使用就不切断。
+            conn.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return authToken;
+    }
 
 
 }

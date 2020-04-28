@@ -13,21 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atlas.server.service;
+package com.atlas.server.web.validator;
 
-import com.lambkit.common.service.LambkitService;
+import com.jfinal.core.Controller;
+import com.lambkit.web.validator.LambkitValidator;
 
-import com.atlas.server.model.SpeciesPests;
+import com.atlas.server.model.PestsKeep;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-27
  * @version 1.0
  * @since 1.0
  */
-public interface SpeciesPestsService extends LambkitService<SpeciesPests> {
+public class PestsKeepValidator extends LambkitValidator {
 
-
+	@Override
+	protected String getTableName(Controller c) {
+		return PestsKeep.service().getTableName();
+	}
+	
+	@Override
+	protected String getPrefix() {
+		return "model";//StrKit.firstCharToLowerCase(PestsKeep.class.getSimpleName());
+	}
 }

@@ -33,7 +33,7 @@ public class GeneratorTest {
             //需要去掉的前缀
             options.put("tableRemovePrefixes", "at_");
             //仅包含如下表格
-            options.put("includedTables", "at_answer,at_question,at_reply,at_species_pests,at_pests_sample,at_insect_species,at_insect_pests,at_insect_type,catalogue,catalogue_keep,catalogue_sample,at_botany_type");
+            options.put("includedTables", "at_pests_keep,at_opinion,at_answer,at_question,at_reply,at_species_pests,at_pests_sample,at_insect_species,at_insect_pests,at_insect_type,catalogue,catalogue_keep,catalogue_sample,at_botany_type");
             options.put("hasMgrTable", true);
             Msch.generator(templatePath, options, config);
             System.exit(0);

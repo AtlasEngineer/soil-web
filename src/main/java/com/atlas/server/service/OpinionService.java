@@ -15,50 +15,27 @@
  */
 package com.atlas.server.service;
 
-import com.atlas.server.model.InsectPests;
-import com.atlas.server.model.InsectSpecies;
-import com.jfinal.plugin.activerecord.Page;
-import com.jfinal.plugin.activerecord.Record;
+import com.atlas.server.model.Question;
 import com.lambkit.common.service.LambkitService;
 
-import com.atlas.server.model.Catalogue;
+import com.atlas.server.model.Opinion;
 import com.lambkit.core.api.route.ApiBody;
 import com.lambkit.core.api.route.ApiMapping;
 import com.lambkit.core.api.route.ApiRenderJFinalJson;
-
-import java.util.List;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-27
  * @version 1.0
  * @since 1.0
  */
-public interface CatalogueService extends LambkitService<Catalogue> {
-
-    //查询所有作物
-    @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "insectSpecies.all")
-    public Page all(Integer pageNum, Integer pageSize,String name);
-
-
-    //查询某个植物所得的病
-    @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "insectPests.all.byId")
-    public Page all(Integer id,Integer pageNum, Integer pageSize,Integer type,String name);
-
-
-
+public interface OpinionService extends LambkitService<Opinion> {
 
     @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "search.insectPestsById")
-    public InsectPests insectPestsbyId(Integer id);
-
-
-
-
+    @ApiMapping(value = "add.opinion")
+    public boolean addOpinion(Opinion opinion);
 
 
 }
