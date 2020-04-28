@@ -51,12 +51,9 @@ public interface CatalogueService extends LambkitService<Catalogue> {
 
 
 
-
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.insectPestsById")
     public InsectPests insectPestsbyId(Integer id);
-
-
 
 
 

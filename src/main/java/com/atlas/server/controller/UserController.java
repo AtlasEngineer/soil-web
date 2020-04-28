@@ -6,13 +6,16 @@ import com.atlas.lambkit.start.MessageConfig;
 import com.atlas.server.utils.Base64Util;
 import com.atlas.server.utils.Co;
 import com.jfinal.aop.Clear;
+import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;
 import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.IAtom;
+import com.jfinal.upload.UploadFile;
 import com.lambkit.Lambkit;
 import com.lambkit.common.util.DateTimeUtils;
 import com.lambkit.common.util.EncryptUtils;
+import com.lambkit.common.util.PathUtils;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.component.swagger.annotation.ApiOperation;
 import com.lambkit.component.swagger.annotation.Param;
@@ -442,7 +445,6 @@ public class UserController extends LambkitController {
             return;
         }
 
-
         RedisCacheImpl redis = new RedisCacheImpl();
         String getCode=redis.get("code", phone);
 
@@ -556,6 +558,66 @@ public class UserController extends LambkitController {
         }
 
 
+    }
+
+    /**
+     * @Description: 修改用戶頭像
+     * @Author: yangxueyang
+     * @Date:
+     */
+    @Clear
+    @ApiOperation(url = "/user/updatePortrait", tag = "/user", httpMethod = "post", description = "修改用戶頭像")
+    public void updatePortrait() {
+
+        UploadFile uf = getFile("file", "image");
+        File file = uf.getFile();
+        System.out.println("上传时文件名：" + file.getName());
+        String rootPath = PathKit.getWebRootPath() + "/upload/";
+        String fileext = PathUtils.getExtensionName(file.getName());
+        String filename = UUID.randomUUID().toString() + "." + fileext;
+        if (!"jpg".equals(fileext) && !"png".equals(fileext) && !"gif".equals(fileext) && !"jpeg".equals(fileext)) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "图片格式不正确")));
+            file.delete();
+            return;
+        } else {
+            boolean b = file.renameTo(new File(rootPath + filename));
+            if (!b) {
+                file.delete();
+                renderJson(Co.ok("data", Co.fail("errorMsg", "重命名失败")));
+                return;
+            } else {
+                String url = "/upload/"+filename;
+
+                String token = RequestManager.me().getRequest().getHeader("Authorization");
+                if (StringUtils.isBlank(token)) {
+                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请登录")));
+                    return;
+                }
+                JwtConfig config = Lambkit.config(JwtConfig.class);
+                String tokenPrefix = config.getTokenPrefix();
+                String authToken = token.substring(tokenPrefix.length());
+                String username = JwtKit.getJwtUser(authToken);
+                if (username == null) {
+                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "token异常")));
+                    return;
+                }
+                System.out.println("username : " + username);
+                UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+                if (upmsUser == null) {
+                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
+                    return;
+                }
+                upmsUser.setAvatar(url);
+                boolean result = upmsUser.update();
+
+                if (result) {
+                    renderJson(Co.ok("data", Co.ok("msg", "修改成功").set("url", "/upload/" + filename)));
+
+                } else {
+                    renderJson(Co.fail("data", Co.fail("errorMsg", "修改失败！")));
+                }
+            }
+        }
     }
 
 

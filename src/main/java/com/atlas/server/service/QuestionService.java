@@ -54,7 +54,7 @@ public interface QuestionService extends LambkitService<Question> {
     //查询单个问题
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.questionById")
-    public Question questionById(Integer id);
+    public Question questionById(Integer id,Integer pageNum,Integer pageSize);
 
 
 

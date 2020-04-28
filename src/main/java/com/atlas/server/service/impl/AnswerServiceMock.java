@@ -16,6 +16,7 @@
 package com.atlas.server.service.impl;
 
 import com.atlas.server.utils.AnswerNode;
+import com.atlas.server.utils.Co;
 import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.BaseServiceMock;
 
@@ -34,7 +35,7 @@ import java.util.List;
  */
 public class AnswerServiceMock extends BaseServiceMock<Answer> implements AnswerService {
     @Override
-    public Answer addAnswer(Answer answer) {
+    public Co addAnswer(Integer q_id,String  content, String token) {
         return null;
     }
 

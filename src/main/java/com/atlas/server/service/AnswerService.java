@@ -16,6 +16,7 @@
 package com.atlas.server.service;
 
 import com.atlas.server.utils.AnswerNode;
+import com.atlas.server.utils.Co;
 import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.LambkitService;
 
@@ -39,13 +40,16 @@ public interface AnswerService extends LambkitService<Answer> {
     //增加评论
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "add.answer")
-    public Answer addAnswer(Answer answer);
+    public Co addAnswer(Integer q_id,String  content, String token);
 
 
     //查询所有评论
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "answer.all")
     public List<AnswerNode> all();
+
+
+
 
 
 

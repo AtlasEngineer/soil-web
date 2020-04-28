@@ -16,6 +16,8 @@
 package com.atlas.server.service.impl;
 
 import com.atlas.server.model.Answer;
+import com.atlas.server.model.Question;
+import com.atlas.server.utils.Co;
 import com.atlas.server.utils.ReplayNode;
 import com.lambkit.Lambkit;
 import com.lambkit.common.service.LambkitModelServiceImpl;
@@ -52,8 +54,8 @@ public class ReplyServiceImpl extends LambkitModelServiceImpl<Reply> implements 
 	}
 
 	@Override
-	public Reply addReply(Reply reply) {
-		String token = RequestManager.me().getRequest().getHeader("Authorization");
+	public Co addReply(Reply reply,String token) {
+
 
 		JwtConfig config = Lambkit.config(JwtConfig.class);
 		String tokenPrefix = config.getTokenPrefix();
@@ -67,14 +69,37 @@ public class ReplyServiceImpl extends LambkitModelServiceImpl<Reply> implements 
 		if (upmsUser == null) {
 			return null;
 		}
-		reply.setUid(upmsUser.getUserId().intValue());
-		reply.setUname(upmsUser.getRealname());
-		reply.setRtime(new Date());
+        if(reply.getTorr()==1){ //回复评论
+			reply.setUid(upmsUser.getUserId().intValue()); //谁发的
+			reply.setUname(upmsUser.getRealname());//名字
+			reply.setUheadurl(upmsUser.getAvatar());//头像
+
+			Answer answer=Answer.service().dao().findById(reply.getTorrid());
+			reply.setTouid(answer.getUserId());//发给谁 通过问题id获取用户信息
+
+			UpmsUser user=UpmsUser.service().dao().findById(answer.getUserId());
+			reply.setTouname(user.getRealname()); //目标用户
+
+			reply.setRtime(new Date());
+
+		}
+		if(reply.getTorr()==0){ //回复回复
+			reply.setUid(upmsUser.getUserId().intValue()); //谁发的
+			reply.setUname(upmsUser.getRealname());//名字
+			reply.setUheadurl(upmsUser.getAvatar());//头像
+
+			Reply r=Reply.service().dao().findById(reply.getTorrid());
+			reply.setTouid(r.getUid());
+			UpmsUser user=UpmsUser.service().dao().findById(r.getUid());
+			reply.setTouname(user.getRealname());
+			reply.setRtime(new Date());
+		}
+
 		boolean result=reply.save();
 		if(result){
-			return reply;
+			return Co.ok("data", Co.by("state", "ok"));
 		}else {
-			return null;
+			return Co.ok("data", Co.by("state", "fail"));
 		}
 	}
 

@@ -16,6 +16,7 @@
 package com.atlas.server.service;
 
 import com.atlas.server.model.Answer;
+import com.atlas.server.utils.Co;
 import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.LambkitService;
 
@@ -39,7 +40,7 @@ public interface ReplyService extends LambkitService<Reply> {
     //增加回复
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "add.reply")
-    public Reply addReply(Reply reply);
+    public Co addReply(Reply reply, String token);
 
 
     //找到对某个评论的回复

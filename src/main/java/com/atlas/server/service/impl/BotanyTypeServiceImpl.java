@@ -55,11 +55,13 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
 
 	@Override
 	public Page all(Integer pageNum, Integer pageSize) {
+
 		if(pageNum==null||pageSize==null){
 			pageNum=1;
 			pageSize=5;
 		}
 		Page page=Db.paginate(pageNum,pageSize,"select *","from news where del=0");
+
 		return page;
 	}
 
@@ -92,8 +94,7 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
 		if(t_id!=null){  //在redis里存在用户看过该文章直接返回详情
 			return  record;
 		}else {    //先加入redis，在返回详情
-			redis.put("news", upmsUser.getUserId(),id);
-
+			redis.put("news", upmsUser.getUserId(),id,60*20);
 			Integer num=record.getInt("volume");
 			num++;
 			String sql="update news set volume="+num+" where id="+id+" ";

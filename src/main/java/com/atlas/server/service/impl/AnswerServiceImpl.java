@@ -18,6 +18,7 @@ package com.atlas.server.service.impl;
 import com.atlas.server.model.Reply;
 import com.atlas.server.service.ReplyService;
 import com.atlas.server.utils.AnswerNode;
+import com.atlas.server.utils.Co;
 import com.atlas.server.utils.ReplayNode;
 import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.Lambkit;
@@ -56,8 +57,8 @@ public class AnswerServiceImpl extends LambkitModelServiceImpl<Answer> implement
 	}
 
 	@Override
-	public Answer addAnswer(Answer answer) {
-		String token = RequestManager.me().getRequest().getHeader("Authorization");
+	public Co addAnswer(Integer q_id,String  content, String token) {
+
 
 		JwtConfig config = Lambkit.config(JwtConfig.class);
 		String tokenPrefix = config.getTokenPrefix();
@@ -71,14 +72,19 @@ public class AnswerServiceImpl extends LambkitModelServiceImpl<Answer> implement
 		if (upmsUser == null) {
 			return null;
 		}
+		Answer answer=new Answer();
+		answer.setQId(q_id);
 		answer.setUname(upmsUser.getRealname());
 		answer.setUserId(upmsUser.getUserId().intValue());
 		answer.setTime(new Date());
+		answer.setDel(0);
+		answer.setContent(content);
+		answer.setUrl(upmsUser.getAvatar());
        boolean result=answer.save();
        if(result){
-		   return answer;
+		   return Co.ok("data", Co.by("state", "ok").set("answer", answer));
 	   }else {
-       	return null;
+       	return Co.fail("data", Co.by("state", "fail"));
 	   }
 	}
 

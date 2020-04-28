@@ -46,7 +46,7 @@ public class QuestionServiceMock extends BaseServiceMock<Question> implements Qu
     }
 
     @Override
-    public Question questionById(Integer id) {
+    public Question questionById(Integer id,Integer pageNum,Integer pageSize) {
         return null;
     }
 }

@@ -16,6 +16,7 @@
 package com.atlas.server.service.impl;
 
 import com.atlas.server.model.Answer;
+import com.atlas.server.utils.Co;
 import com.lambkit.common.service.BaseServiceMock;
 
 import com.atlas.server.model.Reply;
@@ -33,7 +34,7 @@ import java.util.List;
  */
 public class ReplyServiceMock extends BaseServiceMock<Reply> implements ReplyService {
     @Override
-    public Reply addReply(Reply reply) {
+    public Co addReply(Reply reply, String token) {
         return null;
     }
 

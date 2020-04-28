@@ -78,16 +78,6 @@ public class AppController extends LambkitController {
         String tokenPrefix = config.getTokenPrefix();
         String authToken = token.substring(tokenPrefix.length());
         String username = JwtKit.getJwtUser(authToken);
-        if (username == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "token异常")));
-            return;
-        }
-        System.out.println("username : " + username);
-        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
-        if (upmsUser == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
-            return;
-        }
 
 
         File yfile = uf.getFile();
@@ -182,14 +172,22 @@ public class AppController extends LambkitController {
             sample.setUrl(p + file.getName());
             sample.setStatus(1);//0 导入,1识别,2.上报
             sample.save();
-            //  4、添加识别记录
             CatalogueKeep keep=new CatalogueKeep();
-            keep.setName(file.getName());
-            keep.setUrl(p + file.getName());
-            keep.setUserId(upmsUser.getUserId().intValue());
-            keep.setSampleId(Long.getLong(sample.getId()));
-            keep.setTime(new Date());
-            keep.setStatus(1);
+            //  4、添加识别记录
+            if (username != null) {
+                System.out.println("username : " + username);
+                UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+                if (upmsUser == null) {
+                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
+                    return;
+                }
+                keep.setName(file.getName());
+                keep.setUrl(p + file.getName());
+                keep.setSampleId(Long.getLong(sample.getId()));
+                keep.setTime(new Date());
+                keep.setStatus(1);
+                keep.setUserId(upmsUser.getUserId().intValue());
+            }
             boolean result=keep.save();
             System.out.println(result);
             renderJson(Ret.ok("data", jsonArray));

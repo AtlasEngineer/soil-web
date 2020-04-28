@@ -19,6 +19,7 @@ import com.atlas.server.model.InsectPests;
 import com.atlas.server.model.InsectSpecies;
 import com.atlas.server.model.SpeciesPests;
 import com.atlas.server.model.sql.InsectSpeciesCriteria;
+import com.google.common.base.Joiner;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
@@ -98,9 +99,15 @@ public class CatalogueServiceImpl extends LambkitModelServiceImpl<Catalogue> imp
 	@Override
 	public InsectPests insectPestsbyId(Integer id) {
 		InsectPests pests=InsectPests.service().dao().findById(id);
-		List list=Db.find("select i.`name` from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id left join  at_insect_species i on s.species_id=i.id where s.pests_id=1561 and p.type=0");
+		List<Record> list=Db.find("select i.`name` from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id left join  at_insect_species i on s.species_id=i.id where s.pests_id=1561 and p.type=0");
 		List<Record> imgList = Db.find(" SELECT c.url from at_pests_sample c   where c.pests_id="+id+" and c.del=0 LIMIT 3");
-		pests.put("host",list);
+		List<String> stringList=new ArrayList<>();
+
+		for (Record record:list){
+			stringList.add(record.get("name"));
+		}
+		String str = Joiner.on(",").join(stringList);
+		pests.put("host",str);
 		pests.put("imgList",imgList);
 		return pests;
 	}

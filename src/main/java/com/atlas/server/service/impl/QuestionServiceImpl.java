@@ -19,6 +19,8 @@ import com.atlas.server.model.Answer;
 import com.atlas.server.model.InsectSpecies;
 import com.atlas.server.model.Reply;
 import com.atlas.server.model.sql.AnswerCriteria;
+import com.atlas.server.utils.AnswerNode;
+import com.atlas.server.utils.ReplayNode;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.Lambkit;
@@ -70,7 +72,11 @@ public class QuestionServiceImpl extends LambkitModelServiceImpl<Question> imple
             Integer num=Db.queryInt("SELECT count(*) from at_answer  a where a.q_id="+question.getId()+"");
             UpmsUser upmsUser=UpmsUser.service().dao().findById(question.getUserId());
             question.put("auth",upmsUser.getRealname());
-            question.put("num",num);
+            if(num==0){
+                question.put("num",0);
+            }else {
+                question.put("num",num);
+            }
             question.put("time",formatter.format(question.getTime()));
         }
         return page;
@@ -97,8 +103,19 @@ public class QuestionServiceImpl extends LambkitModelServiceImpl<Question> imple
             pageNum = 1;
             pageSize = 10;
         }
-
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         Page<Question> page = Question.service().dao().paginate(pageNum, pageSize, Question.sql().andDelEqualTo(0).andUserIdEqualTo(upmsUser.getUserId().intValue()).example());
+        for (Question question:page.getList()){
+            Integer num=Db.queryInt("SELECT count(*) from at_answer  a where a.q_id="+question.getId()+"");
+            UpmsUser user=UpmsUser.service().dao().findById(question.getUserId());
+            question.put("auth",user.getRealname());
+            if(num==0){
+                question.put("num",0);
+            }else {
+                question.put("num",num);
+            }
+            question.put("time",formatter.format(question.getTime()));
+        }
         return page;
     }
 
@@ -131,18 +148,75 @@ public class QuestionServiceImpl extends LambkitModelServiceImpl<Question> imple
 	}
 
 	@Override
-	public Question questionById(Integer id) {
+	public Question questionById(Integer id,Integer pageNum,Integer pageSize) {
+        if (pageNum == null) {
+            pageNum = 1;
+
+        }
+        if(pageSize==null){
+            pageSize = 10;
+        }
     	Question question=Question.service().dao().findById(id);
 
     	Integer num=Db.queryInt("select count(*) from at_answer a where a.q_id="+question.getId()+" ");
         AnswerCriteria sql=new AnswerCriteria();
-        Page<Answer> answerPage=Answer.service().dao().paginate(1,5,sql.example());
 
+    	Page<Answer> answerPage=Answer.service().dao().paginate(pageNum,pageSize,sql.andQIdEqualTo(question.getId()).example());
+
+        for(Answer temp : answerPage.getList()){
+            Integer tid = temp.getId();
+            //找到是这个评论的所有回复
+            System.out.println("tid:"+tid);
+            List<Reply> answer = Reply.service().dao().find(Reply.sql().andTorridEqualTo(tid).andTorrEqualTo(1).example());
+
+            //遍历每个第一层回复
+            temp.put("answer",answer);
+            temp.put("num",answer.size());
+            for(Reply re:answer){
+                List<Reply>  replayList = Reply.service().dao().find(Reply.sql().andTorridEqualTo(re.getId()).andTorrEqualTo(0).example());
+                for (Reply reply:replayList){
+                    UpmsUser upmsUser=UpmsUser.service().dao().findById(reply.getTouid());
+                    reply.put("touheadurl",upmsUser.getAvatar());
+                }
+                re.put("replay",replayList);
+            }
+        }
+        UpmsUser upmsUser=UpmsUser.service().dao().findById(question.getUserId());
 
 		question.put("num",num);
-
+        question.put("username",upmsUser.getRealname());
+        question.put("auth",upmsUser.getAvatar());
+        question.put("autograph",upmsUser.getStr("autograph"));
+        question.put("topics",answerPage);
 		return question;
 	}
+
+
+
+    //插入链表 参数分别代表需要待插入的节点list 和这些节点的父亲是谁
+    public boolean AddReplayNode(List<Reply> relists, ReplayNode freplay){
+        //为空就直接返回
+        if(relists.size()==0)return false;
+        //挨个遍历list中的节点信息，然后如果节点还有孩子就继续递归
+        for(Reply re:relists){
+            ReplayNode newreplaynode = new ReplayNode();
+            newreplaynode.setReply(re);
+            freplay.getListReply().add(newreplaynode);
+            List<Reply> replayList = new ArrayList<>();
+            replayList = Reply.service().dao().find(Reply.sql().andTorridEqualTo(re.getId()).andTorrEqualTo(0).example());
+            //有孩子就继续递归，有没有孩子这里是统一进入递归才判断，也可以来个if else
+            AddReplayNode(replayList,newreplaynode);
+        }
+        return false;
+    }
+    //展示出来 参数表示需要展示的节点list
+    public void ShowReplayNodes(List<ReplayNode> replayNodes){
+        if(replayNodes.size()==0)return;
+        for(ReplayNode temp: replayNodes){
+            System.out.println(temp.getReply().toString());
+            ShowReplayNodes(temp.getListReply());
+        }
+    }
 
 
 }

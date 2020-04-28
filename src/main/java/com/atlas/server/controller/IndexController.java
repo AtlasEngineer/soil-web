@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.atlas.lambkit.start.BaiDuConfig;
 import com.atlas.server.model.*;
+import com.atlas.server.model.sql.CatalogueCriteria;
 import com.atlas.server.utils.Co;
 import com.baidu.aip.imagesearch.AipImageSearch;
 import com.jfinal.aop.Clear;
@@ -107,18 +108,29 @@ public class IndexController extends LambkitController {
 
     public void listById() {
         Integer id = getParaToInt("id");
+        String name=getPara("name");
         if (id == null) {
             renderJson(Co.fail("msg", "id不能为空"));
             return;
         }
         Integer pageNum = getParaToInt("pageNum", 1);
         Integer pageSize = getParaToInt("pageSize", 10);
+        CatalogueCriteria sql=new CatalogueCriteria();
 
-        Page<Record> page = Db.paginate(pageNum, pageSize, "select *", "from catalogue where botany_type=" + id + " ORDER BY ISNULL(image),image ASC");
-        Integer p = pageNum - 1;
-        List<Record> list = Db.find("select * from catalogue where botany_type=" + id + " ORDER BY ISNULL(image) OR image='',image,c_id desc limit " + p + "," + pageSize + "");
-        List<Record> listWithoutDuplicates = list.stream().distinct().collect(Collectors.toList());
-        page.setList(listWithoutDuplicates);
+        if(StringUtils.isNotBlank(name)){
+            sql.andNameLike("%"+name+"%");
+        }
+        List<Catalogue> catalogues=new ArrayList<>();
+        Page<Catalogue> page = Catalogue.service().dao().paginate(pageNum, pageSize, sql.example());
+        for (Catalogue catalogue:page.getList()){
+            if(!catalogue.getName().equals("")){
+                continue;
+            }
+            catalogues.add(catalogue);
+        }
+
+        System.out.println(page.getList().size());
+
         renderJson(Co.ok("data", page));
     }
 
