@@ -465,8 +465,6 @@ public class UserController extends LambkitController {
     @Clear
     @ApiOperation(url = "/user/updateInfo", tag = "/user", httpMethod = "post", description = "修改用户信息")
     public void updateInfo() {
-
-        String userName = getPara("userName");     //用户名
         String realName = getPara("realName");    //真实姓名
         String autograph = getPara("autograph"); //签名
 
@@ -478,34 +476,29 @@ public class UserController extends LambkitController {
         String address = getPara("address");  //住址
         String workunit = getPara("workunit"); //工作
 
-
-        if (StringUtils.isBlank(userName)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "用户名不能为空")));
-            return;
-        }
         if (StringUtils.isBlank(realName)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "真实姓名不能为空")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "真实姓名不能为空")));
             return;
         }
         if (StringUtils.isBlank(autograph)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "签名不能为空")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "签名不能为空")));
             return;
         }
         if (sex == null) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "性别不能为空")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "性别不能为空")));
             return;
         }
 
         if (StringUtils.isBlank(birthday)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "生日不能为空")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "生日不能为空")));
             return;
         }
         if (StringUtils.isBlank(address)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "住址不能为空")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "住址不能为空")));
             return;
         }
         if (StringUtils.isBlank(workunit)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "工作不能为空")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "工作不能为空")));
             return;
         }
 
@@ -539,7 +532,6 @@ public class UserController extends LambkitController {
         int age = Base64Util.getAgeByBirth(date);
 
         upmsUser.setRealname(realName);
-        upmsUser.setUsername(username);
         upmsUser.set("age", age);
         upmsUser.set("sex", 1);
         upmsUser.set("workunit", workunit);
@@ -550,10 +542,10 @@ public class UserController extends LambkitController {
         boolean result = upmsUser.update();
 
         if (result) {
-            renderJson(Co.ok("data", Ret.ok("msg", "修改成功")));
+            renderJson(Co.ok("data", Co.ok("msg", "修改成功")));
 
         } else {
-            renderJson(Co.fail("data", Ret.fail("errorMsg", "修改失败！")));
+            renderJson(Co.fail("data", Co.fail("errorMsg", "修改失败！")));
 
         }
 
