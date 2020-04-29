@@ -41,7 +41,7 @@ public interface BotanyTypeService extends LambkitService<BotanyType> {
     //查询所有新闻
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "news.all")
-    public Page all(Integer pageNum, Integer pageSize );
+    public Page all(Integer pageNum, Integer pageSize);
 
 
     //查询新闻详情
@@ -52,8 +52,14 @@ public interface BotanyTypeService extends LambkitService<BotanyType> {
 
     //收藏
     @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "add.news")
-    public Co addNews(Integer news_id,Integer status);
+    @ApiMapping(value = "add.collection")
+    public Co addNews(String news_id,Integer status,Integer type);
+
+
+    //我的收藏列表
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "search.newsByCollection")
+    public Co newsByCollection(Integer pageNum,Integer pageSize);
 
 
 

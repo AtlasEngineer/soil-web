@@ -26,11 +26,15 @@ import com.lambkit.common.util.StringUtils;
 import com.lambkit.component.swagger.annotation.ApiOperation;
 import com.lambkit.component.swagger.annotation.Param;
 import com.lambkit.component.swagger.annotation.Params;
+import com.lambkit.core.cache.impl.RedisCacheImpl;
 import com.lambkit.module.upms.UpmsManager;
 import com.lambkit.module.upms.rpc.model.UpmsUser;
 import com.lambkit.module.upms.rpc.model.UpmsUserRole;
 import com.lambkit.plugin.jwt.IJwtAble;
+import com.lambkit.plugin.jwt.JwtConfig;
+import com.lambkit.plugin.jwt.JwtKit;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
+import com.lambkit.web.RequestManager;
 import com.lambkit.web.controller.LambkitController;
 import org.json.JSONObject;
 
@@ -120,33 +124,44 @@ public class IndexController extends LambkitController {
         if(StringUtils.isNotBlank(name)){
             sql.andNameLike("%"+name+"%");
         }
-        List<Catalogue> catalogues=new ArrayList<>();
         Page<Catalogue> page = Catalogue.service().dao().paginate(pageNum, pageSize, sql.example());
-        for (Catalogue catalogue:page.getList()){
-            if(!catalogue.getName().equals("")){
-                continue;
-            }
-            catalogues.add(catalogue);
-        }
-
-        System.out.println(page.getList().size());
-
         renderJson(Co.ok("data", page));
     }
 
 
     public void searchCatalogueById() {
-        Integer id = getParaToInt("id");
-        if (id == null) {
+        String id = getPara("id");
+        if (StringUtils.isBlank(id)) {
             renderJson(Co.fail("msg", "id不能为空"));
             return;
         }
-        Record record = Db.findFirst("SELECT * from catalogue c where c.c_id=" + id + "");
+        Record record = Db.findFirst("SELECT * from catalogue c where c.id='" + id + "'");
         List<Record> list = Db.find("SELECT * from catalogue_sample c where c.catalogue_id='" + record.getStr("id") + "' LIMIT 5;");
         record.set("list", list);
+        String token = RequestManager.me().getRequest().getHeader("Authorization");
+        if (StringUtils.isNotBlank(token)) {
+            JwtConfig config = Lambkit.config(JwtConfig.class);
+            String tokenPrefix = config.getTokenPrefix();
+            String authToken = token.substring(tokenPrefix.length());
+            String username = JwtKit.getJwtUser(authToken);
+            System.out.println("username : " + username);
+            UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+
+            Integer status = Db.queryInt("select status from news_collection c where c.user_id=" + upmsUser.getUserId() + " and c.news_id='" + id + "' and type=0"); //0收藏 1取消收藏
+            if (null == status) {
+                record.set("is_Collection", false);
+            } else {
+                if (status > 0) {
+                    record.set("is_Collection", false);
+                } else {
+                    record.set("is_Collection", true);
+                }
+            }
+        }else {
+            record.set("is_Collection", false);
+        }
         renderJson(Co.ok("data", record));
     }
-
 
     //测试添加病虫害列表
     public void bulkAdd() {
@@ -162,7 +177,8 @@ public class IndexController extends LambkitController {
         // 从excel中读取文件
         Sheet sheet = new Sheet(1, 1);
         String name;
-        List<String> ab = new ArrayList<>();
+        List<String> you = new ArrayList<>();
+        List<String> wu = new ArrayList<>();
         try {
             List<Object> list = EasyExcelFactory.read(new FileInputStream(tempXlsFile.getPath()), sheet);
             for (Object obj : list) {
@@ -172,14 +188,14 @@ public class IndexController extends LambkitController {
                     if ("null".equals(name) || StringUtils.isBlank(name)) {
                         continue;
                     }
-                    Timestamp currentTime = DateTimeUtils.getCurrentTime();
-                    Record r1 = Db.findFirst("select * FROM at_insect_species c  where c.name='" + name + "' ");
-                    if (r1 == null) {
-                        String sql = "INSERT INTO at_insect_species (name,time) VALUES " +
-                                "('" + name + "','" + currentTime + "')";
-                        Db.update(sql);
+                    InsectPests insectPests=InsectPests.service().dao().findFirst(InsectPests.sql().andNameEqualTo(name).example());
+                    if (insectPests == null) {
+                        wu.add(name);
+//                        String sql = "INSERT INTO at_insect_species (name,time) VALUES " +
+//                                "('" + name + "','" + currentTime + "')";
+//                        Db.update(sql);
                     } else {
-                        ab.add(name);
+                        you.add(name);
                     }
                 }
             }
@@ -190,7 +206,7 @@ public class IndexController extends LambkitController {
             return;
         }
         tempXlsFile.delete();
-        renderJson(Co.ok("msg", "导入完成").set("ab", ab));
+        renderJson(Co.ok("msg", "导入完成").set("you", you).set("wu",wu));
     }
     //导入病虫害列表
     public void text() {
@@ -222,7 +238,6 @@ public class IndexController extends LambkitController {
                     if ("null".equals(text) || StringUtils.isBlank(text)) {
                         continue;
                     }
-                    Timestamp currentTime = DateTimeUtils.getCurrentTime();
                     Record r1 = Db.findFirst("select * FROM at_insect_species c  where c.name='" + name + "' ");
                     Record r2 = Db.findFirst("select * FROM at_insect_pests c  where c.name='" + text + "' ");
 

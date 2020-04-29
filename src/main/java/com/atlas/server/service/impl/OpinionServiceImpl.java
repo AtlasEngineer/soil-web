@@ -50,23 +50,6 @@ public class OpinionServiceImpl extends LambkitModelServiceImpl<Opinion> impleme
 	@Override
 	public boolean addOpinion(Opinion opinion) {
 
-		String token = RequestManager.me().getRequest().getHeader("Authorization");
-		if (StringUtils.isBlank(token)) {
-			return false;
-		}
-		JwtConfig config = Lambkit.config(JwtConfig.class);
-		String tokenPrefix = config.getTokenPrefix();
-		String authToken = token.substring(tokenPrefix.length());
-		String username = JwtKit.getJwtUser(authToken);
-		if (username == null) {
-			return false;
-		}
-		System.out.println("username : " + username);
-		UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
-		if (upmsUser == null) {
-			return false;
-		}
-		opinion.setUserId(upmsUser.getUserId().intValue());
 		boolean result=opinion.save();
 		if(result){
 			return true;

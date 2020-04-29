@@ -15,12 +15,15 @@
  */
 package com.atlas.server.service.impl;
 
+import com.atlas.server.model.Catalogue;
+import com.atlas.server.model.InsectPests;
 import com.atlas.server.utils.Co;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.Lambkit;
 import com.lambkit.common.service.LambkitModelServiceImpl;
+import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
 
 import com.atlas.server.service.BotanyTypeService;
@@ -30,114 +33,179 @@ import com.lambkit.module.upms.rpc.model.UpmsUser;
 import com.lambkit.plugin.jwt.JwtConfig;
 import com.lambkit.plugin.jwt.JwtKit;
 import com.lambkit.web.RequestManager;
+import com.sun.org.apache.xml.internal.resolver.Catalog;
 
+import java.util.Date;
 import java.util.List;
 
 /**
- * @author yangyong 
+ * @author yangyong
+ * @version 1.0
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
  * @date 2020-04-08
- * @version 1.0
  * @since 1.0
  */
 public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> implements BotanyTypeService {
 
 
-	private BotanyType DAO = null;
-	
-	public BotanyType dao() {
-		if(DAO==null) {
-			DAO = AopKit.singleton(BotanyType.class);
-		}
-		return DAO;
-	}
+    private BotanyType DAO = null;
 
-	@Override
-	public Page all(Integer pageNum, Integer pageSize) {
+    public BotanyType dao() {
+        if (DAO == null) {
+            DAO = AopKit.singleton(BotanyType.class);
+        }
+        return DAO;
+    }
 
-		if(pageNum==null||pageSize==null){
-			pageNum=1;
-			pageSize=5;
-		}
-		Page page=Db.paginate(pageNum,pageSize,"select *","from news where del=0");
+    @Override
+    public Page all(Integer pageNum, Integer pageSize) {
 
-		return page;
-	}
+        if (pageNum == null  ) {
+            pageNum = 1;
 
-	@Override
-	public Record searchNewsById(Integer id) {
+        }
+        if(pageSize == null){
+            pageSize = 5;
+        }
+        Page page = Db.paginate(pageNum, pageSize, "select *", "from news where del=0");
 
-		String token = RequestManager.me().getRequest().getHeader("Authorization");
+        return page;
+    }
 
-		JwtConfig config = Lambkit.config(JwtConfig.class);
-		String tokenPrefix = config.getTokenPrefix();
-		String authToken = token.substring(tokenPrefix.length());
-		String username = JwtKit.getJwtUser(authToken);
-		if (username == null) {
-			return null;
-		}
-		System.out.println("username : " + username);
-		UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
-		if (upmsUser == null) {
-			return null;
-		}
-		RedisCacheImpl redis = new RedisCacheImpl();
-		Integer t_id=redis.get("news",upmsUser.getUserId());
-		Record record= Db.findFirst("select * from news where del=0 and id="+id+"");
-		Integer status=Db.queryInt("select status from news_collection c where c.user_id="+upmsUser.getUserId()+" and c.news_id="+id+""); //0收藏 1取消收藏
-		if(status>0){
-			record.set("is_Collection",false);
-		}else{
-			record.set("is_Collection",true);
-		}
-		if(t_id!=null){  //在redis里存在用户看过该文章直接返回详情
-			return  record;
-		}else {    //先加入redis，在返回详情
-			redis.put("news", upmsUser.getUserId(),id,60*20);
-			Integer num=record.getInt("volume");
-			num++;
-			String sql="update news set volume="+num+" where id="+id+" ";
-			Integer result=Db.update(sql);
+    @Override
+    public Record searchNewsById(Integer id) {
 
-			if(result>0){
-				return record;
-			}else {
-				return  null;
-			}
-		}
-	}
+        String token = RequestManager.me().getRequest().getHeader("Authorization");
+        Record record = Db.findFirst("select * from news where del=0 and id=" + id + "");
+        if(StringUtils.isNotBlank(token)){
+            JwtConfig config = Lambkit.config(JwtConfig.class);
+            String tokenPrefix = config.getTokenPrefix();
+            String authToken = token.substring(tokenPrefix.length());
+            String username = JwtKit.getJwtUser(authToken);
+            if (username == null) {
+                return null;
+            }
+            System.out.println("username : " + username);
+            UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+            if (upmsUser == null) {
+                return null;
+            }
+            RedisCacheImpl redis = new RedisCacheImpl();
+            Integer t_id = redis.get("news", upmsUser.getUserId());
 
-	@Override
-	public Co addNews( Integer news_id, Integer status) {
-		String token = RequestManager.me().getRequest().getHeader("Authorization");
+            Integer status = Db.queryInt("select status from news_collection c where c.user_id=" + upmsUser.getUserId() + " and c.news_id=" + id + ""); //0收藏 1取消收藏
+            if (null == status) {
+                record.set("is_Collection", false);
+            } else {
+                if (status > 0) {
+                    record.set("is_Collection", false);
+                } else {
+                    record.set("is_Collection", true);
+                }
 
-		JwtConfig config = Lambkit.config(JwtConfig.class);
-		String tokenPrefix = config.getTokenPrefix();
-		String authToken = token.substring(tokenPrefix.length());
-		String username = JwtKit.getJwtUser(authToken);
-		if (username == null) {
-			return null;
-		}
-		System.out.println("username : " + username);
-		UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
-		if (upmsUser == null) {
-			return null;
-		}
-		String sql="";
+            }
 
-		Record record=Db.findFirst("select status from news_collection c where c.user_id="+upmsUser.getUserId()+" and c.news_id="+news_id+"");
-		if (record==null){
-			sql="insert into news_collection (user_id,news_id,status) value ("+upmsUser.getUserId()+","+news_id+","+status+") ";
-		}else {
-			sql="UPDATE  news_collection SET status="+status+" WHERE user_id="+upmsUser.getUserId()+" and news_id="+news_id+"";
-		}
-       Integer result=Db.update(sql);
-		if(result>0){
-			return  Co.ok("msg","成功");
-		}else {
-			return  Co.fail("msg","失败");
-		}
+            if (t_id != null) {  //在redis里存在用户看过该文章直接返回详情
+                return record;
+            } else {    //先加入redis，在返回详情
+                redis.put("news", upmsUser.getUserId(), id, 60 * 20);
+                Integer num = record.getInt("volume");
+                num++;
+                String sql = "update news set volume=" + num + " where id=" + id + " ";
+                Integer result = Db.update(sql);
 
-	}
+                if (result > 0) {
+                    return record;
+                } else {
+                    return null;
+                }
+            }
+
+        }else {
+            record.set("is_Collection", false);
+            return  record;
+
+        }
+    }
+
+    @Override
+    public Co addNews(String news_id, Integer status,Integer type) {
+        String token = RequestManager.me().getRequest().getHeader("Authorization");
+
+        JwtConfig config = Lambkit.config(JwtConfig.class);
+        String tokenPrefix = config.getTokenPrefix();
+        String authToken = token.substring(tokenPrefix.length());
+        String username = JwtKit.getJwtUser(authToken);
+        if (username == null) {
+            return null;
+        }
+        System.out.println("username : " + username);
+        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+        if (upmsUser == null) {
+            return null;
+        }
+        String sql = "";
+        Record record = Db.findFirst("select status from news_collection c where c.user_id=" + upmsUser.getUserId() + " and c.news_id='" + news_id + "'");
+
+        if(type==0){
+            Record news=Db.findFirst("select * from news s where s.id='"+news_id+"'");
+            if (record == null) {
+                sql = "insert into news_collection (user_id,news_id,status,title,time,image,type) value (" + upmsUser.getUserId() + ",'" + news_id + "'," + status + ",'"+news.getStr("title")+"',"+new Date() +",'"+news.getStr("image")+"',"+type+") ";
+            } else {
+                sql = "UPDATE  news_collection SET status=" + status + " WHERE user_id=" + upmsUser.getUserId() + " and news_id='" + news_id + "' and type="+type+"";
+            }
+        }else if(type==1){
+            Record news=Db.findFirst("select * from catalogue_sample s where s.id='"+news_id+"'");
+            Catalogue catalogue=Catalogue.service().dao().findById(news.getStr("id"));
+            if (record == null) {
+                sql = "insert into news_collection (user_id,news_id,status,title,time,image,type) value (" + upmsUser.getUserId() + ",'" + news_id + "'," + status + ",'"+catalogue.getName()+"',"+new Date() +",'"+news.getStr("url")+"',"+type+") ";
+            } else {
+                sql = "UPDATE  news_collection SET status=" + status + " WHERE user_id=" + upmsUser.getUserId() + " and news_id='" + news_id + "' and type="+type+"";
+            }
+        }else if(type==2){
+            Record news=Db.findFirst("select * from at_pests_sample s where s.id='"+news_id+"'");
+            InsectPests insectPests=InsectPests.service().dao().findById(news.getStr("id"));
+            if (record == null) {
+                sql = "insert into news_collection (user_id,news_id,status,title,time,image,type) value (" + upmsUser.getUserId() + "," + news_id + "," + status + ",'"+insectPests.getName()+"',"+new Date() +",'"+news.getStr("url")+"',"+type+") ";
+            } else {
+                sql = "UPDATE  news_collection SET status=" + status + " WHERE user_id=" + upmsUser.getUserId() + " and news_id='" + news_id + "' and type="+type+"";
+            }
+        }
+
+        Integer result = Db.update(sql);
+        if (result > 0) {
+            return Co.ok("msg", "成功");
+        } else {
+            return Co.fail("msg", "失败");
+        }
+
+    }
+
+    @Override
+    public Co newsByCollection(Integer pageNum,Integer pageSize) {
+        if (pageNum == null  ) {
+            pageNum = 1;
+
+        }
+        if(pageSize == null){
+            pageSize = 5;
+        }
+        String token = RequestManager.me().getRequest().getHeader("Authorization");
+
+        JwtConfig config = Lambkit.config(JwtConfig.class);
+        String tokenPrefix = config.getTokenPrefix();
+        String authToken = token.substring(tokenPrefix.length());
+        String username = JwtKit.getJwtUser(authToken);
+        if (username == null) {
+            return null;
+        }
+        System.out.println("username : " + username);
+        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+        if (upmsUser == null) {
+            return null;
+        }
+        Page page=Db.paginate(pageNum,pageSize,"select *","from news_collection c where c.user_id="+upmsUser.getUserId().intValue()+" and status=1");
+        return Co.ok("data",page);
+    }
 }

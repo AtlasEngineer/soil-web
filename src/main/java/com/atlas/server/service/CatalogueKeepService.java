@@ -15,6 +15,7 @@
  */
 package com.atlas.server.service;
 
+import com.atlas.server.utils.Co;
 import com.jfinal.plugin.activerecord.Page;
 import com.lambkit.common.service.LambkitService;
 
@@ -22,6 +23,8 @@ import com.atlas.server.model.CatalogueKeep;
 import com.lambkit.core.api.route.ApiBody;
 import com.lambkit.core.api.route.ApiMapping;
 import com.lambkit.core.api.route.ApiRenderJFinalJson;
+
+import java.text.ParseException;
 
 /**
  * @author yangyong 
@@ -35,7 +38,7 @@ public interface CatalogueKeepService extends LambkitService<CatalogueKeep> {
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "catalougeKeep.all")
-    public Page all(Integer pageNum, Integer pageSize);
+    public Co all(String token ,String type) throws ParseException;
 
 
 

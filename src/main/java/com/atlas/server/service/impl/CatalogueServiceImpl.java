@@ -63,7 +63,7 @@ public class CatalogueServiceImpl extends LambkitModelServiceImpl<Catalogue> imp
 		InsectSpeciesCriteria sql=new InsectSpeciesCriteria();
 
 		if(StringUtils.isNotBlank(name)){
-			sql.andNameEqualTo("%"+name+"%");
+			sql.andNameLike("%"+name+"%");
 		}
 		Page<InsectSpecies> page=InsectSpecies.service().dao().paginate(pageNum,pageSize,sql.example());
 		return page;

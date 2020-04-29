@@ -88,12 +88,12 @@ public class AppController extends LambkitController {
         String path = rootPath + yfile.getName();
         File newFile = new File(path);
         yfile.renameTo(newFile);
-        String url = "upload/"+yfile.getName();
+        String url = "upload/" + yfile.getName();
         try {
             //python的识别结果
-            Ret ret1 = AiDiscenerUtils.searchFloraPy(ip +url);
+            Ret ret1 = AiDiscenerUtils.searchFloraPy(ip + url);
             //百度识别结果
-            Ret ret2 = AiDiscenerUtils.searchFlora("/"+url);
+            Ret ret2 = AiDiscenerUtils.searchFlora("/" + url);
 
             if (!"ok".equals(ret1.getStr("state"))) {
                 renderJson(Co.fail("msg", ret1));
@@ -104,11 +104,11 @@ public class AppController extends LambkitController {
             //解析再合并后添加到识别记录
 
             //校验
-            if(!"ok".equals(ret1.getStr("state"))){
+            if (!"ok".equals(ret1.getStr("state"))) {
                 renderJson(ret1);
                 return;
             }
-            if(!"ok".equals(ret2.getStr("state"))){
+            if (!"ok".equals(ret2.getStr("state"))) {
                 renderJson(ret2);
                 return;
             }
@@ -134,7 +134,7 @@ public class AppController extends LambkitController {
                     Double b = o2.getDouble("sim");
                     if (a > b) {
                         return -1;
-                    } else if(a == b) {
+                    } else if (a == b) {
                         return 0;
                     } else
                         return 1;
@@ -148,16 +148,16 @@ public class AppController extends LambkitController {
                 String id = jb.getString("id");
                 if (species.contains(id)) {
                     iterator2.remove();
-                }else{
+                } else {
                     species.add(id);
                 }
             }
             //3、添加待审核样本
             String p = "/eatalogue/w/";
             String[] split = url.split("/");
-            String filename = split[split.length-1];
+            String filename = split[split.length - 1];
             System.out.println(filename);
-            File file = new File(PathKit.getWebRootPath() + "/upload/"+filename);
+            File file = new File(PathKit.getWebRootPath() + "/upload/" + filename);
             String s = PathKit.getWebRootPath() + p + file.getName();
             FileUtils.copyFile(file, new File(s));
             CatalogueSample sample = new CatalogueSample();
@@ -172,7 +172,7 @@ public class AppController extends LambkitController {
             sample.setUrl(p + file.getName());
             sample.setStatus(1);//0 导入,1识别,2.上报
             sample.save();
-            CatalogueKeep keep=new CatalogueKeep();
+            CatalogueKeep keep = new CatalogueKeep();
             //  4、添加识别记录
             if (username != null) {
                 System.out.println("username : " + username);
@@ -188,7 +188,7 @@ public class AppController extends LambkitController {
                 keep.setStatus(1);
                 keep.setUserId(upmsUser.getUserId().intValue());
             }
-            boolean result=keep.save();
+            boolean result = keep.save();
             System.out.println(result);
             renderJson(Ret.ok("data", jsonArray));
         } catch (IOException e) {
@@ -212,22 +212,22 @@ public class AppController extends LambkitController {
     public void addEatalogue() throws IOException {
         String id = getPara("id");//种类id
         String rootPath = PathKit.getWebRootPath().replace("\\", "/");
-        String s ="D:/upload/sample/" + id; //现在改为种类id为文件夹得名字
+        String s = "D:/upload/sample/" + id; //现在改为种类id为文件夹得名字
 
-            List<String> baiDu = new ArrayList<>();  //上传百度失败的图片
+        List<String> baiDu = new ArrayList<>();  //上传百度失败的图片
         List<String> no = new ArrayList<>();  //样本没有shang传的图片
-            HashMap<String, String> options = new HashMap<String, String>();
-            // 文件标签, 这个先不填, 实际项目时, 根据实际需求来
+        HashMap<String, String> options = new HashMap<String, String>();
+        // 文件标签, 这个先不填, 实际项目时, 根据实际需求来
 
-            options.put("tags", "5");
-            //  images 目录下的base目录训练图片, test是测试图片, 这里把训练图片全部入库
-            File images = new File(s);
-            // 获取目录下的所有图片
-            File[] fi = images.listFiles();
-            for (File f : fi) {
-                String fileext = PathUtils.getExtensionName(f.getName());
-                String name = f.getName().split("\\.")[0];
-                if ("jpg".equalsIgnoreCase(fileext) || "png".equalsIgnoreCase(fileext) || "bmp".equalsIgnoreCase(fileext)) {
+        options.put("tags", "5");
+        //  images 目录下的base目录训练图片, test是测试图片, 这里把训练图片全部入库
+        File images = new File(s);
+        // 获取目录下的所有图片
+        File[] fi = images.listFiles();
+        for (File f : fi) {
+            String fileext = PathUtils.getExtensionName(f.getName());
+            String name = f.getName().split("\\.")[0];
+            if ("jpg".equalsIgnoreCase(fileext) || "png".equalsIgnoreCase(fileext) || "bmp".equalsIgnoreCase(fileext)) {
                 if (ZipUtils.checkFileSizeIsLimit(f.length(), 3, "M")) {
                     System.out.println("小于3m啊啊啊啊啊啊");
                 } else {
@@ -235,42 +235,40 @@ public class AppController extends LambkitController {
                     String path = rootPath + "/upload/" + f.getName();
                     ZipUtils.yasuoImage(path, f);
                 }
-                    // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
-                    options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/sample/" + id + "/" + f.getName() + "\"}");
-                    // 上传图片入库
-                    org.json.JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
-                    // 打印上传结果
-                    System.out.println(res.toString(2));//不是格式
-                    if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
-                        //上传百度图库报错了
-                        baiDu.add(f.getName());
-                    } else {
-                        CatalogueSample catalogueSample = CatalogueSample.service().dao().findById(name);
-                        if (catalogueSample==null){
-                            no.add(name);
-                            continue;
-                        }
-                        catalogueSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
-                        boolean result = catalogueSample.update();
-                        if (result) {
-                            System.out.println(f.getName() + "修改成功");
-                        } else {
-                            System.out.println(f.getName() + "修改失败");
-                        }
-                    }
+                // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
+                options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/sample/" + id + "/" + f.getName() + "\"}");
+                // 上传图片入库
+                org.json.JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
+                // 打印上传结果
+                System.out.println(res.toString(2));//不是格式
+                if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
+                    //上传百度图库报错了
+                    baiDu.add(f.getName());
                 } else {
-                    //移动到错误的文件夹   应该没有
-                    System.out.println(f.getName()+"文件格式不正确");
+                    CatalogueSample catalogueSample = CatalogueSample.service().dao().findById(name);
+                    if (catalogueSample == null) {
+                        no.add(name);
+                        continue;
+                    }
+                    catalogueSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
+                    boolean result = catalogueSample.update();
+                    if (result) {
+                        System.out.println(f.getName() + "修改成功");
+                    } else {
+                        System.out.println(f.getName() + "修改失败");
+                    }
                 }
-            }
-            if ( baiDu.size() != 0) {
-                renderJson(Co.ok("baiDu", baiDu));
             } else {
-                renderJson(Co.ok("msg", "添加样本成功,所有图片添加成功"));
+                //移动到错误的文件夹   应该没有
+                System.out.println(f.getName() + "文件格式不正确");
             }
+        }
+        if (baiDu.size() != 0) {
+            renderJson(Co.ok("baiDu", baiDu));
+        } else {
+            renderJson(Co.ok("msg", "添加样本成功,所有图片添加成功"));
+        }
     }
-
-
 
 
     /**
@@ -282,10 +280,19 @@ public class AppController extends LambkitController {
             @Param(name = "filepath", description = "图片路径", required = true, dataType = "String"),
             @Param(name = "id", description = "种类id", required = false, dataType = "Integer"),
     })
-    @ApiOperation(url = "/cern/addFlora", tag = "/cern", httpMethod = "get", description = "添加样本")
+    @ApiOperation(url = "/cern/addDisease", tag = "/cern", httpMethod = "get", description = "添加样本")
     public void addDisease() {
         String filepath = getPara("filepath");//zip路径
         Integer id = getParaToInt("id");//种类id
+
+        if(id==null){
+            renderJson(Co.fail("msg", "种类id不能为空"));
+            return;
+        }
+        if(StringUtils.isBlank(filepath)){
+            renderJson(Co.fail("msg", "压缩包路径不能为空"));
+            return;
+        }
 
         System.out.println(filepath);
         String rootPath = PathKit.getWebRootPath().replace("\\", "/");
@@ -409,7 +416,7 @@ public class AppController extends LambkitController {
                         pestsSample.setTime(new Date());
                         pestsSample.setType(0);
                         pestsSample.setStatus(0);//0 导入,1识别,2.上报
-                        pestsSample.set("between",0);
+                        pestsSample.set("between", 0);
                         boolean result = pestsSample.save();
                         if (result) {
                             System.out.println(f.getName() + "添加数据库成功");
@@ -494,10 +501,10 @@ public class AppController extends LambkitController {
         File file = new File(images);
         String s1 = file.getName().split("\\.")[1];
         String s2 = new Date().getTime() + "" + (int) ((Math.random() * 9 + 1) * 100000);
-        File fileNew = new File(rootPath+"/upload/" + s2 + "." + s1);
-        FileUtils.moveFile(file,fileNew);
+        File fileNew = new File(rootPath + "/upload/" + s2 + "." + s1);
+        FileUtils.moveFile(file, fileNew);
         // 进行相似查询,
-        res = client_B.similarSearch(rootPath+"/upload/" + s2 + "." + s1, options);//直接输入路径进行查询
+        res = client_B.similarSearch(rootPath + "/upload/" + s2 + "." + s1, options);//直接输入路径进行查询
         // 打印上传结果
         if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
             renderJson(Co.fail("msg", "识别失败").set("data", JSON.parseObject(res.toString()).getString("error_msg")));
@@ -529,7 +536,7 @@ public class AppController extends LambkitController {
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 System.out.println("key= " + entry.getKey() + " and value= "
                         + entry.getValue());
-                InsectPests insectPests=InsectPests.service().dao().findFirst(InsectPests.sql().andIdEqualTo(Integer.parseInt(entry.getKey())).example());
+                InsectPests insectPests = InsectPests.service().dao().findFirst(InsectPests.sql().andIdEqualTo(Integer.parseInt(entry.getKey())).example());
                 insectPests.put("score", entry.getValue());
                 insectPestsList.add(insectPests);
             }
@@ -539,7 +546,7 @@ public class AppController extends LambkitController {
             System.out.println("s:" + f.getAbsolutePath());
             try {
                 FileUtils.moveFile(fileNew, new File(s));
-                copyFile3(s,rootPath+"/upload/"+file.getName());
+                copyFile3(s, rootPath + "/upload/" + file.getName());
                 System.out.println("success");
                 PestsSample sample = new PestsSample();
                 sample.setDel(0);
@@ -549,11 +556,11 @@ public class AppController extends LambkitController {
                 sample.setUrl(p + fileNew.getName());
                 sample.setStatus(1);//0 导入,1识别,2.上报
                 sample.setId(s2);
-                sample.set("between",0);
+                sample.set("between", 0);
                 boolean r = sample.save();
                 if (r) {
-                      //4.添加病害的識別記錄
-                    PestsKeep pestsKeep=new PestsKeep();
+                    //4.添加病害的識別記錄
+                    PestsKeep pestsKeep = new PestsKeep();
                     pestsKeep.setName(fileNew.getName());
                     pestsKeep.setUrl(p + fileNew.getName());
                     pestsKeep.setSampleId(Long.getLong(sample.getId()));
@@ -574,9 +581,6 @@ public class AppController extends LambkitController {
     }
 
 
-
-
-
     /**
      * @Description: 添加虫害样本
      * @Author: yangxueyang
@@ -590,6 +594,15 @@ public class AppController extends LambkitController {
     public void addInsectPest() {
         String filepath = getPara("filepath");//zip路径
         Integer id = getParaToInt("id");//种类id
+
+        if(id==null){
+            renderJson(Co.fail("msg", "种类id不能为空"));
+            return;
+        }
+        if(StringUtils.isBlank(filepath)){
+            renderJson(Co.fail("msg", "压缩包路径不能为空"));
+            return;
+        }
 
         System.out.println(filepath);
         String rootPath = PathKit.getWebRootPath().replace("\\", "/");
@@ -713,7 +726,7 @@ public class AppController extends LambkitController {
                         pestsSample.setTime(new Date());
                         pestsSample.setType(0);
                         pestsSample.setStatus(0);//0 导入,1识别,2.上报
-                        pestsSample.set("between",1);
+                        pestsSample.set("between", 1);
                         boolean result = pestsSample.save();
                         if (result) {
                             System.out.println(f.getName() + "添加数据库成功");
@@ -799,10 +812,10 @@ public class AppController extends LambkitController {
         File file = new File(images);
         String s1 = file.getName().split("\\.")[1];
         String s2 = new Date().getTime() + "" + (int) ((Math.random() * 9 + 1) * 100000);
-        File fileNew = new File(rootPath+"/upload/" + s2 + "." + s1);
-        FileUtils.moveFile(file,fileNew);
+        File fileNew = new File(rootPath + "/upload/" + s2 + "." + s1);
+        FileUtils.moveFile(file, fileNew);
         // 进行相似查询,
-        res = client_C.similarSearch(rootPath+"/upload/" + s2 + "." + s1, options);//直接输入路径进行查询
+        res = client_C.similarSearch(rootPath + "/upload/" + s2 + "." + s1, options);//直接输入路径进行查询
         // 打印上传结果
         if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
             renderJson(Co.fail("msg", "识别失败").set("data", JSON.parseObject(res.toString()).getString("error_msg")));
@@ -834,7 +847,7 @@ public class AppController extends LambkitController {
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 System.out.println("key= " + entry.getKey() + " and value= "
                         + entry.getValue());
-                InsectPests insectPests=InsectPests.service().dao().findFirst(InsectPests.sql().andIdEqualTo(Integer.parseInt(entry.getKey())).example());
+                InsectPests insectPests = InsectPests.service().dao().findFirst(InsectPests.sql().andIdEqualTo(Integer.parseInt(entry.getKey())).example());
                 insectPests.put("score", entry.getValue());
                 insectPestsList.add(insectPests);
             }
@@ -844,7 +857,7 @@ public class AppController extends LambkitController {
             System.out.println("s:" + f.getAbsolutePath());
             try {
                 FileUtils.moveFile(fileNew, new File(s));
-                copyFile3(s,rootPath+"/upload/"+file.getName());
+                copyFile3(s, rootPath + "/upload/" + file.getName());
                 System.out.println("success");
                 PestsSample sample = new PestsSample();
                 sample.setDel(0);
@@ -854,11 +867,11 @@ public class AppController extends LambkitController {
                 sample.setUrl(p + fileNew.getName());
                 sample.setStatus(1);//0 导入,1识别,2.上报
                 sample.setId(s2);
-                sample.set("between",1);
+                sample.set("between", 1);
                 boolean r = sample.save();
                 if (r) {
                     //4.添加病害的識別記錄
-                    PestsKeep pestsKeep=new PestsKeep();
+                    PestsKeep pestsKeep = new PestsKeep();
                     pestsKeep.setName(fileNew.getName());
                     pestsKeep.setUrl(p + fileNew.getName());
                     pestsKeep.setSampleId(Long.getLong(sample.getId()));
@@ -878,43 +891,29 @@ public class AppController extends LambkitController {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    //纠正样本摘要的方法,不实际用
     public void update() throws InterruptedException {
 
         HashMap<String, String> options = new HashMap<String, String>();
-        String id = getPara("id");//种类id
-        List<String> list=new ArrayList<>();
+        Integer id = getParaToInt("id");//种类id
+        List<String> list = new ArrayList<>();
 
-        List<CatalogueSample> catalogueSample=CatalogueSample.service().dao().find("select * from catalogue_sample c where c.catalogue_id='"+id+"'");
-        for (CatalogueSample c:catalogueSample){
+        List<PestsSample> pestsSamples = PestsSample.service().dao().find(PestsSample.sql().andPestsIdEqualTo(id).example());
+
+        for (PestsSample c : pestsSamples) {
+            PestsSample pestsSample = PestsSample.service().dao().findById(c.getId());
             Thread.sleep(1000);
-            System.out.println(c.getContSign());
-            options.put("brief",c.getBrief());
-            org.json.JSONObject res = client.similarUpdateContSign(c.getContSign(),options);
+            System.out.println(pestsSample.getContSign());
+            options.put("brief", pestsSample.getBrief());
+            org.json.JSONObject res = client_B.similarUpdateContSign(pestsSample.getContSign(), options);
             System.out.println(res.toString(2));
-            if(StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))){
+            if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
                 list.add(c.getName());
             }
         }
-        renderJson("data",list);
+        renderJson("data", list);
     }
-
+    //copy文件
     public static void copyFile3(String srcPath, String destPath) throws IOException {
 
         // 打开输入流

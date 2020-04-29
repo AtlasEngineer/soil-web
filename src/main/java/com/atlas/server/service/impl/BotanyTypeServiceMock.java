@@ -46,7 +46,12 @@ public class BotanyTypeServiceMock extends BaseServiceMock<BotanyType> implement
     }
 
     @Override
-    public Co addNews( Integer news_id, Integer status) {
+    public Co addNews( String news_id, Integer status,Integer type) {
+        return null;
+    }
+
+    @Override
+    public Co newsByCollection(Integer pageNum,Integer pageSize) {
         return null;
     }
 }

@@ -58,8 +58,6 @@ public class AnswerServiceImpl extends LambkitModelServiceImpl<Answer> implement
 
 	@Override
 	public Co addAnswer(Integer q_id,String  content, String token) {
-
-
 		JwtConfig config = Lambkit.config(JwtConfig.class);
 		String tokenPrefix = config.getTokenPrefix();
 		String authToken = token.substring(tokenPrefix.length());
@@ -72,9 +70,11 @@ public class AnswerServiceImpl extends LambkitModelServiceImpl<Answer> implement
 		if (upmsUser == null) {
 			return null;
 		}
+		System.out.println(	"roleName:"+upmsUser.getRealname());
+
 		Answer answer=new Answer();
 		answer.setQId(q_id);
-		answer.setUname(upmsUser.getRealname());
+		answer.setUname(upmsUser.getUsername());
 		answer.setUserId(upmsUser.getUserId().intValue());
 		answer.setTime(new Date());
 		answer.setDel(0);

@@ -71,14 +71,14 @@ public class ReplyServiceImpl extends LambkitModelServiceImpl<Reply> implements 
 		}
         if(reply.getTorr()==1){ //回复评论
 			reply.setUid(upmsUser.getUserId().intValue()); //谁发的
-			reply.setUname(upmsUser.getRealname());//名字
+			reply.setUname(upmsUser.getUsername());//名字
 			reply.setUheadurl(upmsUser.getAvatar());//头像
 
 			Answer answer=Answer.service().dao().findById(reply.getTorrid());
 			reply.setTouid(answer.getUserId());//发给谁 通过问题id获取用户信息
 
 			UpmsUser user=UpmsUser.service().dao().findById(answer.getUserId());
-			reply.setTouname(user.getRealname()); //目标用户
+			reply.setTouname(user.getUsername()); //目标用户
 
 			reply.setRtime(new Date());
 
@@ -97,7 +97,7 @@ public class ReplyServiceImpl extends LambkitModelServiceImpl<Reply> implements 
 
 		boolean result=reply.save();
 		if(result){
-			return Co.ok("data", Co.by("state", "ok"));
+			return Co.ok("data", Co.by("state", "ok").set("reply",reply));
 		}else {
 			return Co.ok("data", Co.by("state", "fail"));
 		}

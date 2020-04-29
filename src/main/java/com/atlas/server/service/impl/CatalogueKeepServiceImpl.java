@@ -16,40 +16,143 @@
 package com.atlas.server.service.impl;
 
 import com.atlas.server.model.sql.CatalogueKeepCriteria;
+import com.atlas.server.utils.Co;
 import com.jfinal.plugin.activerecord.Page;
+import com.lambkit.Lambkit;
 import com.lambkit.common.service.LambkitModelServiceImpl;
+import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
 
 import com.atlas.server.service.CatalogueKeepService;
 import com.atlas.server.model.CatalogueKeep;
+import com.lambkit.module.upms.rpc.model.UpmsUser;
+import com.lambkit.plugin.jwt.JwtConfig;
+import com.lambkit.plugin.jwt.JwtKit;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
- * @author yangyong 
+ * @author yangyong
+ * @version 1.0
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
  * @date 2020-04-08
- * @version 1.0
  * @since 1.0
  */
 public class CatalogueKeepServiceImpl extends LambkitModelServiceImpl<CatalogueKeep> implements CatalogueKeepService {
-	
-	private CatalogueKeep DAO = null;
-	
-	public CatalogueKeep dao() {
-		if(DAO==null) {
-			DAO = AopKit.singleton(CatalogueKeep.class);
-		}
-		return DAO;
-	}
 
-	@Override
-	public Page all(Integer pageNum, Integer pageSize) {
-		if (pageNum == null || pageSize == null) {
-			pageNum = 1;
-			pageSize = 10;
+    private CatalogueKeep DAO = null;
+
+    public CatalogueKeep dao() {
+        if (DAO == null) {
+            DAO = AopKit.singleton(CatalogueKeep.class);
+        }
+        return DAO;
+    }
+
+    @Override
+    public Co all(String token, String  type) throws ParseException {
+
+    	String time[]=type.split(",");
+    	if(time.length>1){
+			if(StringUtils.isNotBlank(time[1])&&StringUtils.isNotBlank(time[0])){
+
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//设置日期格式
+				Date start = df.parse(time[0]);
+				Date end = df.parse(time[1]);
+				if(start.before(end)){
+					return Co.fail("msg","开始时间不能在结束时间之前");
+				}
+				int num=getMonth(start, end);
+				if(num<6){
+					return Co.fail("msg","时间相隔不能低于半年");
+				}
+			}
 		}
-		CatalogueKeepCriteria sql=new CatalogueKeepCriteria();
-		Page page=CatalogueKeep.service().dao().paginate(pageNum,pageSize,sql.example());
-		return page;
+
+		JwtConfig config = Lambkit.config(JwtConfig.class);
+		String tokenPrefix = config.getTokenPrefix();
+		String authToken = token.substring(tokenPrefix.length());
+		String username = JwtKit.getJwtUser(authToken);
+		if (username == null) {
+			return null;
+		}
+		System.out.println("username : " + username);
+		UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+		if (upmsUser == null) {
+			return null;
+		}
+		System.out.println(	"roleName:"+upmsUser.getRealname());
+
+
+		StringBuffer stringBuffer=new StringBuffer();
+		stringBuffer.append("select * from catalogue_keep k where 1=1 ");
+
+		if(StringUtils.isNotBlank(type)){
+			if("1".equals(type)){
+				stringBuffer.append(" and date_format(k.time,'%Y-%m') = date_format(now(),'%Y-%m')");
+			}
+			if("3".equals(type)){
+				stringBuffer.append(" and datediff(curdate(),k.time)<90");
+			}
+		}
+		if(time.length>1){
+			if (StringUtils.isNotBlank(time[0]) && StringUtils.isNotBlank(time[1]) && !"null".equals(time[0]) && !"null".equals(time[1])) {
+				if (time[0].equals(time[1])) {
+					stringBuffer.append(" and date_format(k.time'%Y-%m')=date_format('" + time[0] + "','%Y-%m')");
+				} else {
+					stringBuffer.append(" and k.time between '" + time[0] + "' and '" + time[1] + "'");
+				}
+			} else if (StringUtils.isNotBlank(time[0]) && !"null".equals(time[0])) {
+				stringBuffer.append(" and date_format(k.time,'%Y-%m')=date_format('" + time[0] + "','%Y-%m')");
+			} else if (StringUtils.isNotBlank(time[1]) && !"null".equals(time[1])) {
+				stringBuffer.append(" and date_format(k.time,'%Y-%m')=date_format('" + time[1] + "','%Y-%m')");
+			}
+		}
+
+		stringBuffer.append(" odrer by k.time desc");
+
+        List<CatalogueKeep> catalogueKeeps = CatalogueKeep.service().dao().find(stringBuffer.toString());
+
+        return Co.ok("data",catalogueKeeps);
+    }
+
+
+	public static int getMonth(Date start, Date end) {
+		if (start.after(end)) {
+			Date t = start;
+			start = end;
+			end = t;
+		}
+		Calendar startCalendar = Calendar.getInstance();
+		startCalendar.setTime(start);
+		Calendar endCalendar = Calendar.getInstance();
+		endCalendar.setTime(end);
+		Calendar temp = Calendar.getInstance();
+		temp.setTime(end);
+		temp.add(Calendar.DATE, 1);
+
+		int year = endCalendar.get(Calendar.YEAR)
+				- startCalendar.get(Calendar.YEAR);
+		int month = endCalendar.get(Calendar.MONTH)
+				- startCalendar.get(Calendar.MONTH);
+
+		if ((startCalendar.get(Calendar.DATE) == 1)
+				&& (temp.get(Calendar.DATE) == 1)) {
+			return year * 12 + month + 1;
+		} else if ((startCalendar.get(Calendar.DATE) != 1)
+				&& (temp.get(Calendar.DATE) == 1)) {
+			return year * 12 + month;
+		} else if ((startCalendar.get(Calendar.DATE) == 1)
+				&& (temp.get(Calendar.DATE) != 1)) {
+			return year * 12 + month;
+		} else {
+			return (year * 12 + month - 1) < 0 ? 0 : (year * 12 + month);
+		}
 	}
 }
