@@ -467,14 +467,10 @@ public class UserController extends LambkitController {
     public void updateInfo() {
         String realName = getPara("realName");    //真实姓名
         String autograph = getPara("autograph"); //签名
-
         Integer sex = getParaToInt("sex"); //性别（0男 1女）
-
         String birthday = getPara("birthday"); //生日
-
-
         String address = getPara("address");  //住址
-        String workunit = getPara("workunit"); //工作
+        String work = getPara("work"); //工作
 
         if (StringUtils.isBlank(realName)) {
             renderJson(Co.ok("data", Co.fail("errorMsg", "真实姓名不能为空")));
@@ -497,7 +493,7 @@ public class UserController extends LambkitController {
             renderJson(Co.ok("data", Co.fail("errorMsg", "住址不能为空")));
             return;
         }
-        if (StringUtils.isBlank(workunit)) {
+        if (StringUtils.isBlank(work)) {
             renderJson(Co.ok("data", Co.fail("errorMsg", "工作不能为空")));
             return;
         }
@@ -533,8 +529,8 @@ public class UserController extends LambkitController {
 
         upmsUser.setRealname(realName);
         upmsUser.set("age", age);
-        upmsUser.set("sex", 1);
-        upmsUser.set("workunit", workunit);
+        upmsUser.set("sex", sex);
+        upmsUser.set("work", work);
         upmsUser.set("autograph", autograph);
         upmsUser.set("workaddress", address);
         upmsUser.set("birthday", birthday);
