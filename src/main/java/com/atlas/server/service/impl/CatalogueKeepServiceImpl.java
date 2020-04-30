@@ -97,7 +97,7 @@ public class CatalogueKeepServiceImpl extends LambkitModelServiceImpl<CatalogueK
 
 
         StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("select * from catalogue_keep k where del=0 ");
+        stringBuffer.append("select * from catalogue_keep k where del=0 and user_id="+upmsUser.getUserId().intValue()+" ");
 
         if (StringUtils.isNotBlank(type)) {
             if ("1".equals(type)) {

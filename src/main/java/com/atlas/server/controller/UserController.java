@@ -367,6 +367,7 @@ public class UserController extends LambkitController {
                 upmsUser.setSalt(salt);
                 String md5pswd = EncryptUtils.MD5(password + upmsUser.getSalt());
                 upmsUser.setPassword(md5pswd);
+                upmsUser.setSex(1);
                 upmsUser.setLocked(0);//锁定账户需要审核
                 upmsUser.setCtime(DateTimeUtils.getCurrentTimeLong());
                 upmsUser.setRealname(username);
