@@ -775,4 +775,35 @@ public class UserController extends LambkitController {
     }
 
 
+    //統計用户收藏数量
+    @Clear
+    public  void  count(){
+        String token = RequestManager.me().getRequest().getHeader("Authorization");
+        if (StringUtils.isBlank(token)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请登录")));
+            return;
+        }
+        JwtConfig config = Lambkit.config(JwtConfig.class);
+        String tokenPrefix = config.getTokenPrefix();
+        String authToken = token.substring(tokenPrefix.length());
+        String username = JwtKit.getJwtUser(authToken);
+        if (username == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "token异常")));
+            return;
+        }
+        System.out.println("username : " + username);
+        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+        if (upmsUser == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
+            return;
+        }
+
+        Integer collection_num=Db.queryInt("select count(*) from news_collection n WHERE n.user_id="+upmsUser.getUserId()+" and `status`=0");
+        Integer discern_num=Db.queryInt("select count(*) from catalogue_keep n WHERE n.user_id="+upmsUser.getUserId()+" and del=0");
+
+        renderJson(Co.ok().set("discern_num",discern_num).set("collection_num",collection_num));
+
+    }
+
+
 }

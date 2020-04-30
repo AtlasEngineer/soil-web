@@ -23,7 +23,7 @@ import com.lambkit.common.model.LambkitModel;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-29
  * @version 1.0
  * @since 1.0
  */
@@ -76,11 +76,11 @@ public abstract class BasePestsSample<M extends BasePestsSample<M>> extends Lamb
 	public void setContSign(java.lang.String contSign) {
 		this.set("cont_sign", contSign);
 	}
-	public java.lang.Double getLon() {
+	public java.lang.String getLon() {
 		return this.get("lon");
 	}
 
-	public void setLon(java.lang.Double lon) {
+	public void setLon(java.lang.String lon) {
 		this.set("lon", lon);
 	}
 	public java.lang.String getLat() {
@@ -117,5 +117,12 @@ public abstract class BasePestsSample<M extends BasePestsSample<M>> extends Lamb
 
 	public void setName(java.lang.String name) {
 		this.set("name", name);
+	}
+	public java.lang.Integer getBetween() {
+		return this.get("between");
+	}
+
+	public void setBetween(java.lang.Integer between) {
+		this.set("between", between);
 	}
 }

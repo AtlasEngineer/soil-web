@@ -138,7 +138,7 @@ public class IndexController extends LambkitController {
         Record record = Db.findFirst("SELECT * from catalogue c where c.id='" + id + "'");
         List<Record> list = Db.find("SELECT * from catalogue_sample c where c.catalogue_id='" + record.getStr("id") + "' LIMIT 5;");
         record.set("list", list);
-        String token = RequestManager.me().getRequest().getHeader("Authorization");
+        String token = getPara("token");
         if (StringUtils.isNotBlank(token)) {
             JwtConfig config = Lambkit.config(JwtConfig.class);
             String tokenPrefix = config.getTokenPrefix();
@@ -147,7 +147,7 @@ public class IndexController extends LambkitController {
             System.out.println("username : " + username);
             UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
 
-            Integer status = Db.queryInt("select status from news_collection c where c.user_id=" + upmsUser.getUserId() + " and c.news_id='" + id + "' and type=0"); //0收藏 1取消收藏
+            Integer status = Db.queryInt("select status from news_collection c where c.user_id=" + upmsUser.getUserId() + " and c.news_id='" + id + "'"); //0收藏 1取消收藏
             if (null == status) {
                 record.set("is_Collection", false);
             } else {

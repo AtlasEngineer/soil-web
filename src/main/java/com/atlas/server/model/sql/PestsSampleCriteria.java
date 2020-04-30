@@ -27,7 +27,7 @@ import java.util.List;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-29
  * @version 1.0
  * @since 1.0
  */
@@ -647,53 +647,62 @@ public class PestsSampleCriteria extends Columns implements Serializable {
 		notEmpty("lon");
 		return this;
 	}
-       public PestsSampleCriteria andLonEqualTo(java.lang.Double value) {
-          addCriterion("lon", value, ConditionMode.EQUAL, "lon", "java.lang.Double", "Float");
+        public PestsSampleCriteria andLonLike(java.lang.String value) {
+    	   addCriterion("lon", value, ConditionMode.FUZZY, "lon", "java.lang.String", "String");
+    	   return this;
+      }
+
+      public PestsSampleCriteria andLonNotLike(java.lang.String value) {
+          addCriterion("lon", value, ConditionMode.NOT_FUZZY, "lon", "java.lang.String", "String");
+          return this;
+      }
+      public PestsSampleCriteria andLonEqualTo(java.lang.String value) {
+          addCriterion("lon", value, ConditionMode.EQUAL, "lon", "java.lang.String", "String");
           return this;
       }
 
-      public PestsSampleCriteria andLonNotEqualTo(java.lang.Double value) {
-          addCriterion("lon", value, ConditionMode.NOT_EQUAL, "lon", "java.lang.Double", "Float");
+      public PestsSampleCriteria andLonNotEqualTo(java.lang.String value) {
+          addCriterion("lon", value, ConditionMode.NOT_EQUAL, "lon", "java.lang.String", "String");
           return this;
       }
 
-      public PestsSampleCriteria andLonGreaterThan(java.lang.Double value) {
-          addCriterion("lon", value, ConditionMode.GREATER_THEN, "lon", "java.lang.Double", "Float");
+      public PestsSampleCriteria andLonGreaterThan(java.lang.String value) {
+          addCriterion("lon", value, ConditionMode.GREATER_THEN, "lon", "java.lang.String", "String");
           return this;
       }
 
-      public PestsSampleCriteria andLonGreaterThanOrEqualTo(java.lang.Double value) {
-          addCriterion("lon", value, ConditionMode.GREATER_EQUAL, "lon", "java.lang.Double", "Float");
+      public PestsSampleCriteria andLonGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("lon", value, ConditionMode.GREATER_EQUAL, "lon", "java.lang.String", "String");
           return this;
       }
 
-      public PestsSampleCriteria andLonLessThan(java.lang.Double value) {
-          addCriterion("lon", value, ConditionMode.LESS_THEN, "lon", "java.lang.Double", "Float");
+      public PestsSampleCriteria andLonLessThan(java.lang.String value) {
+          addCriterion("lon", value, ConditionMode.LESS_THEN, "lon", "java.lang.String", "String");
           return this;
       }
 
-      public PestsSampleCriteria andLonLessThanOrEqualTo(java.lang.Double value) {
-          addCriterion("lon", value, ConditionMode.LESS_EQUAL, "lon", "java.lang.Double", "Float");
+      public PestsSampleCriteria andLonLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("lon", value, ConditionMode.LESS_EQUAL, "lon", "java.lang.String", "String");
           return this;
       }
 
-      public PestsSampleCriteria andLonBetween(java.lang.Double value1, java.lang.Double value2) {
-    	  addCriterion("lon", value1, value2, ConditionMode.BETWEEN, "lon", "java.lang.Double", "Float");
+      public PestsSampleCriteria andLonBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("lon", value1, value2, ConditionMode.BETWEEN, "lon", "java.lang.String", "String");
     	  return this;
       }
 
-      public PestsSampleCriteria andLonNotBetween(java.lang.Double value1, java.lang.Double value2) {
-          addCriterion("lon", value1, value2, ConditionMode.NOT_BETWEEN, "lon", "java.lang.Double", "Float");
+      public PestsSampleCriteria andLonNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("lon", value1, value2, ConditionMode.NOT_BETWEEN, "lon", "java.lang.String", "String");
           return this;
       }
         
-      public PestsSampleCriteria andLonIn(List<java.lang.Double> values) {
-          addCriterion("lon", values, ConditionMode.IN, "lon", "java.lang.Double", "Float");
+      public PestsSampleCriteria andLonIn(List<java.lang.String> values) {
+          addCriterion("lon", values, ConditionMode.IN, "lon", "java.lang.String", "String");
           return this;
       }
 
-      public PestsSampleCriteria andLonNotIn(List<java.lang.Double> values) {
-          addCriterion("lon", values, ConditionMode.NOT_IN, "lon", "java.lang.Double", "Float");
+      public PestsSampleCriteria andLonNotIn(List<java.lang.String> values) {
+          addCriterion("lon", values, ConditionMode.NOT_IN, "lon", "java.lang.String", "String");
           return this;
       }
 	public PestsSampleCriteria andLatIsNull() {
@@ -716,12 +725,12 @@ public class PestsSampleCriteria extends Columns implements Serializable {
 		return this;
 	}
         public PestsSampleCriteria andLatLike(java.lang.String value) {
-    	   addCriterion("lat", value, ConditionMode.FUZZY, "lat", "java.lang.String", "Float");
+    	   addCriterion("lat", value, ConditionMode.FUZZY, "lat", "java.lang.String", "String");
     	   return this;
       }
 
       public PestsSampleCriteria andLatNotLike(java.lang.String value) {
-          addCriterion("lat", value, ConditionMode.NOT_FUZZY, "lat", "java.lang.String", "Float");
+          addCriterion("lat", value, ConditionMode.NOT_FUZZY, "lat", "java.lang.String", "String");
           return this;
       }
       public PestsSampleCriteria andLatEqualTo(java.lang.String value) {
@@ -1052,6 +1061,74 @@ public class PestsSampleCriteria extends Columns implements Serializable {
 
       public PestsSampleCriteria andNameNotIn(List<java.lang.String> values) {
           addCriterion("name", values, ConditionMode.NOT_IN, "name", "java.lang.String", "String");
+          return this;
+      }
+	public PestsSampleCriteria andBetweenIsNull() {
+		isnull("between");
+		return this;
+	}
+	
+	public PestsSampleCriteria andBetweenIsNotNull() {
+		notNull("between");
+		return this;
+	}
+	
+	public PestsSampleCriteria andBetweenIsEmpty() {
+		empty("between");
+		return this;
+	}
+
+	public PestsSampleCriteria andBetweenIsNotEmpty() {
+		notEmpty("between");
+		return this;
+	}
+       public PestsSampleCriteria andBetweenEqualTo(java.lang.Integer value) {
+          addCriterion("between", value, ConditionMode.EQUAL, "between", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public PestsSampleCriteria andBetweenNotEqualTo(java.lang.Integer value) {
+          addCriterion("between", value, ConditionMode.NOT_EQUAL, "between", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public PestsSampleCriteria andBetweenGreaterThan(java.lang.Integer value) {
+          addCriterion("between", value, ConditionMode.GREATER_THEN, "between", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public PestsSampleCriteria andBetweenGreaterThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("between", value, ConditionMode.GREATER_EQUAL, "between", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public PestsSampleCriteria andBetweenLessThan(java.lang.Integer value) {
+          addCriterion("between", value, ConditionMode.LESS_THEN, "between", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public PestsSampleCriteria andBetweenLessThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("between", value, ConditionMode.LESS_EQUAL, "between", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public PestsSampleCriteria andBetweenBetween(java.lang.Integer value1, java.lang.Integer value2) {
+    	  addCriterion("between", value1, value2, ConditionMode.BETWEEN, "between", "java.lang.Integer", "Float");
+    	  return this;
+      }
+
+      public PestsSampleCriteria andBetweenNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
+          addCriterion("between", value1, value2, ConditionMode.NOT_BETWEEN, "between", "java.lang.Integer", "Float");
+          return this;
+      }
+        
+      public PestsSampleCriteria andBetweenIn(List<java.lang.Integer> values) {
+          addCriterion("between", values, ConditionMode.IN, "between", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public PestsSampleCriteria andBetweenNotIn(List<java.lang.Integer> values) {
+          addCriterion("between", values, ConditionMode.NOT_IN, "between", "java.lang.Integer", "Float");
           return this;
       }
 }

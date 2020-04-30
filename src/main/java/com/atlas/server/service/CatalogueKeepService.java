@@ -41,5 +41,10 @@ public interface CatalogueKeepService extends LambkitService<CatalogueKeep> {
     public Co all(String token ,String type) throws ParseException;
 
 
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "catalougeKeep.delete")
+    public Co delete(Integer id[]);
+
+
 
 }

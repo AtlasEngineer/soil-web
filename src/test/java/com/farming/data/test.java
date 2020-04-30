@@ -17,7 +17,7 @@ public class test {
 //        boolean tof = Base64Util.compareTime(nTime, "2020-09-11 00:00:00", "yyyy-MM-dd hh:mm:ss");
 //        System.out.println(tof);
         //System.out.println(getDaysOfMonth(new Date()));
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//设置日期格式
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");//设置日期格式
         Date start = df.parse("2020-04-04");
         Date end = df.parse("2020-03-16");
         System.out.println("###start:==" + start);

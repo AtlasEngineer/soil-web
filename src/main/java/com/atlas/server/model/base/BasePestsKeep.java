@@ -23,7 +23,7 @@ import com.lambkit.common.model.LambkitModel;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-27
+ * @date 2020-04-29
  * @version 1.0
  * @since 1.0
  */
@@ -83,11 +83,11 @@ public abstract class BasePestsKeep<M extends BasePestsKeep<M>> extends LambkitM
 	public void setTime(java.util.Date time) {
 		this.set("time", time);
 	}
-	public java.lang.Long getSampleId() {
+	public java.lang.String getSampleId() {
 		return this.get("sample_id");
 	}
 
-	public void setSampleId(java.lang.Long sampleId) {
+	public void setSampleId(java.lang.String sampleId) {
 		this.set("sample_id", sampleId);
 	}
 	public java.lang.Integer getStatus() {

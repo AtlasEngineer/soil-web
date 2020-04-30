@@ -27,7 +27,7 @@ import java.util.List;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-27
+ * @date 2020-04-29
  * @version 1.0
  * @since 1.0
  */
@@ -706,53 +706,62 @@ public class PestsKeepCriteria extends Columns implements Serializable {
 		notEmpty("sample_id");
 		return this;
 	}
-       public PestsKeepCriteria andSampleIdEqualTo(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.EQUAL, "sampleId", "java.lang.Long", "Float");
+        public PestsKeepCriteria andSampleIdLike(java.lang.String value) {
+    	   addCriterion("sample_id", value, ConditionMode.FUZZY, "sampleId", "java.lang.String", "String");
+    	   return this;
+      }
+
+      public PestsKeepCriteria andSampleIdNotLike(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.NOT_FUZZY, "sampleId", "java.lang.String", "String");
+          return this;
+      }
+      public PestsKeepCriteria andSampleIdEqualTo(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.EQUAL, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public PestsKeepCriteria andSampleIdNotEqualTo(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.NOT_EQUAL, "sampleId", "java.lang.Long", "Float");
+      public PestsKeepCriteria andSampleIdNotEqualTo(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.NOT_EQUAL, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public PestsKeepCriteria andSampleIdGreaterThan(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.GREATER_THEN, "sampleId", "java.lang.Long", "Float");
+      public PestsKeepCriteria andSampleIdGreaterThan(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.GREATER_THEN, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public PestsKeepCriteria andSampleIdGreaterThanOrEqualTo(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.GREATER_EQUAL, "sampleId", "java.lang.Long", "Float");
+      public PestsKeepCriteria andSampleIdGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.GREATER_EQUAL, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public PestsKeepCriteria andSampleIdLessThan(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.LESS_THEN, "sampleId", "java.lang.Long", "Float");
+      public PestsKeepCriteria andSampleIdLessThan(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.LESS_THEN, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public PestsKeepCriteria andSampleIdLessThanOrEqualTo(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.LESS_EQUAL, "sampleId", "java.lang.Long", "Float");
+      public PestsKeepCriteria andSampleIdLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.LESS_EQUAL, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public PestsKeepCriteria andSampleIdBetween(java.lang.Long value1, java.lang.Long value2) {
-    	  addCriterion("sample_id", value1, value2, ConditionMode.BETWEEN, "sampleId", "java.lang.Long", "Float");
+      public PestsKeepCriteria andSampleIdBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("sample_id", value1, value2, ConditionMode.BETWEEN, "sampleId", "java.lang.String", "String");
     	  return this;
       }
 
-      public PestsKeepCriteria andSampleIdNotBetween(java.lang.Long value1, java.lang.Long value2) {
-          addCriterion("sample_id", value1, value2, ConditionMode.NOT_BETWEEN, "sampleId", "java.lang.Long", "Float");
+      public PestsKeepCriteria andSampleIdNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("sample_id", value1, value2, ConditionMode.NOT_BETWEEN, "sampleId", "java.lang.String", "String");
           return this;
       }
         
-      public PestsKeepCriteria andSampleIdIn(List<java.lang.Long> values) {
-          addCriterion("sample_id", values, ConditionMode.IN, "sampleId", "java.lang.Long", "Float");
+      public PestsKeepCriteria andSampleIdIn(List<java.lang.String> values) {
+          addCriterion("sample_id", values, ConditionMode.IN, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public PestsKeepCriteria andSampleIdNotIn(List<java.lang.Long> values) {
-          addCriterion("sample_id", values, ConditionMode.NOT_IN, "sampleId", "java.lang.Long", "Float");
+      public PestsKeepCriteria andSampleIdNotIn(List<java.lang.String> values) {
+          addCriterion("sample_id", values, ConditionMode.NOT_IN, "sampleId", "java.lang.String", "String");
           return this;
       }
 	public PestsKeepCriteria andStatusIsNull() {

@@ -35,4 +35,9 @@ public class CatalogueKeepServiceMock extends BaseServiceMock<CatalogueKeep> imp
     public Co all(String token, String  type) {
         return null;
     }
+
+    @Override
+    public Co delete(Integer id[]) {
+        return null;
+    }
 }

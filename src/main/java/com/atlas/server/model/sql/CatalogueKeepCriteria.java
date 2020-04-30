@@ -27,7 +27,7 @@ import java.util.List;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-30
  * @version 1.0
  * @since 1.0
  */
@@ -542,81 +542,72 @@ public class CatalogueKeepCriteria extends Columns implements Serializable {
           addCriterion("del", values, ConditionMode.NOT_IN, "del", "java.lang.Integer", "Float");
           return this;
       }
-	public CatalogueKeepCriteria andCatalogueIdIsNull() {
-		isnull("catalogue_id");
+	public CatalogueKeepCriteria andTypeIsNull() {
+		isnull("type");
 		return this;
 	}
 	
-	public CatalogueKeepCriteria andCatalogueIdIsNotNull() {
-		notNull("catalogue_id");
+	public CatalogueKeepCriteria andTypeIsNotNull() {
+		notNull("type");
 		return this;
 	}
 	
-	public CatalogueKeepCriteria andCatalogueIdIsEmpty() {
-		empty("catalogue_id");
+	public CatalogueKeepCriteria andTypeIsEmpty() {
+		empty("type");
 		return this;
 	}
 
-	public CatalogueKeepCriteria andCatalogueIdIsNotEmpty() {
-		notEmpty("catalogue_id");
+	public CatalogueKeepCriteria andTypeIsNotEmpty() {
+		notEmpty("type");
 		return this;
 	}
-        public CatalogueKeepCriteria andCatalogueIdLike(java.lang.String value) {
-    	   addCriterion("catalogue_id", value, ConditionMode.FUZZY, "catalogueId", "java.lang.String", "Float");
-    	   return this;
-      }
-
-      public CatalogueKeepCriteria andCatalogueIdNotLike(java.lang.String value) {
-          addCriterion("catalogue_id", value, ConditionMode.NOT_FUZZY, "catalogueId", "java.lang.String", "Float");
-          return this;
-      }
-      public CatalogueKeepCriteria andCatalogueIdEqualTo(java.lang.String value) {
-          addCriterion("catalogue_id", value, ConditionMode.EQUAL, "catalogueId", "java.lang.String", "String");
+       public CatalogueKeepCriteria andTypeEqualTo(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.EQUAL, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public CatalogueKeepCriteria andCatalogueIdNotEqualTo(java.lang.String value) {
-          addCriterion("catalogue_id", value, ConditionMode.NOT_EQUAL, "catalogueId", "java.lang.String", "String");
+      public CatalogueKeepCriteria andTypeNotEqualTo(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.NOT_EQUAL, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public CatalogueKeepCriteria andCatalogueIdGreaterThan(java.lang.String value) {
-          addCriterion("catalogue_id", value, ConditionMode.GREATER_THEN, "catalogueId", "java.lang.String", "String");
+      public CatalogueKeepCriteria andTypeGreaterThan(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.GREATER_THEN, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public CatalogueKeepCriteria andCatalogueIdGreaterThanOrEqualTo(java.lang.String value) {
-          addCriterion("catalogue_id", value, ConditionMode.GREATER_EQUAL, "catalogueId", "java.lang.String", "String");
+      public CatalogueKeepCriteria andTypeGreaterThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.GREATER_EQUAL, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public CatalogueKeepCriteria andCatalogueIdLessThan(java.lang.String value) {
-          addCriterion("catalogue_id", value, ConditionMode.LESS_THEN, "catalogueId", "java.lang.String", "String");
+      public CatalogueKeepCriteria andTypeLessThan(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.LESS_THEN, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public CatalogueKeepCriteria andCatalogueIdLessThanOrEqualTo(java.lang.String value) {
-          addCriterion("catalogue_id", value, ConditionMode.LESS_EQUAL, "catalogueId", "java.lang.String", "String");
+      public CatalogueKeepCriteria andTypeLessThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.LESS_EQUAL, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public CatalogueKeepCriteria andCatalogueIdBetween(java.lang.String value1, java.lang.String value2) {
-    	  addCriterion("catalogue_id", value1, value2, ConditionMode.BETWEEN, "catalogueId", "java.lang.String", "String");
+      public CatalogueKeepCriteria andTypeBetween(java.lang.Integer value1, java.lang.Integer value2) {
+    	  addCriterion("type", value1, value2, ConditionMode.BETWEEN, "type", "java.lang.Integer", "Float");
     	  return this;
       }
 
-      public CatalogueKeepCriteria andCatalogueIdNotBetween(java.lang.String value1, java.lang.String value2) {
-          addCriterion("catalogue_id", value1, value2, ConditionMode.NOT_BETWEEN, "catalogueId", "java.lang.String", "String");
+      public CatalogueKeepCriteria andTypeNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
+          addCriterion("type", value1, value2, ConditionMode.NOT_BETWEEN, "type", "java.lang.Integer", "Float");
           return this;
       }
         
-      public CatalogueKeepCriteria andCatalogueIdIn(List<java.lang.String> values) {
-          addCriterion("catalogue_id", values, ConditionMode.IN, "catalogueId", "java.lang.String", "String");
+      public CatalogueKeepCriteria andTypeIn(List<java.lang.Integer> values) {
+          addCriterion("type", values, ConditionMode.IN, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public CatalogueKeepCriteria andCatalogueIdNotIn(List<java.lang.String> values) {
-          addCriterion("catalogue_id", values, ConditionMode.NOT_IN, "catalogueId", "java.lang.String", "String");
+      public CatalogueKeepCriteria andTypeNotIn(List<java.lang.Integer> values) {
+          addCriterion("type", values, ConditionMode.NOT_IN, "type", "java.lang.Integer", "Float");
           return this;
       }
 	public CatalogueKeepCriteria andTimeIsNull() {
@@ -706,53 +697,62 @@ public class CatalogueKeepCriteria extends Columns implements Serializable {
 		notEmpty("sample_id");
 		return this;
 	}
-       public CatalogueKeepCriteria andSampleIdEqualTo(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.EQUAL, "sampleId", "java.lang.Long", "Float");
+        public CatalogueKeepCriteria andSampleIdLike(java.lang.String value) {
+    	   addCriterion("sample_id", value, ConditionMode.FUZZY, "sampleId", "java.lang.String", "String");
+    	   return this;
+      }
+
+      public CatalogueKeepCriteria andSampleIdNotLike(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.NOT_FUZZY, "sampleId", "java.lang.String", "String");
+          return this;
+      }
+      public CatalogueKeepCriteria andSampleIdEqualTo(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.EQUAL, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public CatalogueKeepCriteria andSampleIdNotEqualTo(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.NOT_EQUAL, "sampleId", "java.lang.Long", "Float");
+      public CatalogueKeepCriteria andSampleIdNotEqualTo(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.NOT_EQUAL, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public CatalogueKeepCriteria andSampleIdGreaterThan(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.GREATER_THEN, "sampleId", "java.lang.Long", "Float");
+      public CatalogueKeepCriteria andSampleIdGreaterThan(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.GREATER_THEN, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public CatalogueKeepCriteria andSampleIdGreaterThanOrEqualTo(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.GREATER_EQUAL, "sampleId", "java.lang.Long", "Float");
+      public CatalogueKeepCriteria andSampleIdGreaterThanOrEqualTo(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.GREATER_EQUAL, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public CatalogueKeepCriteria andSampleIdLessThan(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.LESS_THEN, "sampleId", "java.lang.Long", "Float");
+      public CatalogueKeepCriteria andSampleIdLessThan(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.LESS_THEN, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public CatalogueKeepCriteria andSampleIdLessThanOrEqualTo(java.lang.Long value) {
-          addCriterion("sample_id", value, ConditionMode.LESS_EQUAL, "sampleId", "java.lang.Long", "Float");
+      public CatalogueKeepCriteria andSampleIdLessThanOrEqualTo(java.lang.String value) {
+          addCriterion("sample_id", value, ConditionMode.LESS_EQUAL, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public CatalogueKeepCriteria andSampleIdBetween(java.lang.Long value1, java.lang.Long value2) {
-    	  addCriterion("sample_id", value1, value2, ConditionMode.BETWEEN, "sampleId", "java.lang.Long", "Float");
+      public CatalogueKeepCriteria andSampleIdBetween(java.lang.String value1, java.lang.String value2) {
+    	  addCriterion("sample_id", value1, value2, ConditionMode.BETWEEN, "sampleId", "java.lang.String", "String");
     	  return this;
       }
 
-      public CatalogueKeepCriteria andSampleIdNotBetween(java.lang.Long value1, java.lang.Long value2) {
-          addCriterion("sample_id", value1, value2, ConditionMode.NOT_BETWEEN, "sampleId", "java.lang.Long", "Float");
+      public CatalogueKeepCriteria andSampleIdNotBetween(java.lang.String value1, java.lang.String value2) {
+          addCriterion("sample_id", value1, value2, ConditionMode.NOT_BETWEEN, "sampleId", "java.lang.String", "String");
           return this;
       }
         
-      public CatalogueKeepCriteria andSampleIdIn(List<java.lang.Long> values) {
-          addCriterion("sample_id", values, ConditionMode.IN, "sampleId", "java.lang.Long", "Float");
+      public CatalogueKeepCriteria andSampleIdIn(List<java.lang.String> values) {
+          addCriterion("sample_id", values, ConditionMode.IN, "sampleId", "java.lang.String", "String");
           return this;
       }
 
-      public CatalogueKeepCriteria andSampleIdNotIn(List<java.lang.Long> values) {
-          addCriterion("sample_id", values, ConditionMode.NOT_IN, "sampleId", "java.lang.Long", "Float");
+      public CatalogueKeepCriteria andSampleIdNotIn(List<java.lang.String> values) {
+          addCriterion("sample_id", values, ConditionMode.NOT_IN, "sampleId", "java.lang.String", "String");
           return this;
       }
 	public CatalogueKeepCriteria andStatusIsNull() {

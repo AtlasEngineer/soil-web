@@ -23,7 +23,7 @@ import com.lambkit.common.model.LambkitModel;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-04-08
+ * @date 2020-04-30
  * @version 1.0
  * @since 1.0
  */
@@ -69,12 +69,12 @@ public abstract class BaseCatalogueKeep<M extends BaseCatalogueKeep<M>> extends 
 	public void setDel(java.lang.Integer del) {
 		this.set("del", del);
 	}
-	public java.lang.String getCatalogueId() {
-		return this.get("catalogue_id");
+	public java.lang.Integer getType() {
+		return this.get("type");
 	}
 
-	public void setCatalogueId(java.lang.String catalogueId) {
-		this.set("catalogue_id", catalogueId);
+	public void setType(java.lang.Integer type) {
+		this.set("type", type);
 	}
 	public java.util.Date getTime() {
 		return this.get("time");
@@ -83,11 +83,11 @@ public abstract class BaseCatalogueKeep<M extends BaseCatalogueKeep<M>> extends 
 	public void setTime(java.util.Date time) {
 		this.set("time", time);
 	}
-	public java.lang.Long getSampleId() {
+	public java.lang.String getSampleId() {
 		return this.get("sample_id");
 	}
 
-	public void setSampleId(java.lang.Long sampleId) {
+	public void setSampleId(java.lang.String sampleId) {
 		this.set("sample_id", sampleId);
 	}
 	public java.lang.Integer getStatus() {

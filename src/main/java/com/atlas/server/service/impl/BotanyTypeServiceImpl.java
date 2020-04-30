@@ -35,6 +35,7 @@ import com.lambkit.plugin.jwt.JwtKit;
 import com.lambkit.web.RequestManager;
 import com.sun.org.apache.xml.internal.resolver.Catalog;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -77,61 +78,68 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
     public Record searchNewsById(Integer id) {
 
         String token = RequestManager.me().getRequest().getHeader("Authorization");
+        System.out.println("token"+token);
         Record record = Db.findFirst("select * from news where del=0 and id=" + id + "");
-        if(StringUtils.isNotBlank(token)){
-            JwtConfig config = Lambkit.config(JwtConfig.class);
-            String tokenPrefix = config.getTokenPrefix();
-            String authToken = token.substring(tokenPrefix.length());
-            String username = JwtKit.getJwtUser(authToken);
-            if (username == null) {
-                return null;
-            }
-            System.out.println("username : " + username);
-            UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
-            if (upmsUser == null) {
-                return null;
-            }
-            RedisCacheImpl redis = new RedisCacheImpl();
-            Integer t_id = redis.get("news", upmsUser.getUserId());
-
-            Integer status = Db.queryInt("select status from news_collection c where c.user_id=" + upmsUser.getUserId() + " and c.news_id=" + id + ""); //0收藏 1取消收藏
-            if (null == status) {
-                record.set("is_Collection", false);
-            } else {
-                if (status > 0) {
-                    record.set("is_Collection", false);
-                } else {
-                    record.set("is_Collection", true);
-                }
-
-            }
-
-            if (t_id != null) {  //在redis里存在用户看过该文章直接返回详情
-                return record;
-            } else {    //先加入redis，在返回详情
-                redis.put("news", upmsUser.getUserId(), id, 60 * 20);
-                Integer num = record.getInt("volume");
-                num++;
-                String sql = "update news set volume=" + num + " where id=" + id + " ";
-                Integer result = Db.update(sql);
-
-                if (result > 0) {
-                    return record;
-                } else {
+        if(record!=null){
+            if(StringUtils.isNotBlank(token)){
+                JwtConfig config = Lambkit.config(JwtConfig.class);
+                String tokenPrefix = config.getTokenPrefix();
+                String authToken = token.substring(tokenPrefix.length());
+                String username = JwtKit.getJwtUser(authToken);
+                if (username == null) {
                     return null;
                 }
+                System.out.println("username : " + username);
+                UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+                if (upmsUser == null) {
+                    return null;
+                }
+                RedisCacheImpl redis = new RedisCacheImpl();
+                Integer t_id = redis.get("news", upmsUser.getUserId());
+
+                Integer status = Db.queryInt("select status from news_collection c where c.user_id=" + upmsUser.getUserId() + " and c.news_id=" + id + ""); //0收藏 1取消收藏
+                if (null == status) {
+                    record.set("is_Collection", false);
+                } else {
+                    if (status > 0) {
+                        record.set("is_Collection", false);
+                    } else {
+                        record.set("is_Collection", true);
+                    }
+
+                }
+                if (t_id != null) {  //在redis里存在用户看过该文章直接返回详情
+                    return record;
+                } else {    //先加入redis，在返回详情
+                    redis.put("news", upmsUser.getUserId(), id, 60 * 20);
+                    Integer num = record.getInt("volume");
+                    num++;
+                    String sql = "update news set volume=" + num + " where id=" + id + " ";
+                    Integer result = Db.update(sql);
+
+                    if (result > 0) {
+                        return record;
+                    } else {
+                        return null;
+                    }
+                }
+
+            }else {
+                record.set("is_Collection", false);
+                return  record;
+
             }
-
         }else {
-            record.set("is_Collection", false);
-            return  record;
-
+            return  null;
         }
+
     }
 
     @Override
     public Co addNews(String news_id, Integer status,Integer type) {
         String token = RequestManager.me().getRequest().getHeader("Authorization");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");//设置日期格式
+        String time=df.format(new Date());
 
         JwtConfig config = Lambkit.config(JwtConfig.class);
         String tokenPrefix = config.getTokenPrefix();
@@ -151,23 +159,32 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
         if(type==0){
             Record news=Db.findFirst("select * from news s where s.id='"+news_id+"'");
             if (record == null) {
-                sql = "insert into news_collection (user_id,news_id,status,title,time,image,type) value (" + upmsUser.getUserId() + ",'" + news_id + "'," + status + ",'"+news.getStr("title")+"',"+new Date() +",'"+news.getStr("image")+"',"+type+") ";
+                sql = "insert into news_collection (user_id,news_id,status,title,time,image,type) value (" + upmsUser.getUserId() + ",'" + news_id + "'," + status + ",'"+news.getStr("title")+"','"+time +"','"+news.getStr("image")+"',"+type+") ";
             } else {
                 sql = "UPDATE  news_collection SET status=" + status + " WHERE user_id=" + upmsUser.getUserId() + " and news_id='" + news_id + "' and type="+type+"";
             }
         }else if(type==1){
-            Record news=Db.findFirst("select * from catalogue_sample s where s.id='"+news_id+"'");
-            Catalogue catalogue=Catalogue.service().dao().findById(news.getStr("id"));
+
             if (record == null) {
-                sql = "insert into news_collection (user_id,news_id,status,title,time,image,type) value (" + upmsUser.getUserId() + ",'" + news_id + "'," + status + ",'"+catalogue.getName()+"',"+new Date() +",'"+news.getStr("url")+"',"+type+") ";
+                Record news=Db.findFirst("select * from catalogue_sample s where s.id='"+news_id+"'");
+                Catalogue catalogue=Catalogue.service().dao().findFirst(Catalogue.sql().andIdEqualTo(news_id).example());
+                if(news==null){
+                    sql = "insert into news_collection (user_id,news_id,status,title,time,image,type) value (" + upmsUser.getUserId() + ",'" + news_id + "'," + status + ",'"+catalogue.getName()+"','"+time +"','/upload/1-11.jpg',"+type+") ";
+                }else {
+                    sql = "insert into news_collection (user_id,news_id,status,title,time,image,type) value (" + upmsUser.getUserId() + ",'" + news_id + "'," + status + ",'"+catalogue.getName()+"','"+time +"','"+news.getStr("url")+"',"+type+") ";
+                }
             } else {
                 sql = "UPDATE  news_collection SET status=" + status + " WHERE user_id=" + upmsUser.getUserId() + " and news_id='" + news_id + "' and type="+type+"";
             }
         }else if(type==2){
             Record news=Db.findFirst("select * from at_pests_sample s where s.id='"+news_id+"'");
-            InsectPests insectPests=InsectPests.service().dao().findById(news.getStr("id"));
+            InsectPests insectPests=InsectPests.service().dao().findById(news_id);
             if (record == null) {
-                sql = "insert into news_collection (user_id,news_id,status,title,time,image,type) value (" + upmsUser.getUserId() + "," + news_id + "," + status + ",'"+insectPests.getName()+"',"+new Date() +",'"+news.getStr("url")+"',"+type+") ";
+                if(news==null){
+                    sql = "insert into news_collection (user_id,news_id,status,title,time,image,type) value (" + upmsUser.getUserId() + "," + news_id + "," + status + ",'"+insectPests.getName()+"','"+time +"','/upload/1-11.jpg',"+type+") ";
+                }else {
+                    sql = "insert into news_collection (user_id,news_id,status,title,time,image,type) value (" + upmsUser.getUserId() + "," + news_id + "," + status + ",'"+insectPests.getName()+"','"+time +"','"+news.getStr("url")+"',"+type+") ";
+                }
             } else {
                 sql = "UPDATE  news_collection SET status=" + status + " WHERE user_id=" + upmsUser.getUserId() + " and news_id='" + news_id + "' and type="+type+"";
             }
@@ -205,7 +222,7 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
         if (upmsUser == null) {
             return null;
         }
-        Page page=Db.paginate(pageNum,pageSize,"select *","from news_collection c where c.user_id="+upmsUser.getUserId().intValue()+" and status=1");
+        Page page=Db.paginate(pageNum,pageSize,"select *","from news_collection c where c.user_id="+upmsUser.getUserId().intValue()+" and status=0");
         return Co.ok("data",page);
     }
 }

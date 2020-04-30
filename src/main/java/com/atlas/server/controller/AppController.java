@@ -68,18 +68,6 @@ public class AppController extends LambkitController {
             renderJson(Co.fail("msg", "请选择图片"));
             return;
         }
-
-        String token = RequestManager.me().getRequest().getHeader("Authorization");
-        if (StringUtils.isBlank(token)) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请登录")));
-            return;
-        }
-        JwtConfig config = Lambkit.config(JwtConfig.class);
-        String tokenPrefix = config.getTokenPrefix();
-        String authToken = token.substring(tokenPrefix.length());
-        String username = JwtKit.getJwtUser(authToken);
-
-
         File yfile = uf.getFile();
         String lon = getPara("lon");
         String lat = getPara("lat");
@@ -172,24 +160,33 @@ public class AppController extends LambkitController {
             sample.setUrl(p + file.getName());
             sample.setStatus(1);//0 导入,1识别,2.上报
             sample.save();
-            CatalogueKeep keep = new CatalogueKeep();
-            //  4、添加识别记录
-            if (username != null) {
-                System.out.println("username : " + username);
-                UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
-                if (upmsUser == null) {
-                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
-                    return;
+
+            String token = RequestManager.me().getRequest().getHeader("Authorization");
+            if(StringUtils.isNotBlank(token)){
+                JwtConfig config = Lambkit.config(JwtConfig.class);
+                String tokenPrefix = config.getTokenPrefix();
+                String authToken = token.substring(tokenPrefix.length());
+                String username = JwtKit.getJwtUser(authToken);
+                CatalogueKeep keep = new CatalogueKeep();
+                //  4、添加识别记录
+                if (username != null) {
+                    System.out.println("username : " + username);
+                    UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+                    if (upmsUser == null) {
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
+                        return;
+                    }
+                    keep.setName(file.getName());
+                    keep.setUrl(p + file.getName());
+                    keep.setSampleId(sample.getId());
+                    keep.setTime(new Date());
+                    keep.setStatus(0);
+                    keep.setType(0);
+                    keep.setUserId(upmsUser.getUserId().intValue());
                 }
-                keep.setName(file.getName());
-                keep.setUrl(p + file.getName());
-                keep.setSampleId(Long.getLong(sample.getId()));
-                keep.setTime(new Date());
-                keep.setStatus(1);
-                keep.setUserId(upmsUser.getUserId().intValue());
+                boolean result = keep.save();
+                System.out.println(result);
             }
-            boolean result = keep.save();
-            System.out.println(result);
             renderJson(Ret.ok("data", jsonArray));
         } catch (IOException e) {
             e.printStackTrace();
@@ -461,29 +458,16 @@ public class AppController extends LambkitController {
     @Params({
             @Param(name = "url", description = "图片路径", required = true, dataType = "String"),
     })
-    @ApiOperation(url = "/cern/searchDisease", tag = "/cern", httpMethod = "get", description = "查询相似图片")
+    @ApiOperation(url = "/app/searchDisease", tag = "/cern", httpMethod = "get", description = "查询相似图片")
     @ApiBody(ApiRenderJFinalJson.class)
     public void searchDisease() throws IOException {
-        String url = getPara("url");
-        String token = RequestManager.me().getRequest().getHeader("Authorization");
-        if (StringUtils.isBlank(token)) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请登录")));
+        UploadFile uf = getFile("file", "image");
+        if (uf == null) {
+            renderJson(Co.fail("msg", "请选择图片"));
             return;
         }
-        JwtConfig config = Lambkit.config(JwtConfig.class);
-        String tokenPrefix = config.getTokenPrefix();
-        String authToken = token.substring(tokenPrefix.length());
-        String username = JwtKit.getJwtUser(authToken);
-        if (username == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "token异常")));
-            return;
-        }
-        System.out.println("username : " + username);
-        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
-        if (upmsUser == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
-            return;
-        }
+        String lon = getPara("lon");
+        String lat = getPara("lat");
         /**
          * 传入可选参数调用接口, 根据需求来, 参数越详细结果越准确, 这里图片较少, 只写页码和条数
          * 经测试指定页码和条数后, 会根据相似度排序, 最高的排在前面
@@ -496,15 +480,15 @@ public class AppController extends LambkitController {
         options.put("pn", "0");
         // 条数, 只显示两条
         options.put("rn", "10");
-        String images = rootPath + url;
 
-        File file = new File(images);
+        File file = uf.getFile();
         String s1 = file.getName().split("\\.")[1];
         String s2 = new Date().getTime() + "" + (int) ((Math.random() * 9 + 1) * 100000);
         File fileNew = new File(rootPath + "/upload/" + s2 + "." + s1);
         FileUtils.moveFile(file, fileNew);
         // 进行相似查询,
         res = client_B.similarSearch(rootPath + "/upload/" + s2 + "." + s1, options);//直接输入路径进行查询
+        JSONArray objects = new JSONArray();
         // 打印上传结果
         if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
             renderJson(Co.fail("msg", "识别失败").set("data", JSON.parseObject(res.toString()).getString("error_msg")));
@@ -512,9 +496,9 @@ public class AppController extends LambkitController {
             JSONArray jsonArray = null;
             String result = "";
             String pid = "";
-            List<InsectPests> insectPestsList = new ArrayList<>();
             List<String> list = new ArrayList<>();
             Map<String, Object> map = Maps.newLinkedHashMap();
+            System.out.println(res.toString(2));
             if (StringUtils.isNotBlank(res.toString(2))) {
                 result = JSON.parseObject(res.toString(2)).getString("result");
                 jsonArray = JSONArray.parseArray(result);
@@ -532,14 +516,22 @@ public class AppController extends LambkitController {
                     System.out.println("name__________name:" + jsonArray.getJSONObject(x).get("brief"));
                     System.out.println(JSON.parseObject(jsonArray.getJSONObject(x).get("brief").toString()).getString("id"));
                 }
+
+                System.out.println(map);
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    InsectPests pests=InsectPests.service().dao().findFirst(InsectPests.sql().andIdEqualTo(Integer.parseInt(entry.getKey())).example());
+                    com.alibaba.fastjson.JSONObject json = com.alibaba.fastjson.JSONObject.parseObject(entry.getValue().toString());
+                    Double score = json.getDouble("score");
+                    com.alibaba.fastjson.JSONObject jb = new com.alibaba.fastjson.JSONObject();
+                    jb.fluentPut("score", entry.getValue());
+                    jb.fluentPut("sim", score);
+                    jb.fluentPut("name", pests.getName());
+                    jb.fluentPut("ename","");
+                    jb.fluentPut("id", pests.getId());
+                    objects.add(jb);
+                }
             }
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                System.out.println("key= " + entry.getKey() + " and value= "
-                        + entry.getValue());
-                InsectPests insectPests = InsectPests.service().dao().findFirst(InsectPests.sql().andIdEqualTo(Integer.parseInt(entry.getKey())).example());
-                insectPests.put("score", entry.getValue());
-                insectPestsList.add(insectPests);
-            }
+
 
             String s = rootPath + p + fileNew.getName();
             File f = new File(s);
@@ -556,27 +548,44 @@ public class AppController extends LambkitController {
                 sample.setUrl(p + fileNew.getName());
                 sample.setStatus(1);//0 导入,1识别,2.上报
                 sample.setId(s2);
+                sample.setLat(lat);
+                sample.setLon(lon);
                 sample.set("between", 0);
-                boolean r = sample.save();
-                if (r) {
+                sample.save();
+                String token = RequestManager.me().getRequest().getHeader("Authorization");
+                if (StringUtils.isNotBlank(token)) {
+                    JwtConfig config = Lambkit.config(JwtConfig.class);
+                    String tokenPrefix = config.getTokenPrefix();
+                    String authToken = token.substring(tokenPrefix.length());
+                    String username = JwtKit.getJwtUser(authToken);
+                    if (username == null) {
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "token异常")));
+                        return;
+                    }
+                    System.out.println("username : " + username);
+                    UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+                    if (upmsUser == null) {
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
+                        return;
+                    }
                     //4.添加病害的識別記錄
-                    PestsKeep pestsKeep = new PestsKeep();
-                    pestsKeep.setName(fileNew.getName());
-                    pestsKeep.setUrl(p + fileNew.getName());
-                    pestsKeep.setSampleId(Long.getLong(sample.getId()));
-                    pestsKeep.setUserId(upmsUser.getUserId().intValue());
-                    pestsKeep.setTime(new Date());
-                    pestsKeep.setStatus(0);//0病害 1虫害
-                    pestsKeep.save();
-                    System.out.println(file.getName() + "添加数据库成功");
-                } else {
-                    System.out.println(file.getName() + "添加数据库失败");
+                    CatalogueKeep keep = new CatalogueKeep();
+                    keep.setName(fileNew.getName());
+                    keep.setUrl(p + fileNew.getName());
+                    keep.setSampleId(sample.getId());
+                    keep.setTime(new Date());
+                    keep.setStatus(1);
+                    keep.setType(1);//病害
+                    keep.setUserId(upmsUser.getUserId().intValue());
+                    keep.save();
+                    System.out.println(fileNew.getName() + "添加数据库成功");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            com.alibaba.fastjson.JSONArray jsonObject = com.alibaba.fastjson.JSONObject.parseArray(JFinalJson.getJson().toJson(insectPestsList));
-            renderJson(Co.ok("data", JSON.parseObject(res.toString(2))).set("list", jsonObject));
+
+
+            renderJson(Co.ok("data", objects));
         }
     }
 
@@ -772,29 +781,17 @@ public class AppController extends LambkitController {
     @Params({
             @Param(name = "url", description = "图片路径", required = true, dataType = "String"),
     })
-    @ApiOperation(url = "/cern/searchDisease", tag = "/cern", httpMethod = "get", description = "查询相似图片")
+    @ApiOperation(url = "/app/searchDisease", tag = "/cern", httpMethod = "get", description = "查询相似图片")
     @ApiBody(ApiRenderJFinalJson.class)
     public void searchInsectPest() throws IOException {
-        String url = getPara("url");
-        String token = RequestManager.me().getRequest().getHeader("Authorization");
-        if (StringUtils.isBlank(token)) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请登录")));
+        UploadFile uf = getFile("file", "image");
+        if (uf == null) {
+            renderJson(Co.fail("msg", "请选择图片"));
             return;
         }
-        JwtConfig config = Lambkit.config(JwtConfig.class);
-        String tokenPrefix = config.getTokenPrefix();
-        String authToken = token.substring(tokenPrefix.length());
-        String username = JwtKit.getJwtUser(authToken);
-        if (username == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "token异常")));
-            return;
-        }
-        System.out.println("username : " + username);
-        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
-        if (upmsUser == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
-            return;
-        }
+        String lon = getPara("lon");
+        String lat = getPara("lat");
+
         /**
          * 传入可选参数调用接口, 根据需求来, 参数越详细结果越准确, 这里图片较少, 只写页码和条数
          * 经测试指定页码和条数后, 会根据相似度排序, 最高的排在前面
@@ -807,15 +804,16 @@ public class AppController extends LambkitController {
         options.put("pn", "0");
         // 条数, 只显示两条
         options.put("rn", "10");
-        String images = rootPath + url;
 
-        File file = new File(images);
+        File file = uf.getFile();
+
         String s1 = file.getName().split("\\.")[1];
         String s2 = new Date().getTime() + "" + (int) ((Math.random() * 9 + 1) * 100000);
         File fileNew = new File(rootPath + "/upload/" + s2 + "." + s1);
         FileUtils.moveFile(file, fileNew);
         // 进行相似查询,
         res = client_C.similarSearch(rootPath + "/upload/" + s2 + "." + s1, options);//直接输入路径进行查询
+        JSONArray objects = new JSONArray();
         // 打印上传结果
         if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
             renderJson(Co.fail("msg", "识别失败").set("data", JSON.parseObject(res.toString()).getString("error_msg")));
@@ -845,11 +843,16 @@ public class AppController extends LambkitController {
                 }
             }
             for (Map.Entry<String, Object> entry : map.entrySet()) {
-                System.out.println("key= " + entry.getKey() + " and value= "
-                        + entry.getValue());
-                InsectPests insectPests = InsectPests.service().dao().findFirst(InsectPests.sql().andIdEqualTo(Integer.parseInt(entry.getKey())).example());
-                insectPests.put("score", entry.getValue());
-                insectPestsList.add(insectPests);
+                InsectPests pests=InsectPests.service().dao().findFirst(InsectPests.sql().andIdEqualTo(Integer.parseInt(entry.getKey())).example());
+                com.alibaba.fastjson.JSONObject json = com.alibaba.fastjson.JSONObject.parseObject(entry.getValue().toString());
+                Double score = json.getDouble("score");
+                com.alibaba.fastjson.JSONObject jb = new com.alibaba.fastjson.JSONObject();
+                jb.fluentPut("score", entry.getValue());
+                jb.fluentPut("sim", score);
+                jb.fluentPut("name", pests.getName());
+                jb.fluentPut("ename","");
+                jb.fluentPut("id", pests.getId());
+                objects.add(jb);
             }
 
             String s = rootPath + p + fileNew.getName();
@@ -867,27 +870,43 @@ public class AppController extends LambkitController {
                 sample.setUrl(p + fileNew.getName());
                 sample.setStatus(1);//0 导入,1识别,2.上报
                 sample.setId(s2);
+                sample.setLat(lat);
+                sample.setLon(lon);
                 sample.set("between", 1);
-                boolean r = sample.save();
-                if (r) {
+                sample.save();
+                String token = RequestManager.me().getRequest().getHeader("Authorization");
+                if (StringUtils.isNotBlank(token)) {
+                    JwtConfig config = Lambkit.config(JwtConfig.class);
+                    String tokenPrefix = config.getTokenPrefix();
+                    String authToken = token.substring(tokenPrefix.length());
+                    String username = JwtKit.getJwtUser(authToken);
+                    if (username == null) {
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "token异常")));
+                        return;
+                    }
+                    System.out.println("username : " + username);
+                    UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+                    if (upmsUser == null) {
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
+                        return;
+                    }
                     //4.添加病害的識別記錄
-                    PestsKeep pestsKeep = new PestsKeep();
-                    pestsKeep.setName(fileNew.getName());
-                    pestsKeep.setUrl(p + fileNew.getName());
-                    pestsKeep.setSampleId(Long.getLong(sample.getId()));
-                    pestsKeep.setUserId(upmsUser.getUserId().intValue());
-                    pestsKeep.setTime(new Date());
-                    pestsKeep.setStatus(1);//0病害 1虫害
-                    pestsKeep.save();
-                    System.out.println(file.getName() + "添加数据库成功");
-                } else {
-                    System.out.println(file.getName() + "添加数据库失败");
+                    CatalogueKeep keep = new CatalogueKeep();
+                    keep.setName(fileNew.getName());
+                    keep.setUrl(p + fileNew.getName());
+                    keep.setSampleId(sample.getId());
+                    keep.setTime(new Date());
+                    keep.setStatus(1);
+                    keep.setType(1);//病害
+                    keep.setUserId(upmsUser.getUserId().intValue());
+                    keep.save();
+                    System.out.println(fileNew.getName() + "添加数据库成功");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            com.alibaba.fastjson.JSONArray jsonObject = com.alibaba.fastjson.JSONObject.parseArray(JFinalJson.getJson().toJson(insectPestsList));
-            renderJson(Co.ok("data", JSON.parseObject(res.toString(2))).set("list", jsonObject));
+
+            renderJson(Co.ok("data", objects));
         }
     }
 
