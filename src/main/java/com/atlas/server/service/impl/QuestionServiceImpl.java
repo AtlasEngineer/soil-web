@@ -19,6 +19,7 @@ import com.atlas.server.model.Answer;
 import com.atlas.server.model.InsectSpecies;
 import com.atlas.server.model.Reply;
 import com.atlas.server.model.sql.AnswerCriteria;
+import com.atlas.server.model.sql.QuestionCriteria;
 import com.atlas.server.utils.AnswerNode;
 import com.atlas.server.utils.ReplayNode;
 import com.jfinal.plugin.activerecord.Db;
@@ -66,7 +67,8 @@ public class QuestionServiceImpl extends LambkitModelServiceImpl<Question> imple
             pageNum = 1;
             pageSize = 10;
         }
-        Page<Question> page = Question.service().dao().paginate(pageNum, pageSize, Question.sql().andDelEqualTo(0).example());
+
+        Page<Question> page = Question.service().dao().paginate(pageNum, pageSize, Question.sql().andDelEqualTo(0).example().setOrderBy("time desc"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         for (Question question:page.getList()){
             Integer num=Db.queryInt("SELECT count(*) from at_answer  a where a.q_id="+question.getId()+"");

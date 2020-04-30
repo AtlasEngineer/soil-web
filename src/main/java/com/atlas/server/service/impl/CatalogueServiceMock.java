@@ -47,7 +47,7 @@ public class CatalogueServiceMock extends BaseServiceMock<Catalogue> implements 
     }
 
     @Override
-    public InsectPests insectPestsbyId(Integer id) {
+    public InsectPests insectPestsbyId(Integer id,String token) {
         return null;
     }
 }

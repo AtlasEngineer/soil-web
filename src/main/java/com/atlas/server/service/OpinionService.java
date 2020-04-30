@@ -16,6 +16,7 @@
 package com.atlas.server.service;
 
 import com.atlas.server.model.Question;
+import com.atlas.server.utils.Co;
 import com.lambkit.common.service.LambkitService;
 
 import com.atlas.server.model.Opinion;
@@ -35,7 +36,7 @@ public interface OpinionService extends LambkitService<Opinion> {
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "add.opinion")
-    public boolean addOpinion(Opinion opinion);
+    public Co addOpinion(Opinion opinion);
 
 
 }

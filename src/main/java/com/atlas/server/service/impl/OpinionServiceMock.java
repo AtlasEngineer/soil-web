@@ -15,6 +15,7 @@
  */
 package com.atlas.server.service.impl;
 
+import com.atlas.server.utils.Co;
 import com.lambkit.common.service.BaseServiceMock;
 
 import com.atlas.server.model.Opinion;
@@ -30,7 +31,7 @@ import com.atlas.server.service.OpinionService;
  */
 public class OpinionServiceMock extends BaseServiceMock<Opinion> implements OpinionService {
     @Override
-    public boolean addOpinion(Opinion opinion) {
-        return false;
+    public Co addOpinion(Opinion opinion) {
+        return null;
     }
 }

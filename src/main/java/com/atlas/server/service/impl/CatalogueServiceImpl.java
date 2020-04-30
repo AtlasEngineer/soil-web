@@ -23,12 +23,16 @@ import com.google.common.base.Joiner;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
+import com.lambkit.Lambkit;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
 
 import com.atlas.server.service.CatalogueService;
 import com.atlas.server.model.Catalogue;
+import com.lambkit.module.upms.rpc.model.UpmsUser;
+import com.lambkit.plugin.jwt.JwtConfig;
+import com.lambkit.plugin.jwt.JwtKit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,12 +101,32 @@ public class CatalogueServiceImpl extends LambkitModelServiceImpl<Catalogue> imp
 
 
 	@Override
-	public InsectPests insectPestsbyId(Integer id) {
+	public InsectPests insectPestsbyId(Integer id,String token) {
 		InsectPests pests=InsectPests.service().dao().findById(id);
+		if (StringUtils.isNotBlank(token)) {
+			JwtConfig config = Lambkit.config(JwtConfig.class);
+			String tokenPrefix = config.getTokenPrefix();
+			String authToken = token.substring(tokenPrefix.length());
+			String username = JwtKit.getJwtUser(authToken);
+			System.out.println("username : " + username);
+			UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+
+			Integer status = Db.queryInt("select status from news_collection c where c.user_id=" + upmsUser.getUserId() + " and c.news_id='" + id + "'"); //0收藏 1取消收藏
+			if (null == status) {
+				pests.put("is_Collection", false);
+			} else {
+				if (status > 0) {
+					pests.put("is_Collection", false);
+				} else {
+					pests.put("is_Collection", true);
+				}
+			}
+		}else {
+			pests.put("is_Collection", false);
+		}
 		List<Record> list=Db.find("select i.`name` from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id left join  at_insect_species i on s.species_id=i.id where s.pests_id=1561 and p.type=0");
 		List<Record> imgList = Db.find(" SELECT c.url from at_pests_sample c   where c.pests_id="+id+" and c.del=0 LIMIT 3");
 		List<String> stringList=new ArrayList<>();
-
 		for (Record record:list){
 			stringList.add(record.get("name"));
 		}

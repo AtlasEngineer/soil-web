@@ -48,13 +48,13 @@ public class OpinionServiceImpl extends LambkitModelServiceImpl<Opinion> impleme
 	}
 
 	@Override
-	public boolean addOpinion(Opinion opinion) {
+	public Co addOpinion(Opinion opinion) {
 
 		boolean result=opinion.save();
 		if(result){
-			return true;
+			return Co.ok();
 		}else {
-			return false;
+			return Co.fail();
 		}
 
 	}

@@ -124,6 +124,8 @@ public class IndexController extends LambkitController {
         if(StringUtils.isNotBlank(name)){
             sql.andNameLike("%"+name+"%");
         }
+            sql.andBotanyTypeEqualTo(id);
+            sql.andImageIsNotNull();
         Page<Catalogue> page = Catalogue.service().dao().paginate(pageNum, pageSize, sql.example());
         renderJson(Co.ok("data", page));
     }
@@ -265,24 +267,18 @@ public class IndexController extends LambkitController {
 
 
     public void text123(){
-        List<SpeciesPests> records=SpeciesPests.service().dao().findAll();
+        List<Catalogue> records=Catalogue.service().dao().findAll();
 
-         List<InsectPests> yes=new ArrayList<>();
-
-         List<InsectPests> no=new ArrayList<>();
-
-        for (SpeciesPests pests:records){
-            SpeciesPests speciesPests=SpeciesPests.service().dao().findById(pests.getId());
-
-            InsectPests insectPests=InsectPests.service().dao().findById(speciesPests.getPestsId());
-            if(insectPests==null){
-                no.add(insectPests);
-            }else {
-                yes.add(insectPests);
+        for (Catalogue catalogue:records){
+            Catalogue cata=Catalogue.service().dao().findById(catalogue.getCId());
+            CatalogueSample catalogueSample=CatalogueSample.service().dao().findFirst(CatalogueSample.sql().andCatalogueIdEqualTo(cata.getId()).example());
+            if(catalogueSample!=null){
+                cata.setImage(catalogueSample.getUrl());
+                cata.update();
             }
-        }
-      renderJson(Co.ok("data",Co.by("yes",yes).set("no",no)));
 
+        }
+          renderJson(Co.ok());
     }
 
 }

@@ -135,8 +135,6 @@ public class CatalogueKeepServiceImpl extends LambkitModelServiceImpl<CatalogueK
 			}else {
 				objects.add(jb);
 			}
-
-
         }
         return Co.ok("data", objects);
     }
