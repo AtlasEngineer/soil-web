@@ -104,7 +104,7 @@ public class CatalogueServiceImpl extends LambkitModelServiceImpl<Catalogue> imp
 	@Override
 	public InsectPests insectPestsbyId(Integer id,String token) {
 		InsectPests pests=InsectPests.service().dao().findById(id);
-		if (StringUtils.isNotBlank(token)) {
+		if (!"null".equals(token)&&StringUtils.isNotBlank(token)) {
 			JwtConfig config = Lambkit.config(JwtConfig.class);
 			String tokenPrefix = config.getTokenPrefix();
 			String authToken = token.substring(tokenPrefix.length());

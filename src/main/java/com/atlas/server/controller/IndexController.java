@@ -141,7 +141,7 @@ public class IndexController extends LambkitController {
         List<Record> list = Db.find("SELECT * from catalogue_sample c where c.catalogue_id='" + record.getStr("id") + "' LIMIT 5;");
         record.set("list", list);
         String token = getPara("token");
-        if (StringUtils.isNotBlank(token)) {
+        if (!"null".equals(token)&&StringUtils.isNotBlank(token)) {
             JwtConfig config = Lambkit.config(JwtConfig.class);
             String tokenPrefix = config.getTokenPrefix();
             String authToken = token.substring(tokenPrefix.length());

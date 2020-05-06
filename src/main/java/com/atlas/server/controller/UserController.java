@@ -329,15 +329,15 @@ public class UserController extends LambkitController {
             renderJson(Co.ok("data", Co.fail("errorMsg", "请填写手机号")));
             return;
         } else if (StringUtils.isNotBlank(phone)) {
-            String regxPhone = "^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\\d{8}$";
+            String regxPhone = "^((13[0-9])|(14[579])|(15([0-3,5-9]))|(16[6])|(17[0135678])|(18[0-9]|19[89]))\\d{8}$";
             if (!phone.matches(regxPhone)) {
-                renderJson(Co.ok("data", Ret.fail("errorMsg", "手机号格式不正确")));
+                renderJson(Co.ok("data", Co.fail("errorMsg", "手机号格式不正确")));
                 return;
             }
         }
         UpmsUser first = UpmsUser.service().findFirst(UpmsUser.sql().andPhoneEqualTo(phone).example());
         if (first != null && first.getInt("del") == 0) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "该手机号已被注册")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "该手机号已被注册")));
             return;
         }
         boolean flag = false;
@@ -400,8 +400,14 @@ public class UserController extends LambkitController {
         MessageConfig config = Lambkit.config(MessageConfig.class);
 
         if (StringUtils.isBlank(phone)) {
-            renderJson(Co.fail("data", Ret.fail("errorMsg", "手机号为空！")));
+            renderJson(Co.fail("data", Co.fail("errorMsg", "手机号为空！")));
             return;
+        }else{
+            String regxPhone = "^((13[0-9])|(14[579])|(15([0-3,5-9]))|(16[6])|(17[0135678])|(18[0-9]|19[89]))\\d{8}$";
+            if (!phone.matches(regxPhone)) {
+                renderJson(Co.ok("data", Co.fail("errorMsg", "手机号格式不正确")));
+                return;
+            }
         }
 
         String code = String.format("%04d", new Random().nextInt(9999));
@@ -565,7 +571,7 @@ public class UserController extends LambkitController {
         String fileext = PathUtils.getExtensionName(file.getName());
         String filename = UUID.randomUUID().toString() + "." + fileext;
         if (!"jpg".equals(fileext) && !"png".equals(fileext) && !"gif".equals(fileext) && !"jpeg".equals(fileext)) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "图片格式不正确")));
+            renderJson(Co.ok("data", Co.fail("errorMsg", "图片格式不正确")));
             file.delete();
             return;
         } else {

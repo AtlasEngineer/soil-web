@@ -60,7 +60,7 @@ public class CatalogueKeepServiceImpl extends LambkitModelServiceImpl<CatalogueK
     @Override
     public Co all(String token, String type) throws ParseException {
 
-        if(StringUtils.isNotBlank(token)){
+        if(!"null".equals(token)&&StringUtils.isNotBlank(token)){
             String time[] = type.split(",");
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//设置日期格式
             Date end=new Date();
@@ -129,7 +129,7 @@ public class CatalogueKeepServiceImpl extends LambkitModelServiceImpl<CatalogueK
                 CatalogueKeep keep = CatalogueKeep.service().dao().findById(catalogueKeep.getId());
                 com.alibaba.fastjson.JSONObject jb = new com.alibaba.fastjson.JSONObject();
                 jb.fluentPut("time", df.format(keep.getTime()));
-                List<Record> records = Db.find("select * from catalogue_keep k where del=0 and date_format(k.time,'%Y-%m-%d')=date_format('" + df.format(keep.getTime()) + "','%Y-%m-%d') ");
+                List<Record> records = Db.find("select * from catalogue_keep k where del=0 and  user_id="+upmsUser.getUserId().intValue()+" and date_format(k.time,'%Y-%m-%d')=date_format('" + df.format(keep.getTime()) + "','%Y-%m-%d') ");
                 jb.fluentPut("records", records);
                 if(objects.contains(jb)){
                     continue;
