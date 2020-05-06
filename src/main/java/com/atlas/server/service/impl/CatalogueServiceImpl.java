@@ -75,6 +75,7 @@ public class CatalogueServiceImpl extends LambkitModelServiceImpl<Catalogue> imp
 
 	@Override
 	public Page all(Integer id,Integer pageNum, Integer pageSize,Integer type,String name) {
+
 		if (pageSize == null) {
 			pageSize = 10;
 		}
@@ -82,14 +83,14 @@ public class CatalogueServiceImpl extends LambkitModelServiceImpl<Catalogue> imp
 			pageNum = 1;
 		}
 		Page<Record> page=null;
-		if(type==0){//病害
+		if(type!=null&&type==0){//病害
 			if(StringUtils.isNotBlank(name)){
 				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=0 and p.`name` LIKE '%"+name+"%' ");
 			}else {
 				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=0");
 			}
 		}
-		if(type==1){ //虫害
+		if(type!=null&&type==1){ //虫害
 			if(StringUtils.isNotBlank(name)){
 				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=1 and p.`name` LIKE '%"+name+"%' ");
 			}else {

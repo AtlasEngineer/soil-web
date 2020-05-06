@@ -60,83 +60,87 @@ public class CatalogueKeepServiceImpl extends LambkitModelServiceImpl<CatalogueK
     @Override
     public Co all(String token, String type) throws ParseException {
 
-        String time[] = type.split(",");
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//设置日期格式
-		Date end=new Date();
-        if (time.length > 1) {
-            if (StringUtils.isNotBlank(time[1]) && StringUtils.isNotBlank(time[0])) {
-                Date start = df.parse(time[0]);
-                Date endD = df.parse(time[1]);
-                Calendar calendar=new GregorianCalendar();
-				calendar.setTime(endD);
-				calendar.add(calendar.DATE,1);
-				 end=calendar.getTime();
-                if (end.before(start)) {
-                    return Co.fail("msg", "开始时间不能在结束时间之前");
-                }
-                int num = getMonth(start, end);
-                if (num > 6) {
-                    return Co.fail("msg", "时间相隔不能高于半年");
+        if(StringUtils.isNotBlank(token)){
+            String time[] = type.split(",");
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//设置日期格式
+            Date end=new Date();
+            if (time.length > 1) {
+                if (StringUtils.isNotBlank(time[1]) && StringUtils.isNotBlank(time[0])) {
+                    Date start = df.parse(time[0]);
+                    Date endD = df.parse(time[1]);
+                    Calendar calendar=new GregorianCalendar();
+                    calendar.setTime(endD);
+                    calendar.add(calendar.DATE,1);
+                    end=calendar.getTime();
+                    if (end.before(start)) {
+                        return Co.fail("msg", "开始时间不能在结束时间之前");
+                    }
+                    int num = getMonth(start, end);
+                    if (num > 6) {
+                        return Co.fail("msg", "时间相隔不能高于半年");
+                    }
                 }
             }
-        }
 
-        JwtConfig config = Lambkit.config(JwtConfig.class);
-        String tokenPrefix = config.getTokenPrefix();
-        String authToken = token.substring(tokenPrefix.length());
-        String username = JwtKit.getJwtUser(authToken);
-        if (username == null) {
+            JwtConfig config = Lambkit.config(JwtConfig.class);
+            String tokenPrefix = config.getTokenPrefix();
+            String authToken = token.substring(tokenPrefix.length());
+            String username = JwtKit.getJwtUser(authToken);
+            if (username == null) {
+                return null;
+            }
+            System.out.println("username : " + username);
+            UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+            if (upmsUser == null) {
+                return null;
+            }
+            System.out.println("roleName:" + upmsUser.getRealname());
+
+
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("select * from catalogue_keep k where del=0 and user_id="+upmsUser.getUserId().intValue()+" ");
+
+            if (StringUtils.isNotBlank(type)) {
+                if ("1".equals(type)) {
+                    stringBuffer.append(" and date_format(k.time,'%Y-%m') = date_format(now(),'%Y-%m')");
+                }
+                if ("3".equals(type)) {
+                    stringBuffer.append(" and datediff(curdate(),k.time)<90");
+                }
+            }
+            if (time.length > 1) {
+                if (StringUtils.isNotBlank(time[0]) && StringUtils.isNotBlank(df.format(end)) && !"null".equals(time[0]) && !"null".equals(df.format(end))) {
+                    if (time[0].equals(df.format(end))) {
+                        stringBuffer.append(" and date_format(k.time'%Y-%m')=date_format('" + time[0] + "','%Y-%m')");
+                    } else {
+                        stringBuffer.append(" and k.time between '" + time[0] + "' and '" + df.format(end) + "'");
+                    }
+                } else if (StringUtils.isNotBlank(time[0]) && !"null".equals(time[0])) {
+                    stringBuffer.append(" and date_format(k.time,'%Y-%m')=date_format('" + time[0] + "','%Y-%m')");
+                } else if (StringUtils.isNotBlank(df.format(end)) && !"null".equals(df.format(end))) {
+                    stringBuffer.append(" and date_format(k.time,'%Y-%m')=date_format('" + df.format(end) + "','%Y-%m')");
+                }
+            }
+
+            stringBuffer.append(" ORDER by k.time desc ");
+            JSONArray objects = new JSONArray();
+            List<CatalogueKeep> catalogueKeeps = CatalogueKeep.service().dao().find(stringBuffer.toString());
+            for (CatalogueKeep catalogueKeep : catalogueKeeps) {
+                CatalogueKeep keep = CatalogueKeep.service().dao().findById(catalogueKeep.getId());
+                com.alibaba.fastjson.JSONObject jb = new com.alibaba.fastjson.JSONObject();
+                jb.fluentPut("time", df.format(keep.getTime()));
+                List<Record> records = Db.find("select * from catalogue_keep k where del=0 and date_format(k.time,'%Y-%m-%d')=date_format('" + df.format(keep.getTime()) + "','%Y-%m-%d') ");
+                jb.fluentPut("records", records);
+                if(objects.contains(jb)){
+                    continue;
+                }else {
+                    objects.add(jb);
+                }
+            }
+            return Co.ok("data", objects);
+        }else {
             return null;
         }
-        System.out.println("username : " + username);
-        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
-        if (upmsUser == null) {
-            return null;
-        }
-        System.out.println("roleName:" + upmsUser.getRealname());
-
-
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("select * from catalogue_keep k where del=0 and user_id="+upmsUser.getUserId().intValue()+" ");
-
-        if (StringUtils.isNotBlank(type)) {
-            if ("1".equals(type)) {
-                stringBuffer.append(" and date_format(k.time,'%Y-%m') = date_format(now(),'%Y-%m')");
-            }
-            if ("3".equals(type)) {
-                stringBuffer.append(" and datediff(curdate(),k.time)<90");
-            }
-        }
-        if (time.length > 1) {
-            if (StringUtils.isNotBlank(time[0]) && StringUtils.isNotBlank(df.format(end)) && !"null".equals(time[0]) && !"null".equals(df.format(end))) {
-                if (time[0].equals(df.format(end))) {
-                    stringBuffer.append(" and date_format(k.time'%Y-%m')=date_format('" + time[0] + "','%Y-%m')");
-                } else {
-                    stringBuffer.append(" and k.time between '" + time[0] + "' and '" + df.format(end) + "'");
-                }
-            } else if (StringUtils.isNotBlank(time[0]) && !"null".equals(time[0])) {
-                stringBuffer.append(" and date_format(k.time,'%Y-%m')=date_format('" + time[0] + "','%Y-%m')");
-            } else if (StringUtils.isNotBlank(df.format(end)) && !"null".equals(df.format(end))) {
-                stringBuffer.append(" and date_format(k.time,'%Y-%m')=date_format('" + df.format(end) + "','%Y-%m')");
-            }
-        }
-
-        stringBuffer.append(" ORDER by k.time desc ");
-        JSONArray objects = new JSONArray();
-        List<CatalogueKeep> catalogueKeeps = CatalogueKeep.service().dao().find(stringBuffer.toString());
-        for (CatalogueKeep catalogueKeep : catalogueKeeps) {
-            CatalogueKeep keep = CatalogueKeep.service().dao().findById(catalogueKeep.getId());
-			com.alibaba.fastjson.JSONObject jb = new com.alibaba.fastjson.JSONObject();
-            jb.fluentPut("time", df.format(keep.getTime()));
-            List<Record> records = Db.find("select * from catalogue_keep k where del=0 and date_format(k.time,'%Y-%m-%d')=date_format('" + df.format(keep.getTime()) + "','%Y-%m-%d') ");
-            jb.fluentPut("records", records);
-			if(objects.contains(jb)){
-              continue;
-			}else {
-				objects.add(jb);
-			}
-        }
-        return Co.ok("data", objects);
     }
 
     @Override
