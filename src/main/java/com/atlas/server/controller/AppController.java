@@ -195,8 +195,81 @@ public class AppController extends LambkitController {
     }
 
 
+//    /**
+//     * @Description: 添加植物样本
+//     * @Author: yangxueyang
+//     * @Date: 2019/9/25
+//     */
+//    @Params({
+//            @Param(name = "filepath", description = "图片路径", required = true, dataType = "String"),
+//            @Param(name = "id", description = "种类id", required = false, dataType = "String"),
+//            @Param(name = "prantId", description = "父id", required = false, dataType = "String"),
+//    })
+//    @ApiOperation(url = "/cern/addEatalogue", tag = "/cern", httpMethod = "get", description = "添加纲目科属种样本")
+//    public void addEatalogue() throws IOException {
+//        String id = getPara("id");//种类id
+//        String rootPath = PathKit.getWebRootPath().replace("\\", "/");
+//        String s = "D:/upload/sample/" + id; //现在改为种类id为文件夹得名字
+//
+//        List<String> baiDu = new ArrayList<>();  //上传百度失败的图片
+//        List<String> no = new ArrayList<>();  //样本没有shang传的图片
+//        HashMap<String, String> options = new HashMap<String, String>();
+//        // 文件标签, 这个先不填, 实际项目时, 根据实际需求来
+//
+//        options.put("tags", "5");
+//        //  images 目录下的base目录训练图片, test是测试图片, 这里把训练图片全部入库
+//        File images = new File(s);
+//        // 获取目录下的所有图片
+//        File[] fi = images.listFiles();
+//        for (File f : fi) {
+//            String fileext = PathUtils.getExtensionName(f.getName());
+//            String name = f.getName().split("\\.")[0];
+//            if ("jpg".equalsIgnoreCase(fileext) || "png".equalsIgnoreCase(fileext) || "bmp".equalsIgnoreCase(fileext)) {
+//                if (ZipUtils.checkFileSizeIsLimit(f.length(), 3, "M")) {
+//                    System.out.println("小于3m啊啊啊啊啊啊");
+//                } else {
+//                    System.out.println(f.getName() + "大于3m啊啊啊啊啊啊");
+//                    String path = rootPath + "/upload/" + f.getName();
+//                    ZipUtils.yasuoImage(path, f);
+//                }
+//                // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
+//                options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/sample/" + id + "/" + f.getName() + "\"}");
+//                // 上传图片入库
+//                org.json.JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
+//                // 打印上传结果
+//                System.out.println(res.toString(2));//不是格式
+//                if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
+//                    //上传百度图库报错了
+//                    baiDu.add(f.getName());
+//                } else {
+//                    CatalogueSample catalogueSample = CatalogueSample.service().dao().findById(name);
+//                    if (catalogueSample == null) {
+//                        no.add(name);
+//                        continue;
+//                    }
+//                    catalogueSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
+//                    boolean result = catalogueSample.update();
+//                    if (result) {
+//                        System.out.println(f.getName() + "修改成功");
+//                    } else {
+//                        System.out.println(f.getName() + "修改失败");
+//                    }
+//                }
+//            } else {
+//                //移动到错误的文件夹   应该没有
+//                System.out.println(f.getName() + "文件格式不正确");
+//            }
+//        }
+//        if (baiDu.size() != 0) {
+//            renderJson(Co.ok("baiDu", baiDu));
+//        } else {
+//            renderJson(Co.ok("msg", "添加样本成功,所有图片添加成功"));
+//        }
+//    }
+
+
     /**
-     * @Description: 添加植物样本
+     * @Description: 添加纲目科属种样本
      * @Author: yangxueyang
      * @Date: 2019/9/25
      */
@@ -205,65 +278,174 @@ public class AppController extends LambkitController {
             @Param(name = "id", description = "种类id", required = false, dataType = "String"),
             @Param(name = "prantId", description = "父id", required = false, dataType = "String"),
     })
-    @ApiOperation(url = "/cern/addEatalogue", tag = "/cern", httpMethod = "get", description = "添加纲目科属种样本")
-    public void addEatalogue() throws IOException {
-        String id = getPara("id");//种类id
+    @ApiOperation(url = "/app/addEatalogue", tag = "/cern", httpMethod = "get", description = "添加纲目科属种样本")
+    public void addEatalogue() {
+        String filepath = getPara("filepath");//zip路径
+        String title = getPara("title");//种类title
+
+
+        Catalogue catalogue = Catalogue.service().dao().findFirst(Catalogue.sql().andNameEqualTo(title).example());
+        if(catalogue==null){
+            renderJson(Co.fail("msg", "未找到种类"));
+            return;
+        }
+
+        System.out.println(filepath);
         String rootPath = PathKit.getWebRootPath().replace("\\", "/");
-        String s = "D:/upload/sample/" + id; //现在改为种类id为文件夹得名字
+        File file = new File(rootPath + filepath);
+        System.out.println("file:" + file.getAbsolutePath());
+        System.out.println(file.getName());
+        if (file == null) {
+            renderJson(Co.fail("msg", "找不到该文件"));
+            return;
+        }
+        String name = file.getName().split("\\.")[0];
+        //解压后文件夹
+        String s = rootPath + "/eatalogue/sample/" + catalogue.getId(); //现在改为种类id为文件夹得名字
+        String p = "/eatalogue/sample/" + name;
+        System.out.println("file.getPath():" + file.getPath());
+        try {
+            ZipUtils.decompress(file.getPath(), s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        System.out.println("s" + s);
+        File files = new File(s);
+        File fileS = null;
+        String[] fileList = files.list();
+        for (String y : fileList) {
+            File file2 = new File(s + File.separator + y);
+            if (file2.isDirectory()) {
+                System.out.println("file2.getName()" + file2.getName());
+                s = s + File.separator + file2.getName();
+                p = p + "/" + file2.getName();
+                System.out.println("新的s为路径:" + s);
+                fileS = new File(s);
+            } else if (file2.isFile()) {
+            }
+        }
+        if (fileS != null) { //如果他是文件夹的话
+            fileList = fileS.list();
+        }
+        List<String> list = new ArrayList<>();
+        List<String> noPass = new ArrayList<>(); //上传本地失败的图片
         List<String> baiDu = new ArrayList<>();  //上传百度失败的图片
-        List<String> no = new ArrayList<>();  //样本没有shang传的图片
-        HashMap<String, String> options = new HashMap<String, String>();
-        // 文件标签, 这个先不填, 实际项目时, 根据实际需求来
+        File file1 = null;
+        int i = 0;
+        File file01 = null;
 
-        options.put("tags", "5");
-        //  images 目录下的base目录训练图片, test是测试图片, 这里把训练图片全部入库
-        File images = new File(s);
-        // 获取目录下的所有图片
-        File[] fi = images.listFiles();
-        for (File f : fi) {
-            String fileext = PathUtils.getExtensionName(f.getName());
-            String name = f.getName().split("\\.")[0];
-            if ("jpg".equalsIgnoreCase(fileext) || "png".equalsIgnoreCase(fileext) || "bmp".equalsIgnoreCase(fileext)) {
-                if (ZipUtils.checkFileSizeIsLimit(f.length(), 3, "M")) {
-                    System.out.println("小于3m啊啊啊啊啊啊");
+        for (String y : fileList) {
+            file1 = new File(s + "/" + y);
+            System.out.println("file1:" + file1.getName());
+            String fileext = PathUtils.getExtensionName(file1.getName());
+            if (file1.isFile()) {
+                if ("jpg".equalsIgnoreCase(fileext) || "png".equalsIgnoreCase(fileext) || "bmp".equalsIgnoreCase(fileext)) {
+                    String s1 = file1.getName().split("\\.")[1];
+                    //String s2 = file1.getName().split("\\.")[0];   //待定
+                    // String s2 = new Date().getTime()+(int)((Math.random()*9+1)*100000)+"";//重命名文件下的文件
+                    String s2 = new Date().getTime() + "" + (int) ((Math.random() * 9 + 1) * 100000);
+                    file01 = new File(s + File.separator + s2 + "." + s1);
+                    System.out.println("file01:" + file01.getName());
+                    file1.renameTo(file01);
+                    String path = file01.getPath();
+                    System.out.println("path" + path);
+                    list.add(file01.getPath());
+                    i++;
+                } else { //如果不是这三种格式的文件的图片 添加到这里并且删除
+                    noPass.add(file1.getName());
+                }
+            }
+        }
+        System.out.println("成功的i:" + i);
+        String newZip = rootPath + "/eatalogue/sample/" + name + ".zip";
+        try {
+            int result_msg = ZipUtils.compress(list, newZip, false);
+            if (result_msg > 1) {
+                boolean rse = new File(newZip).delete();
+                if (rse) {
+                    System.out.println("新的文件夹压缩包删除成功");
                 } else {
-                    System.out.println(f.getName() + "大于3m啊啊啊啊啊啊");
+                    System.out.println("新的文件夹压缩包删除失败");
+                }
+            } else {
+                System.out.println("新的文件夹压缩包复制失败");
+            }
+            HashMap<String, String> options = new HashMap<String, String>();
+            // 文件标签, 这个先不填, 实际项目时, 根据实际需求来
+
+            //  images 目录下的base目录训练图片, test是测试图片, 这里把训练图片全部入库
+            File images = new File(s);
+            // 获取目录下的所有图片
+            File[] fi = images.listFiles();
+            for (File f : fi) {
+                if (ZipUtils.checkFileSizeIsLimit(f.length(), 3, "M")) {
+                    //System.out.println("小于3m啊啊啊啊啊啊");
+                } else {
+                    //System.out.println(f.getName() + "大于3m啊啊啊啊啊啊");
                     String path = rootPath + "/upload/" + f.getName();
                     ZipUtils.yasuoImage(path, f);
                 }
+                //System.out.println("f.length()" + f.length());
                 // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
-                options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/sample/" + id + "/" + f.getName() + "\"}");
+                options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + catalogue.getId() + "\",\"url\":\"" + "/eatalogue/sample/" + catalogue.getId() + "/" + f.getName() + "\"}");
                 // 上传图片入库
                 org.json.JSONObject res = client.similarAdd(f.getAbsolutePath(), options);
                 // 打印上传结果
-                System.out.println(res.toString(2));//不是格式
-                if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
-                    //上传百度图库报错了
-                    baiDu.add(f.getName());
-                } else {
-                    CatalogueSample catalogueSample = CatalogueSample.service().dao().findById(name);
-                    if (catalogueSample == null) {
-                        no.add(name);
-                        continue;
-                    }
-                    catalogueSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
-                    boolean result = catalogueSample.update();
-                    if (result) {
-                        System.out.println(f.getName() + "修改成功");
+                System.out.println(res.toString(2));
+                String fileext = PathUtils.getExtensionName(f.getName());
+                if ("jpg".equalsIgnoreCase(fileext) || "png".equalsIgnoreCase(fileext) || "bmp".equalsIgnoreCase(fileext)) { //不是格式
+                    if (StringUtils.isNotBlank(JSON.parseObject(res.toString()).getString("error_msg"))) {
+                        //上传百度图库报错了
+                        baiDu.add(f.getName());
+                        boolean boo = f.delete();
+                        if (boo) {
+                            System.out.println(f.getName() + "的图片上传百度图片失败，删除本地的图片");
+                        }
                     } else {
-                        System.out.println(f.getName() + "修改失败");
+                        CatalogueSample catalogueSample = new CatalogueSample();
+                        catalogueSample.setId(f.getName().split("\\.")[0]);
+                        catalogueSample.setName(f.getName());
+                        catalogueSample.setBrief("{\"name\":\"" + f.getName() + "\",\"id\":\"" + catalogue.getId() + "\",\"url\":\"" + "/eatalogue/sample/" + catalogue.getId() + "/" + f.getName() + "\"}");
+                        catalogueSample.setCatalogueId(catalogue.getId());
+                        catalogueSample.setUrl("/eatalogue/sample/" + catalogue.getId() + "/" + f.getName());
+                        catalogueSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
+                        catalogueSample.setTime(new Date());
+                        catalogueSample.setType(0);
+                        catalogueSample.setStatus(0);//0 导入,1识别,2.上报
+                        boolean result = catalogueSample.save();
+                        if (result) {
+                            System.out.println(f.getName() + "添加数据库成功");
+                        } else {
+                            System.out.println(f.getName() + "添加数据库失败");
+                        }
+                    }
+                } else {
+                    boolean boo = f.delete();
+                    if (boo) {
+                        System.out.println("名为" + f.getName() + "的文件上传格式不正确删除成功");
+                    } else {
+                        System.out.println("名为" + f.getName() + "的文件上传格式不正确删除失败");
                     }
                 }
-            } else {
-                //移动到错误的文件夹   应该没有
-                System.out.println(f.getName() + "文件格式不正确");
             }
-        }
-        if (baiDu.size() != 0) {
-            renderJson(Co.ok("baiDu", baiDu));
-        } else {
-            renderJson(Co.ok("msg", "添加样本成功,所有图片添加成功"));
+            if (noPass.size() != 0 || baiDu.size() != 0) {
+                renderJson(Co.ok("data", noPass).set("baiDu", baiDu).set("msg", "部分添加样本成功,请查看上传本地失败的图片"));
+            } else {
+                renderJson(Co.ok("msg", "添加样本成功,所有图片添加成功"));
+            }
+            if (fileS != null) {
+                ZipUtils.copyFolder(s, rootPath + "/eatalogue/sample/" + catalogue.getId());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            boolean result = ZipUtils.delete(s);
+            if (result) {
+                System.out.println("删除成功");
+            } else {
+                System.out.println("删除失败");
+            }
         }
     }
 
@@ -277,15 +459,17 @@ public class AppController extends LambkitController {
             @Param(name = "filepath", description = "图片路径", required = true, dataType = "String"),
             @Param(name = "id", description = "种类id", required = false, dataType = "Integer"),
     })
-    @ApiOperation(url = "/cern/addDisease", tag = "/cern", httpMethod = "get", description = "添加样本")
+    @ApiOperation(url = "/app/addDisease", tag = "/cern", httpMethod = "get", description = "添加样本")
     public void addDisease() {
         String filepath = getPara("filepath");//zip路径
-        Integer id = getParaToInt("id");//种类id
 
-        if(id==null){
-            renderJson(Co.fail("msg", "种类id不能为空"));
+        String title=getPara("title");
+        InsectPests insectPests=InsectPests.service().dao().findFirst(InsectPests.sql().andNameEqualTo(title).example());
+        if(insectPests==null){
+            renderJson(Co.fail("msg", "该物种未查到"));
             return;
         }
+
         if(StringUtils.isBlank(filepath)){
             renderJson(Co.fail("msg", "压缩包路径不能为空"));
             return;
@@ -302,7 +486,7 @@ public class AppController extends LambkitController {
         }
         String name = file.getName().split("\\.")[0];
         //解压后文件夹
-        String s = rootPath + "/eatalogue/disease/" + id; //现在改为种类id为文件夹得名字
+        String s = rootPath + "/eatalogue/disease/" + insectPests.getId(); //现在改为种类id为文件夹得名字
         String p = "/eatalogue/disease/" + name;
         System.out.println("file.getPath():" + file.getPath());
         try {
@@ -390,7 +574,7 @@ public class AppController extends LambkitController {
                     }
                     //System.out.println("f.length()" + f.length());
                     // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
-                    options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/disease/" + id + "/" + f.getName() + "\"}");
+                    options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + insectPests.getId() + "\",\"url\":\"" + "/eatalogue/disease/" + insectPests.getId() + "/" + f.getName() + "\"}");
                     // 上传图片入库
                     org.json.JSONObject res = client_B.similarAdd(f.getAbsolutePath(), options);
                     // 打印上传结果
@@ -406,9 +590,9 @@ public class AppController extends LambkitController {
                         PestsSample pestsSample = new PestsSample();
                         pestsSample.setId(f.getName().split("\\.")[0]);
                         pestsSample.setName(f.getName());
-                        pestsSample.setBrief("{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/disease/" + id + "/" + f.getName() + "\"}");
-                        pestsSample.setPestsId(id);
-                        pestsSample.setUrl("/eatalogue/disease/" + id + "/" + f.getName());
+                        pestsSample.setBrief("{\"name\":\"" + f.getName() + "\",\"id\":\"" + insectPests.getId() + "\",\"url\":\"" + "/eatalogue/disease/" + insectPests.getId() + "/" + f.getName() + "\"}");
+                        pestsSample.setPestsId(insectPests.getId());
+                        pestsSample.setUrl("/eatalogue/disease/" + insectPests.getId() + "/" + f.getName());
                         pestsSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
                         pestsSample.setTime(new Date());
                         pestsSample.setType(0);
@@ -436,7 +620,7 @@ public class AppController extends LambkitController {
                 renderJson(Co.ok("msg", "添加样本成功,所有图片添加成功"));
             }
             if (fileS != null) {
-                ZipUtils.copyFolder(s, rootPath + "/eatalogue/disease/" + id);
+                ZipUtils.copyFolder(s, rootPath + "/eatalogue/disease/" + insectPests.getId());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -599,13 +783,13 @@ public class AppController extends LambkitController {
             @Param(name = "filepath", description = "图片路径", required = true, dataType = "String"),
             @Param(name = "id", description = "种类id", required = false, dataType = "Integer"),
     })
-    @ApiOperation(url = "/cern/addFlora", tag = "/cern", httpMethod = "get", description = "添加样本")
+    @ApiOperation(url = "/app/addInsectPest", tag = "/cern", httpMethod = "get", description = "添加样本")
     public void addInsectPest() {
         String filepath = getPara("filepath");//zip路径
-        Integer id = getParaToInt("id");//种类id
-
-        if(id==null){
-            renderJson(Co.fail("msg", "种类id不能为空"));
+        String title=getPara("title");
+        InsectPests insectPests=InsectPests.service().dao().findFirst(InsectPests.sql().andNameEqualTo(title).example());
+        if(insectPests==null){
+            renderJson(Co.fail("msg", "该物种未查到"));
             return;
         }
         if(StringUtils.isBlank(filepath)){
@@ -624,7 +808,7 @@ public class AppController extends LambkitController {
         }
         String name = file.getName().split("\\.")[0];
         //解压后文件夹
-        String s = rootPath + "/eatalogue/insectPest/" + id; //现在改为种类id为文件夹得名字
+        String s = rootPath + "/eatalogue/insectPest/" + insectPests.getId(); //现在改为种类id为文件夹得名字
         String p = "/eatalogue/insectPest/" + name;
         System.out.println("file.getPath():" + file.getPath());
         try {
@@ -712,7 +896,7 @@ public class AppController extends LambkitController {
                     }
                     //System.out.println("f.length()" + f.length());
                     // 数据格式为json, 可以定义多种属性, 这里以name为例, 所有图片都是花草, 加上文件名方便识别
-                    options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/insectPest/" + id + "/" + f.getName() + "\"}");
+                    options.put("brief", "{\"name\":\"" + f.getName() + "\",\"id\":\"" + insectPests.getId() + "\",\"url\":\"" + "/eatalogue/insectPest/" + insectPests.getId() + "/" + f.getName() + "\"}");
                     // 上传图片入库
                     org.json.JSONObject res = client_C.similarAdd(f.getAbsolutePath(), options);
                     // 打印上传结果
@@ -728,9 +912,9 @@ public class AppController extends LambkitController {
                         PestsSample pestsSample = new PestsSample();
                         pestsSample.setId(f.getName().split("\\.")[0]);
                         pestsSample.setName(f.getName());
-                        pestsSample.setBrief("{\"name\":\"" + f.getName() + "\",\"id\":\"" + id + "\",\"url\":\"" + "/eatalogue/insectPest/" + id + "/" + f.getName() + "\"}");
-                        pestsSample.setPestsId(id);
-                        pestsSample.setUrl("/eatalogue/insectPest/" + id + "/" + f.getName());
+                        pestsSample.setBrief("{\"name\":\"" + f.getName() + "\",\"id\":\"" + insectPests.getId() + "\",\"url\":\"" + "/eatalogue/insectPest/" + insectPests.getId() + "/" + f.getName() + "\"}");
+                        pestsSample.setPestsId(insectPests.getId());
+                        pestsSample.setUrl("/eatalogue/insectPest/" + insectPests.getId() + "/" + f.getName());
                         pestsSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
                         pestsSample.setTime(new Date());
                         pestsSample.setType(0);
@@ -758,7 +942,7 @@ public class AppController extends LambkitController {
                 renderJson(Co.ok("msg", "添加样本成功,所有图片添加成功"));
             }
             if (fileS != null) {
-                ZipUtils.copyFolder(s, rootPath + "/eatalogue/insectPest/" + id);
+                ZipUtils.copyFolder(s, rootPath + "/eatalogue/insectPest/" + insectPests.getId());
             }
         } catch (IOException e) {
             e.printStackTrace();

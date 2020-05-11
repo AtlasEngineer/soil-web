@@ -64,12 +64,15 @@ public class CatalogueServiceImpl extends LambkitModelServiceImpl<Catalogue> imp
 		if (pageNum == null) {
 			pageNum = 1;
 		}
-		InsectSpeciesCriteria sql=new InsectSpeciesCriteria();
+		String sql="";
 
 		if(StringUtils.isNotBlank(name)){
-			sql.andNameLike("%"+name+"%");
+			sql="from at_insect_species p   where p.name like '%"+name+"%' and p.image IS NOT NULL AND p.image <> ''";
+		}else {
+			sql="from at_insect_species p   where p.image IS NOT NULL AND p.image <> ''";
 		}
-		Page<InsectSpecies> page=InsectSpecies.service().dao().paginate(pageNum,pageSize,sql.example());
+
+		Page<InsectSpecies> page=InsectSpecies.service().dao().paginate(pageNum,pageSize,"select *",sql);
 		return page;
 	}
 
@@ -85,16 +88,16 @@ public class CatalogueServiceImpl extends LambkitModelServiceImpl<Catalogue> imp
 		Page<Record> page=null;
 		if(type!=null&&type==0){//病害
 			if(StringUtils.isNotBlank(name)){
-				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=0 and p.`name` LIKE '%"+name+"%' ");
+				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=0 and p.`name` LIKE '%"+name+"%' and p.image IS NOT NULL AND p.image <> ''");
 			}else {
-				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=0");
+				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=0 and p.image IS NOT NULL AND p.image <> ''");
 			}
 		}
 		if(type!=null&&type==1){ //虫害
 			if(StringUtils.isNotBlank(name)){
-				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=1 and p.`name` LIKE '%"+name+"%' ");
+				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=1 and p.`name` LIKE '%"+name+"%' and p.image IS NOT NULL AND p.image <> ''");
 			}else {
-				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=1");
+				page= Db.paginate(pageNum,pageSize,"select p.id,p.`name`,p.image","from at_species_pests s LEFT JOIN at_insect_pests p on s.pests_id=p.id where s.species_id="+id+" and p.type=1 and p.image IS NOT NULL AND p.image <> ''");
 			}
 		}
 		return page;

@@ -27,26 +27,22 @@ public class UploadController extends LambkitController {
         UploadFile uf = getFile();
         File file = uf.getFile();
         String rootPath = PathKit.getWebRootPath() + "/upload/zip/";
-        String filename = UUID.randomUUID().toString() + ".zip";
         String fileext = PathUtils.getExtensionName(file.getName());
+        String filename = UUID.randomUUID().toString() + "."+"zip";
+
         if(!"zip".equals(fileext))
         {
-            setAttr("msg", "文件格式不正确");
-            setAttr("error", "true");
+            renderJson(Co.ok("data", Co.fail("errorMsg", "图片格式不正确")));
             file.delete();
         }else {
             boolean b = file.renameTo(new File(rootPath + filename));
             if (!b) {
-                setAttr("msg", "重命名失败");
-                setAttr("error", "true");
+                renderJson(Co.ok("data", Co.fail("errorMsg", "重命名失败")));
             } else {
-                System.out.println(filename);
-                setAttr("filename",file.getName());
-                setAttr("url", "/upload/zip/" + filename);
-                setAttr("error", "false");
+                renderJson(Co.ok("data", Co.ok("url", "/upload/zip/" + filename).set("yname", file.getName())));
             }
         }
-        renderJson();
+
     }
     /**
      * @return void

@@ -131,6 +131,7 @@ public class IndexController extends LambkitController {
     }
 
 
+
     public void searchCatalogueById() {
         String id = getPara("id");
         if (StringUtils.isBlank(id)) {
