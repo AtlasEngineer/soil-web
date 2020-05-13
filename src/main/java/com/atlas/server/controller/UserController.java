@@ -231,9 +231,6 @@ public class UserController extends LambkitController {
         String newpass = getPara("newpass");//新密码
         String checknewpass = getPara("checknewpass");//确认密码
 
-        RedisCacheImpl redis = new RedisCacheImpl();
-        String getCode = redis.get("code", phone);
-
 
         if (StringUtils.isBlank(newpass)) {
             renderJson(Co.ok("data", Co.fail("errorMsg", "新密码不能为空")));

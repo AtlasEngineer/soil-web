@@ -282,4 +282,34 @@ public class IndexController extends LambkitController {
           renderJson(Co.ok());
     }
 
+    //百度的连接信息
+    private static BaiDuConfig config = Lambkit.config(BaiDuConfig.class);
+    private static AipImageSearch client = new AipImageSearch(config.getAPP_ID(), config.getAPI_KEY(), config.getSECRET_KEY());
+
+
+     //删除样本
+    public void test(){
+        List<String> cata=new ArrayList<>();
+
+        List<Catalogue> catalogues=Catalogue.service().dao().find("select name,count(*) from catalogue  group by name having count(name)>1");
+
+        for (Catalogue catalogue:catalogues){
+            Catalogue catalogueList=Catalogue.service().dao().findFirst(Catalogue.sql().andBotanyTypeEqualTo(5).andNameEqualTo(catalogue.getName()).example());
+            catalogueList.delete();
+        }
+
+//        List<CatalogueSample> catalogueSamples=CatalogueSample.service().dao().find("SELECT * FROM catalogue_sample WHERE DATEDIFF(time,NOW())=0");
+//        // 传入可选参数调用接口
+//        HashMap<String, String> options = new HashMap<String, String>();
+//
+//        for (CatalogueSample catalogueSample:catalogueSamples){
+//            if(StringUtils.isNotBlank(catalogueSample.getContSign())){
+//                JSONObject res = client.similarDeleteBySign(catalogueSample.getContSign(),options);
+//                System.out.println(res.toString(2));
+//            }
+//        }
+        renderJson(Co.ok());
+    }
+
+
 }

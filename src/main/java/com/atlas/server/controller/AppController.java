@@ -193,8 +193,6 @@ public class AppController extends LambkitController {
             renderJson(Co.fail("msg", e.getMessage()));
         }
     }
-
-
 //    /**
 //     * @Description: 添加植物样本
 //     * @Author: yangxueyang
@@ -267,7 +265,6 @@ public class AppController extends LambkitController {
 //        }
 //    }
 
-
     /**
      * @Description: 添加纲目科属种样本
      * @Author: yangxueyang
@@ -282,7 +279,6 @@ public class AppController extends LambkitController {
     public void addEatalogue() {
         String filepath = getPara("filepath");//zip路径
         String title = getPara("title");//种类title
-
 
         Catalogue catalogue = Catalogue.service().dao().findFirst(Catalogue.sql().andNameEqualTo(title).example());
         if(catalogue==null){
@@ -430,9 +426,9 @@ public class AppController extends LambkitController {
                 }
             }
             if (noPass.size() != 0 || baiDu.size() != 0) {
-                renderJson(Co.ok("data", noPass).set("baiDu", baiDu).set("msg", "部分添加样本成功,请查看上传本地失败的图片"));
+                renderJson(Co.ok("data", Co.by("state","ok").set("nopass",noPass).set("baiDu", baiDu).set("msg", "部分添加样本成功,请查看上传本地失败的图片")));
             } else {
-                renderJson(Co.ok("msg", "添加样本成功,所有图片添加成功"));
+                renderJson(Co.ok( "data",Co.by("state", "ok").set("msg", "样本成功")));
             }
             if (fileS != null) {
                 ZipUtils.copyFolder(s, rootPath + "/eatalogue/sample/" + catalogue.getId());
@@ -450,6 +446,10 @@ public class AppController extends LambkitController {
     }
 
 
+
+
+
+
     /**
      * @Description: 添加病害样本
      * @Author: yangxueyang
@@ -464,9 +464,15 @@ public class AppController extends LambkitController {
         String filepath = getPara("filepath");//zip路径
 
         String title=getPara("title");
+        String zwname=getPara("zwname");
         InsectPests insectPests=InsectPests.service().dao().findFirst(InsectPests.sql().andNameEqualTo(title).example());
+        InsectSpecies species=InsectSpecies.service().dao().findFirst(InsectSpecies.sql().andNameEqualTo(zwname).example());
         if(insectPests==null){
             renderJson(Co.fail("msg", "该物种未查到"));
+            return;
+        }
+        if(species==null){
+            renderJson(Co.fail("msg", "该作物未查到"));
             return;
         }
 
@@ -596,6 +602,7 @@ public class AppController extends LambkitController {
                         pestsSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
                         pestsSample.setTime(new Date());
                         pestsSample.setType(0);
+                        pestsSample.set("species_id",species.getId());
                         pestsSample.setStatus(0);//0 导入,1识别,2.上报
                         pestsSample.set("between", 0);
                         boolean result = pestsSample.save();
@@ -615,9 +622,9 @@ public class AppController extends LambkitController {
                 }
             }
             if (noPass.size() != 0 || baiDu.size() != 0) {
-                renderJson(Co.ok("data", noPass).set("baiDu", baiDu).set("msg", "部分添加样本成功,请查看上传本地失败的图片"));
+                renderJson(Co.ok("data", Co.by("state","ok").set("nopass",noPass).set("baiDu", baiDu).set("msg", "部分添加样本成功,请查看上传本地失败的图片")));
             } else {
-                renderJson(Co.ok("msg", "添加样本成功,所有图片添加成功"));
+                renderJson(Co.ok( "data",Co.by("state", "ok").set("msg", "样本成功")));
             }
             if (fileS != null) {
                 ZipUtils.copyFolder(s, rootPath + "/eatalogue/disease/" + insectPests.getId());
@@ -787,9 +794,15 @@ public class AppController extends LambkitController {
     public void addInsectPest() {
         String filepath = getPara("filepath");//zip路径
         String title=getPara("title");
+        String zwname=getPara("zwname");
         InsectPests insectPests=InsectPests.service().dao().findFirst(InsectPests.sql().andNameEqualTo(title).example());
+        InsectSpecies species=InsectSpecies.service().dao().findFirst(InsectSpecies.sql().andNameEqualTo(zwname).example());
         if(insectPests==null){
             renderJson(Co.fail("msg", "该物种未查到"));
+            return;
+        }
+        if(species==null){
+            renderJson(Co.fail("msg", "该作物未查到"));
             return;
         }
         if(StringUtils.isBlank(filepath)){
@@ -918,6 +931,7 @@ public class AppController extends LambkitController {
                         pestsSample.setContSign(JSON.parseObject(res.toString()).getString("cont_sign"));
                         pestsSample.setTime(new Date());
                         pestsSample.setType(0);
+                        pestsSample.set("species_id",species.getId());
                         pestsSample.setStatus(0);//0 导入,1识别,2.上报
                         pestsSample.set("between", 1);
                         boolean result = pestsSample.save();
@@ -937,9 +951,9 @@ public class AppController extends LambkitController {
                 }
             }
             if (noPass.size() != 0 || baiDu.size() != 0) {
-                renderJson(Co.ok("data", noPass).set("baiDu", baiDu).set("msg", "部分添加样本成功,请查看上传本地失败的图片"));
+                renderJson(Co.ok("data", Co.by("state","ok").set("nopass",noPass).set("baiDu", baiDu).set("msg", "部分添加样本成功,请查看上传本地失败的图片")));
             } else {
-                renderJson(Co.ok("msg", "添加样本成功,所有图片添加成功"));
+                renderJson(Co.ok( "data",Co.by("state", "ok").set("msg", "样本成功")));
             }
             if (fileS != null) {
                 ZipUtils.copyFolder(s, rootPath + "/eatalogue/insectPest/" + insectPests.getId());
