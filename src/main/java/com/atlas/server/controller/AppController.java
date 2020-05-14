@@ -79,6 +79,7 @@ public class AppController extends LambkitController {
         String url = "upload/" + yfile.getName();
         try {
             //python的识别结果
+            System.out.println(ip+url);
             Ret ret1 = AiDiscenerUtils.searchFloraPy(ip + url);
             //百度识别结果
             Ret ret2 = AiDiscenerUtils.searchFlora("/" + url);

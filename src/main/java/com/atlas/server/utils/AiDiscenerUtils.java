@@ -70,6 +70,9 @@ public class AiDiscenerUtils {
             JSONArray list = new JSONArray();
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 Catalogue catalogue = Catalogue.service().dao().findFirst(Catalogue.sql().andIdEqualTo(entry.getKey()).example());
+                if(catalogue==null){
+                    continue;
+                }
                 com.alibaba.fastjson.JSONObject json = com.alibaba.fastjson.JSONObject.parseObject(entry.getValue().toString());
                 Double score = json.getDouble("score");
                 com.alibaba.fastjson.JSONObject jb = new com.alibaba.fastjson.JSONObject();
@@ -145,7 +148,7 @@ public class AiDiscenerUtils {
                 jb.fluentPut("score", jsonObject.toString());
                 jb.fluentPut("ename", catalogue1.get("ename"));
             }
-            System.out.println("success");
+            System.out.println("ess");
             return Ret.ok("list", list);
         } catch (Exception e) {
             e.printStackTrace();
