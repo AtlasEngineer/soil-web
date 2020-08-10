@@ -145,7 +145,6 @@ public class AppController extends LambkitController {
             String p = "/eatalogue/w/";
             String[] split = url.split("/");
             String filename = split[split.length - 1];
-            System.out.println(filename);
             File file = new File(PathKit.getWebRootPath() + "/upload/" + filename);
             String s = PathKit.getWebRootPath() + p + file.getName();
             FileUtils.copyFile(file, new File(s));
@@ -171,7 +170,6 @@ public class AppController extends LambkitController {
                 CatalogueKeep keep = new CatalogueKeep();
                 //  4、添加识别记录
                 if (username != null) {
-                    System.out.println("username : " + username);
                     UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
                     if (upmsUser == null) {
                         renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
@@ -186,7 +184,6 @@ public class AppController extends LambkitController {
                     keep.setUserId(upmsUser.getUserId().intValue());
                 }
                 boolean result = keep.save();
-                System.out.println(result);
             }
             renderJson(Ret.ok("data", jsonArray));
         } catch (IOException e) {

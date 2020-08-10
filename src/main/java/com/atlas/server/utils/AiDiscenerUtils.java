@@ -70,18 +70,17 @@ public class AiDiscenerUtils {
             JSONArray list = new JSONArray();
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 Catalogue catalogue = Catalogue.service().dao().findFirst(Catalogue.sql().andIdEqualTo(entry.getKey()).example());
-                if(catalogue==null){
-                    continue;
+                if (catalogue != null) {
+                    com.alibaba.fastjson.JSONObject json = com.alibaba.fastjson.JSONObject.parseObject(entry.getValue().toString());
+                    Double score = json.getDouble("score");
+                    com.alibaba.fastjson.JSONObject jb = new com.alibaba.fastjson.JSONObject();
+                    jb.fluentPut("score", entry.getValue());
+                    jb.fluentPut("sim", score);
+                    jb.fluentPut("name", catalogue.getName());
+                    jb.fluentPut("ename", catalogue.getEname());
+                    jb.fluentPut("id", catalogue.getId());
+                    list.add(jb);
                 }
-                com.alibaba.fastjson.JSONObject json = com.alibaba.fastjson.JSONObject.parseObject(entry.getValue().toString());
-                Double score = json.getDouble("score");
-                com.alibaba.fastjson.JSONObject jb = new com.alibaba.fastjson.JSONObject();
-                jb.fluentPut("score", entry.getValue());
-                jb.fluentPut("sim", score);
-                jb.fluentPut("name", catalogue.getName());
-                jb.fluentPut("ename",catalogue.getEname());
-                jb.fluentPut("id", catalogue.getId());
-                list.add(jb);
             }
             return Ret.ok("list", list);
         }
@@ -136,19 +135,21 @@ public class AiDiscenerUtils {
                 }
                 species.add(species_id);
                 Record catalogue1 = Db.findFirst("select * from catalogue where id = ? ", species_id);
-                jb.fluentPut("name", catalogue1.get("name"));
-                jb.fluentPut("id", catalogue1.get("id"));
-                com.alibaba.fastjson.JSONObject jsonObject = new com.alibaba.fastjson.JSONObject();
-                jsonObject.fluentPut("score", jb.get("acquaintance"));
-                jb.fluentPut("sim", jb.get("acquaintance"));
-                jsonObject.fluentPut("url", "/eatalogue/sample/" + species_id + "/" + jb.getString("img_id"));
-                jb.remove("img_id");
-                jb.remove("acquaintance");
-                jb.remove("species_id");
-                jb.fluentPut("score", jsonObject.toString());
-                jb.fluentPut("ename", catalogue1.get("ename"));
+                if (catalogue1 != null) {
+                    jb.fluentPut("name", catalogue1.get("name"));
+                    jb.fluentPut("id", catalogue1.get("id"));
+                    com.alibaba.fastjson.JSONObject jsonObject = new com.alibaba.fastjson.JSONObject();
+                    jsonObject.fluentPut("score", jb.get("acquaintance"));
+                    jb.fluentPut("sim", jb.get("acquaintance"));
+                    jsonObject.fluentPut("url", "/eatalogue/sample/" + species_id + "/" + jb.getString("img_id"));
+                    jb.remove("img_id");
+                    jb.remove("acquaintance");
+                    jb.remove("species_id");
+                    jb.fluentPut("score", jsonObject.toString());
+                    jb.fluentPut("ename", catalogue1.get("ename"));
+                }
+
             }
-            System.out.println("ess");
             return Ret.ok("list", list);
         } catch (Exception e) {
             e.printStackTrace();
