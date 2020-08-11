@@ -36,6 +36,7 @@ import com.lambkit.plugin.jwt.JwtKit;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.RequestManager;
 import com.lambkit.web.controller.LambkitController;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -49,6 +50,53 @@ import java.util.stream.Collectors;
 
 @Clear(JwtTokenInterceptor.class)
 public class IndexController extends LambkitController {
+
+    @Clear
+    public void getSignature() {
+        //生成签名
+        String url = getPara("url");
+        String noncestr = "3BhC1Wp1zz3kydMT";
+        RedisCacheImpl redis = new RedisCacheImpl();
+        Object o = redis.get("wechat_ticket", "ticket");
+        if (o == null) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "获取不到ticket").set("notc", true)));
+            return;
+        }
+        String ticket = o.toString();
+        String timestamp = DateTimeUtils.getCurrentTimeLong() + "";
+        StringBuffer sb = new StringBuffer();
+        sb.append("jsapi_ticket=").append(ticket).append("&")
+                .append("noncestr=").append(noncestr).append("&")
+                .append("timestamp=").append(timestamp).append("&")
+                .append("url=").append(url.indexOf("#") >= 0 ? url.substring(0, url.indexOf("#")) : url);
+        String sha1Hex = DigestUtils.sha1Hex(sb.toString());
+        renderJson(Co.ok("data", Ret.ok("signature", sha1Hex).set("noncestr", noncestr).set("timestamp", timestamp).set("appid", "wx69ba0c28fae14970")));
+    }
+
+    @Clear
+    public void checkSignature() {
+        String signature = getPara("signature");
+        String timestamp = getPara("timestamp");
+        String nonce = getPara("nonce");
+        String echostr = getPara("echostr");
+
+        String token = "zM2FlMrVEU6HikOeWPaGyhulBLK3ED";
+        ArrayList<String> list = new ArrayList<>();
+        list.add(token);
+        list.add(timestamp);
+        list.add(nonce);
+        Collections.sort(list);
+        StringBuffer sb = new StringBuffer();
+        for (String param : list) {
+            sb.append(param);
+        }
+        String sha1Hex = DigestUtils.sha1Hex(sb.toString());
+        if (sha1Hex.equals(signature) || sha1Hex == signature) {
+            renderJson(echostr);
+        } else {
+            renderJson();
+        }
+    }
 
 
     /**
