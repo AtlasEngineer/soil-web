@@ -114,7 +114,7 @@ public class IndexController extends LambkitController {
                 .append("timestamp=").append(timestamp).append("&")
                 .append("url=").append(url.indexOf("#") >= 0 ? url.substring(0, url.indexOf("#")) : url);
         String sha1Hex = DigestUtils.sha1Hex(sb.toString());
-        renderJson(Co.ok("data", Ret.ok("signature", sha1Hex).set("noncestr", noncestr).set("timestamp", timestamp).set("appid", "wx69ba0c28fae14970")));
+        renderJson(Co.ok("data", Ret.ok("signature", sha1Hex).set("noncestr", noncestr).set("timestamp", timestamp).set("appid", "wxf1b673f91742790f")));
     }
 
     @Clear
