@@ -52,7 +52,7 @@ public class AtlasConfig extends LambkitApplicationContext {
                 super.configPlugin(me);
                 Cron4jPlugin cp = new Cron4jPlugin();
                 myTask = new TimingTask();
-                cp.addTask("0 */2 * * *", myTask);
+                cp.addTask("* * * * *", myTask);
                 me.add(cp);
                 me.add(new JwtTokenPlugin(UpmsJwtUserService.me()));
                 //        me.add(new LicensePlugin());

@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.atlas.lambkit.start.BaiDuConfig;
 import com.atlas.server.model.*;
 import com.atlas.server.model.sql.CatalogueCriteria;
@@ -36,13 +37,12 @@ import com.lambkit.plugin.jwt.JwtKit;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.RequestManager;
 import com.lambkit.web.controller.LambkitController;
+import com.orbitz.okhttp3.OkHttpClient;
+import com.orbitz.okhttp3.Request;
+import com.orbitz.okhttp3.Response;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.sql.Timestamp;
 import java.util.*;
@@ -50,6 +50,50 @@ import java.util.stream.Collectors;
 
 @Clear(JwtTokenInterceptor.class)
 public class IndexController extends LambkitController {
+
+    @Clear
+    public void runTask() {
+        System.out.println("--------------开始更新ticket---------------");
+        try {
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .build();
+            Request request1 = new Request.Builder()
+                    .url("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wxf1b673f91742790f&secret=5b80caba77ff9738d5bac0b884339e1a")
+                    .method("GET", null)
+                    .build();
+            Response response1 = client.newCall(request1).execute();
+            com.alibaba.fastjson.JSONObject json1 = new com.alibaba.fastjson.JSONObject().parseObject(response1.body().string());
+            System.out.println(json1);
+            if (StringUtils.isBlank(json1.getString("access_token"))) {
+                System.out.println(json1 + "\n--------------更新ticket失败---------------");
+                renderJson(Ret.fail("msg", "access_token空的" + json1.getString("access_token")));
+                return;
+            }
+            Request request2 = new Request.Builder()
+                    .url("https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=" + json1.getString("access_token") + "&type=jsapi")
+                    .method("GET", null)
+                    .build();
+            Response response2 = client.newCall(request2).execute();
+            com.alibaba.fastjson.JSONObject json2 = new JSONObject().parseObject(response2.body().string());
+            System.out.println(json2);
+            String ticket = json2.getString("ticket");
+            if (StringUtils.isBlank(ticket)) {
+                System.out.println(json2 + "\n--------------更新ticket失败---------------");
+                renderJson(Ret.fail("msg", "ticket空的" + ticket));
+                return;
+            }
+            //redis2小时
+            RedisCacheImpl redis = new RedisCacheImpl();
+            redis.put("wechat_ticket", "token", json1.getString("access_token"), 7200);
+            redis.put("wechat_ticket", "ticket", ticket, 7200);
+            System.out.println("--------------更新ticket完成---------------");
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + "\n--------------更新ticket失败---------------");
+            renderJson(Ret.fail("msg", e.getMessage()));
+            return;
+        }
+        renderJson(Ret.ok());
+    }
 
     @Clear
     public void getSignature() {
