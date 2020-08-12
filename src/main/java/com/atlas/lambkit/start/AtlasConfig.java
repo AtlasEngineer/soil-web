@@ -5,6 +5,7 @@ import com.atlas.server.MschModule;
 import com.atlas.server.route.ApiRoute;
 import com.jfinal.config.*;
 import com.jfinal.json.JFinalJsonFactory;
+import com.jfinal.plugin.cron4j.Cron4jPlugin;
 import com.lambkit.LambkitApplicationContext;
 import com.lambkit.db.mgr.MgrdbManager;
 import com.lambkit.module.LambkitModule;
@@ -18,6 +19,8 @@ import com.lambkit.module.upms.server.UpmsModule;
 import com.lambkit.plugin.jwt.JwtTokenPlugin;
 
 public class AtlasConfig extends LambkitApplicationContext {
+
+    TimingTask myTask;
 
     @Override
     public void configModule(LambkitModule module) {
@@ -47,6 +50,10 @@ public class AtlasConfig extends LambkitApplicationContext {
              */
             public void configPlugin(Plugins me) {
                 super.configPlugin(me);
+                Cron4jPlugin cp = new Cron4jPlugin();
+                myTask = new TimingTask();
+                cp.addTask("0 */2 * * *", myTask);
+                me.add(cp);
                 me.add(new JwtTokenPlugin(UpmsJwtUserService.me()));
                 //        me.add(new LicensePlugin());
             }
@@ -68,6 +75,7 @@ public class AtlasConfig extends LambkitApplicationContext {
             @Override
             public void onStart() {
                 super.onStart();
+                if(myTask!=null) myTask.setStarted(true);
                 com.lambkit.core.api.route.ApiRoute.me().onStart();
             }
         });
