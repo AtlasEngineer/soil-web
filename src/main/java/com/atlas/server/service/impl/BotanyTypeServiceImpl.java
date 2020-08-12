@@ -143,6 +143,9 @@ public class BotanyTypeServiceImpl extends LambkitModelServiceImpl<BotanyType> i
 
         JwtConfig config = Lambkit.config(JwtConfig.class);
         String tokenPrefix = config.getTokenPrefix();
+        if(StringUtils.isNotBlank(tokenPrefix)){
+            return Co.ok("msg","请重新登录");
+        }
         String authToken = token.substring(tokenPrefix.length());
         String username = JwtKit.getJwtUser(authToken);
         if (username == null) {

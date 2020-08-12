@@ -1,0 +1,17 @@
+name: "Git Repository Sync"
+# 每天晚上11触发
+on:
+  schedule:
+    - cron: '0 15 * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: repo-sync
+      uses: yehan-coding/yehan-git-sync@v1
+      with:
+        source_repo_url: git@github.com:${{ github.repository }}.git
+        source_branch: master
+        destination_repo_url: ${{ secrets.REPO_URL }}
+        destination_branch: master
+        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
