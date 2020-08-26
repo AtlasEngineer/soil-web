@@ -1,7 +1,7 @@
 package com.soli.server.controller;
 
 
-import com.atlas.server.utils.Co;
+import com.soli.server.utils.Co;
 import com.jfinal.aop.Clear;
 import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;

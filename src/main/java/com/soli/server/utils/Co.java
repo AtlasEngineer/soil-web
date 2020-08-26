@@ -1,4 +1,4 @@
-package com.atlas.server.utils;
+package com.soli.server.utils;
 
 import com.jfinal.json.Json;
 import com.jfinal.kit.Ret;
