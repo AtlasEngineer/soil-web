@@ -4,6 +4,7 @@ import com.jfinal.config.Routes;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.soli.server.controller.IndexController;
 import com.soli.server.controller.UploadController;
+import com.soli.server.controller.WeatherController;
 
 /**
  * @author: xuzhonghao
@@ -14,6 +15,7 @@ public class ApiRoute extends Routes {
     public void config() {
         add("/", IndexController.class,"/WEB-INF/app");
         add("/upload", UploadController.class,"/WEB-INF/app");
+        add("/weather", WeatherController.class,"/WEB-INF/app");
         addInterceptor(new JwtTokenInterceptor());
     }
 }
