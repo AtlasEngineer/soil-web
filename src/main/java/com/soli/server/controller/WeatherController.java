@@ -2,9 +2,12 @@ package com.soli.server.controller;
 
 
 
+import com.jfinal.aop.Clear;
 import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
+import com.lambkit.module.upms.rpc.model.UpmsUser;
+import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.controller.LambkitController;
 import com.soli.server.utils.Co;
 
@@ -12,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Clear(JwtTokenInterceptor.class)
 public class WeatherController extends LambkitController {
 
 
@@ -123,8 +127,4 @@ public class WeatherController extends LambkitController {
         }
         renderJson(res);
     }
-
-
-
-
 }
