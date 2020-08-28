@@ -54,8 +54,8 @@ build/
 .vscode/
 
 src/main/webapp/upload/
+src/main/webapp/d/
 /log
-/src/main/webapp/eatalogue
 /src/main/webapp/eatalogue
 /src/test
 =======
