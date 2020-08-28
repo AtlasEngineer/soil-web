@@ -2,15 +2,23 @@ package com.soli.server.controller;
 
 
 
+import com.alibaba.fastjson.JSON;
 import com.jfinal.aop.Clear;
+import com.jfinal.kit.Kv;
 import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
+import com.lambkit.common.util.StringUtils;
 import com.lambkit.module.upms.rpc.model.UpmsUser;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.controller.LambkitController;
+import com.orbitz.okhttp3.OkHttpClient;
+import com.orbitz.okhttp3.Request;
+import com.orbitz.okhttp3.Response;
 import com.soli.server.utils.Co;
+import com.soli.server.utils.IssueShpUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -125,6 +133,68 @@ public class WeatherController extends LambkitController {
             }
             res.set("img", Db.findFirst(img.toString()));
         }
-        renderJson(res);
+        renderJson(Co.ok("data",res));
+    }
+
+
+    //获取天气
+    public void getWeather() {
+        String lon = getPara("lon");
+        String lat = getPara("lat");
+
+        if (StringUtils.isBlank(lon)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "lon不能为空")));
+            return;
+        }
+
+        if (StringUtils.isBlank(lat)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "lat不能为空")));
+            return;
+        }
+
+        Record pg = Db.findFirst("select pname,cname from tr_city where ST_Contains(geom, st_geometryfromtext('POINT(" + lon + " " + lat + ")',4326))");
+        System.out.println(pg); //{pname:北京市, cname:北京}
+
+
+        if (pg == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "未查询到相关信息")));
+            return;
+        }
+
+        String cname = pg.getStr("cname");
+
+        String url_ptah = "https://tianqiapi.com/api?version=v1&appid=66734781&appsecret=5b80caba77ff9738d5bac0b884339e1a&city="+cname+"";
+
+        try {
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .build();
+            Request request = new Request.Builder()
+                    .url(url_ptah)
+                    .method("GET", null)
+                    .build();
+            Response response = client.newCall(request).execute();
+            renderJson(Co.ok("data", JSON.parseObject(response.body().string())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void uploadShp() throws Exception {
+
+        String url = getPara("url");
+
+        if (StringUtils.isBlank(url)) {
+            renderJson(Co.fail("msg", "数据路径不能为空"));
+            return;
+        }
+
+        Kv kv = IssueShpUtils.uploadShp(url);
+        Integer code = kv.getInt("code");
+        if (code == 400) {
+            renderJson(Co.ok("data", kv.get("errorMsg")));
+        }else {
+            renderJson(Co.ok("data", Ret.ok("msg", "修改成功")));
+        }
+
     }
 }
