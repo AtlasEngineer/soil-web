@@ -7,7 +7,6 @@
     <groupId>com.soil.server</groupId>
     <artifactId>soil-web</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -40,7 +39,7 @@
         <repository>
             <id>osgeo</id>
             <name>Open Source Geospatial Foundation Repository</name>
-            <url>http://maven.icm.edu.pl/artifactory/repo/</url>
+            <url>http://download.osgeo.org/webdav/geotools/</url>
         </repository>
         <repository>
             <snapshots>
@@ -53,6 +52,21 @@
     </repositories>
 
     <dependencies>
+
+        <!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk &ndash;&gt;-->
+        <!--        <dependency>-->
+        <!--            <groupId>com.amazonaws</groupId>-->
+        <!--            <artifactId>aws-java-sdk</artifactId>-->
+        <!--            <version>1.11.778</version>-->
+        <!--        </dependency>-->
+
+        <!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.belerweb/pinyin4j &ndash;&gt;-->
+        <!--        <dependency>-->
+        <!--            <groupId>com.belerweb</groupId>-->
+        <!--            <artifactId>pinyin4j</artifactId>-->
+        <!--            <version>2.5.0</version>-->
+        <!--        </dependency>-->
+
         <!--图片处理-->
         <!-- https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor -->
         <dependency>
@@ -270,6 +284,11 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>0.9.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osgeo</groupId>
+            <artifactId>proj4j</artifactId>
+            <version>0.1.0</version>
         </dependency>
 
         <!-- rpc motan -->
@@ -696,5 +715,4 @@
 
         </plugins>
     </build>
-
 </project>
