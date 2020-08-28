@@ -97,7 +97,7 @@ public class Public {
         layerEncoder.setDefaultStyle(defaultStyle);
         String ul = workspace + ":" + layerName;
         Timestamp time = new Timestamp(System.currentTimeMillis());
-        String sql = "insert into zjk_thematic_data (name,type,url,time,rid) values('" + ul + "','shp','" + gsName + "','" + time + "'," + id + ")";
+        String sql = "insert into tr_geolist (name,datatype,url,dt_time) values('" + ul + "','shp','" + gsName + "','" + time + "')";
         Db.update(sql);
         return publisher.publishDBLayer(workspace, storename, fte, layerEncoder);
     }

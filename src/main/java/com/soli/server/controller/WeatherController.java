@@ -193,8 +193,12 @@ public class WeatherController extends LambkitController {
         if (code == 400) {
             renderJson(Co.ok("data", kv.get("errorMsg")));
         }else {
-            renderJson(Co.ok("data", Ret.ok("msg", "修改成功")));
+            renderJson(Co.ok("data", Ret.ok("msg", "成功")));
         }
 
+    }
+
+    public void index() {
+        renderText("Hello,土壤");
     }
 }

@@ -1,51 +1,65 @@
 package com.soli.server.utils;
 
+
 import com.alibaba.fastjson.JSONObject;
 import com.jfinal.kit.Kv;
 import com.jfinal.kit.PathKit;
+import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.activerecord.Db;
-import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.Lambkit;
-import com.lambkit.common.util.PathUtils;
-import com.lambkit.common.util.StringUtils;
-import com.mapfinal.resource.shapefile.Shapefile;
+
+import com.lambkit.common.util.TimeUtils;
+import com.lambkit.db.mgr.util.MgrDb;
 import com.soli.lambkit.start.GeoServerConfig;
+import com.soli.server.model.Geolist;
 import com.soli.server.utils.CodePageUtils;
-import com.soli.server.utils.PublicShp;
-import com.soli.server.utils.TestShapeFile;
-import com.soli.server.utils.readShp;
+import com.soli.server.utils.MapServerConstants;
+import com.soli.server.utils.Public;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
-import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
-import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
-import org.apache.commons.compress.archivers.zip.ZipUtil;
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.geotools.data.FileDataStore;
-import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.DataStore;
+import org.geotools.data.FeatureSource;
+import org.geotools.data.FeatureWriter;
+import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.referencing.CRS;
+import org.geotools.resources.Classes;
+import org.opengis.feature.Feature;
+import org.opengis.feature.Property;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.jfinal.plugin.activerecord.Record;
 
 public class IssueShpUtils {
 
+    public static void main(String[] args) {
+        Kv kv = null;
+        try {
+            kv = uploadShp("/src/main/webapp/d/8d84a41d-7f43-463f-a2db-755d34f33847.zip");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(kv);
+    }
 
     public static Kv uploadShp(String filepath) throws Exception {
         System.out.println(filepath);
@@ -53,7 +67,7 @@ public class IssueShpUtils {
         System.out.println("file:" + file.getAbsolutePath());
         System.out.println(file.getName());
         if (file == null) {
-            return Kv.by("errorMsg", "找不到该文件").set("code", 400);
+            return Kv.by("msg", "找不到该文件").set("code", 400);
         }
         String name = file.getName().split("\\.")[0];
 
@@ -105,304 +119,373 @@ public class IssueShpUtils {
             }
         }
         if(shpPath==null){
-            return Kv.by("errorMsg", "上传压缩文件没有shp").set("code", 400);
+            return Kv.by("msg", "上传压缩文件没有shp").set("code", 400);
         }
         if(shxPath==null){
-            return Kv.by("errorMsg", "上传压缩文件没有shx").set("code", 400);
+            return Kv.by("msg", "上传压缩文件没有shx").set("code", 400);
         }
         if(dbfPath==null){
-            return Kv.by("errorMsg", "上传压缩文件没有dbf").set("code", 400);
+            return Kv.by("msg", "上传压缩文件没有dbf").set("code", 400);
         }
         if(prjPath==null){
-            return Kv.by("errorMsg", "上传压缩文件没有prj").set("code", 400);
+            return Kv.by("msg", "上传压缩文件没有prj").set("code", 400);
         }
-        String newZip = PathKit.getWebRootPath() + "/d/" + name + ".zip";
-//        ZipUtils.compress(s, newZip);
-        try {
-            com.atlas.server.utils.ZipUtils.compress(list,newZip,false);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
-        //if(config==null) return false;
-        String RESTURL = config.getGeourl();//http://localhost:8080/geoserver
-        String RESTUSER = config.getGeouser();//admin
-        String RESTPW = config.getGeopsw();//"Q7P0XFU$2YRQaq08";
+
+        String RESTURL = config.getGeourl();
+        String RESTUSER = config.getGeouser();
+        String RESTPW = config.getGeopsw();
+
+
 
         String workspace = "d";//jsus;
         System.out.println("RESTURL:" + RESTURL);
         GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
         GeoServerRESTReader geoServerRESTReader = new GeoServerRESTReader(RESTURL,RESTUSER,RESTPW);
         boolean b = false;
-        System.out.println("new zip:" + newZip);
 
         GeoServerRESTPublisher.UploadMethod method = GeoServerRESTPublisher.UploadMethod.EXTERNAL;
+
 
         String codePage = CodePageUtils.getCodePage(s+"/"+name+".dbf");
         System.out.println("codePage:"+codePage);
 
+        //发布到postgis数据库
+        //importShpToPG(s+"/"+name+".shp",name, MapServerConstants.TYPE_ADD,codePage,"");
+
         NameValuePair[] storeParams = new NameValuePair[1];
         storeParams[0] = new NameValuePair("charset", codePage);
-
-        URI shapeFile = new URI(String.format("file:%s", s));
-
+        String path = URLEncoder.encode(s,codePage);
+        URI shapeFile = new URI(String.format("file:%s", path));
         try {
             b = publisher.publishShp(workspace, name, storeParams, name, method, shapeFile, "EPSG:4326", "");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         if (b) {
-            Timestamp time = new Timestamp(System.currentTimeMillis());
-            String sql = "insert into tr_geolist (name,datatype,url,dt_time) values('" + name + "','shp','" + name + "','" + time + "')";
-            Db.update(sql);
-            return Kv.by("errorMsg", "发布成功").set("code", 200);
+            Geolist geolist=new Geolist();
+            geolist.setDatatype("shp");
+            geolist.setName(name);
+            geolist.setUrl("d:"+name);
+            geolist.setDtTime(new Date());
+            geolist.save();
+            return Kv.by("msg", "发布成功").set("code", 200);
         } else {
-            return Kv.by("errorMsg", "发布失败").set("code", 400);
+            return Kv.by("msg", "发布失败").set("code", 400);
         }
     }
 
-    /**
-     * @return com.jfinal.kit.Kv
-     * @Author queer
-     * @Description //TODO 自动发布shp到geoserver
-     * @Date 17:04 2019/11/30
-     * @Param [upfile]
-     **/
-    public static Kv uploadShpOld(String filepath) {
+    public static Kv uploadShpBySurface(String filepath,Integer id) throws Exception {
+        System.out.println(filepath);
         File file = new File(PathKit.getWebRootPath() + filepath);
-        Date date = new Date();
-        DateFormat df = new SimpleDateFormat("ddHHmmss");
-        String st = StringUtils.getRandString16();
-        //获取String类型的时间
-        String ss = df.format(date) + "y";
-        String filename = file.getName();
-        int dot = filename.lastIndexOf('.');
-        String f = filename.substring(0, dot);
-        System.out.println("filename：" + filename);
-        String delfilename = filename;
-        JSONObject json = new JSONObject();
-        if (filename != null && !filename.equals("")) {
-            //hz 代表上传文件的后缀名 如 zip,rar,xls等
-            String hz = filename.substring(filename.lastIndexOf(".") + 1).trim().toLowerCase();
-            filename = ss + st + "." + hz;
-            //filename=filename.substring(0, filename.lastIndexOf("."))+"."+filename.substring(filename.lastIndexOf("." ) + 1).trim().toLowerCase();
-            /**
-             * 新保存的位置
-             */
-            String path = PathKit.getWebRootPath();
-            String newPath = null;
-            if (!hz.equals("zip") && !hz.equals("xls") && !hz.equals("xlsx") && !hz.equals("csv")) {
-                File delFile = new File(path + "/upload/" + delfilename);
-                if (delFile.exists()) {
-                    delFile.delete();
+        System.out.println("file:" + file.getAbsolutePath());
+        System.out.println(file.getName());
+        if (file == null) {
+            return Kv.by("msg", "找不到该文件").set("code", 400);
+        }
+        String name = file.getName().split("\\.")[0];
+
+        //解压后文件夹
+        String s = PathKit.getWebRootPath() + "/d/" + name;
+        try {
+            com.atlas.server.utils.ZipUtils.decompress(file.getPath(), s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("s" + s);
+        File files = new File(s);
+        String shpPath = null;
+        String shxPath = null;
+        String dbfPath = null;
+        String prjPath = null;
+        String[] fileList = files.list();
+        List<String> list = new ArrayList<>();
+        for (String y : fileList) {
+            File file1 = new File(s + "/" + y);
+            System.out.println("file1:" + file1.getName());
+            if (file1.isFile()) {
+//                String s1 = file1.getName().split("\\.")[1];
+                String[] split = file1.getName().split("\\.");
+                StringBuffer sb = new StringBuffer();
+                for (int i = 1; i < split.length; i++) {
+                    System.out.println("saaa:"+split[i]);
+                    sb.append(split[i]).append(".");
                 }
-                return Kv.by("msg", "压缩包格式请改为zip格式,excel请改为xls,xlsx格式").set("code", 400);
-            }
-            if (!hz.equals("zip")) {
-                if (hz.equals("xls") || hz.equals("xlsx")) {
-                    newPath = "/upload/exc/" + ss + st + "/";
-                } else {
-                    newPath = "/upload/exc/";//自定义目录  用于存放图片,文件
+                String s1 = sb.toString().substring(0,sb.length()-1);
+                File file01 = new File(PathKit.getWebRootPath() + "/d/" + name + "/" + name + "." + s1);
+                System.out.println("file01:" + file01.getName());
+                file1.renameTo(file01);
+                String path = file01.getPath();
+                System.out.println("path"+path);
+                list.add(file01.getPath());
+                if("shp".equals(s1)){
+                    shpPath = file01.getPath();
                 }
-            } else {
-                newPath = "/upload/zip/";//自定义目录  用于存放压缩包
-            }
-            json.put("fileUrl", newPath + filename);
-            System.out.println(newPath + filename);
-            /**
-             * 没有则新建目录
-             */
-            File floder = new File(path + newPath);
-            if (!floder.exists()) {
-                floder.mkdirs();
-            }
-            /**
-             * 保存新文件
-             */
-            FileInputStream fis = null;
-            FileOutputStream fos = null;
-            try {
-                File savePath = new File(path + newPath + filename);
-                if (!savePath.isDirectory()) savePath.createNewFile();
-                fis = new FileInputStream(file);
-                fos = new FileOutputStream(savePath);
-                byte[] bt = new byte[300];
-                while (fis.read(bt, 0, 300) != -1) {
-                    fos.write(bt, 0, 300);
+                if("shx".equals(s1)){
+                    shxPath = file01.getPath();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (null != fis) fis.close();
-                    if (null != fos) fos.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if("dbf".equals(s1)){
+                    dbfPath = file01.getPath();
+                }
+                if("prj".equals(s1)){
+                    prjPath = file01.getPath();
                 }
             }
-            /*判断sheet名称，如果以数字开头则提示“Sheet名称不能以数字开头”
-             * 让用户修改sheet名称
-             */
-            if (hz.equals("xls")) {
-                FileInputStream readFile;
-                HSSFWorkbook wb;
-                try {
-                    readFile = new FileInputStream(new File(path + newPath + filename));
-                    wb = new HSSFWorkbook(readFile);
-                    HSSFSheet s = wb.getSheetAt(0);
-                    Pattern pattern = Pattern.compile("[0-9]*");
-                    String name = s.getSheetName();
-                    Matcher isNum = pattern.matcher(name.charAt(0) + "");
-                    if (isNum.matches()) {
-                        File ft = new File(path + newPath + filename);
-                        if (ft.exists()) {
-                            ft.delete();
-                        }
-                        File delFile = new File(path + "/upload/" + delfilename);
-                        if (delFile.exists()) {
-                            delFile.delete();
-                        }
-                        return Kv.by("msg", "Sheet名称不能以数字开头").set("code", 400);
-                    }
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                String str = newPath + filename;
-                Timestamp time = new Timestamp(System.currentTimeMillis());
-                String sql = "insert into kk_geolist (name,datatype,url,dt_time) values('" + f + "','" + hz + "','" + str + "','" + time + "')";
-                Db.update(sql);
-                /*判断sheet名称，如果以数字开头则提示“Sheet名称不能以数字开头”
-                 * 让用户修改sheet名称
-                 */
-            } else if (hz.equals("xlsx")) {
-                FileInputStream readFile;
-                XSSFWorkbook wb;
-                try {
-                    readFile = new FileInputStream(new File(path + newPath + filename));
-                    wb = new XSSFWorkbook(readFile);
-                    XSSFSheet s = wb.getSheetAt(0);
-                    Pattern pattern = Pattern.compile("[0-9]*");
-                    String name = s.getSheetName();
-                    Matcher isNum = pattern.matcher(name.charAt(0) + "");
-                    if (isNum.matches()) {
-                        File ft = new File(path + newPath + filename);
-                        if (ft.exists()) {
-                            ft.delete();
-                        }
-                        File delFile = new File(path + "/upload/" + delfilename);
-                        if (delFile.exists()) {
-                            delFile.delete();
-                        }
-                        return Kv.by("msg", "Sheet名称不能以数字开头").set("code", 400);
-                    }
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                String str = newPath + filename;
-                Timestamp time = new Timestamp(System.currentTimeMillis());
-                String sql = "insert into kk_geolist (name,datatype,url,dt_time) values('" + f + "','" + hz + "','" + str + "','" + time + "')";
-                Db.update(sql);
-            } else if (hz.equals("zip")) {
-                String str = newPath + filename;
-                PublicShp geoService = new PublicShp();
-                TestShapeFile shp = new TestShapeFile();
-                try {
-                    com.atlas.server.utils.ZipUtils.decompress(path + newPath + filename);
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                File files = new File(path + newPath);
-                System.out.println("路径为" + files.getAbsolutePath());
-                File temp = null;
-                String[] fileList = files.list();
-                System.out.println("压缩包的文件数量为:" + fileList.length);
-                if (fileList.length < 1) {
-                    Map<String, String> map = new HashMap<String, String>();
-                    File delFile = new File(path + "/upload/" + delfilename);
-                    if (delFile.exists()) {
-                        delFile.delete();
-                    }
-                    for (String y : fileList) {
-                        temp = new File(path + newPath + y);
-                        if (temp.isFile()) {
-                            temp.delete();
-                        }
-                    }
-                    return Kv.by("msg", "压缩包里面的文件缺失").set("code", 400);
-                }
-                Timestamp time = new Timestamp(System.currentTimeMillis());
-                String sql = "insert into kk_geolist (name,datatype,url,dt_time) values('" + f + "','shp','" + str + "','" + time + "')";
-                Db.update(sql);
-                String sqle = "select id from kk_geolist where url='" + str + "'";
-                Record m = Db.findFirst(sqle);
-                int dots = filename.lastIndexOf('.');
-                String fer = filename.substring(0, dots);
-                String fileSeperator = File.separator;//自动区分系统斜杠
-                String jsus = "jsus";
-                System.out.println("文件路啊啊啊啊啊啊啊：" + path + fileSeperator + jsus + fileSeperator + jsus + fileSeperator + fer + "/");
-                String shpfile = shp.unZip(new File(path + newPath + filename), path + fileSeperator + jsus + fileSeperator + jsus + fileSeperator + fer + "/");
-                readShp rs = new readShp();
-                String checktype = rs.checktype("jsus:" + fer);
-                String sld;
-                if (checktype.equals("Polygon")) {
-                    sld = "polygon";
-                } else if (checktype.equals("Point")) {
-                    sld = "point";
-                } else {
-                    sld = "line";
-                }
-                System.out.println("sld：" + sld);
-                boolean flag = geoService.publishPg(fer, fer, fer, m.get("id"), "EPSG:4326", sld);
-                System.out.println(flag + "发布状态");
-                if (!flag) {
-                    for (String y : fileList) {
-                        temp = new File(path + newPath + y);
-                        if (temp.isFile()) {
-                            temp.delete();
-                        }
-                    }
-                    File delFile = new File(path + "/upload/" + delfilename);
-                    if (delFile.exists()) {
-                        delFile.delete();
-                    }
-                    String sqld = "delete from kk_geolist where id='" + m.get("id") + "'";
-                    Db.update(sqld);
-                    String shppath = new File(shpfile).getParent();
-                    System.out.println(shppath);
-                    try {
-                        PathUtils.deleteDirectory(new File(shppath));
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    return Kv.by("msg", "发布失败").set("code", 400);
-                }
-                for (String y : fileList) {
-                    temp = new File(path + newPath + y);
-                    if (temp.isFile()) {
-                        temp.delete();
-                    }
-                }
-            } else {
-                String str = newPath + filename;
-                Timestamp time = new Timestamp(System.currentTimeMillis());
-                String sql = "insert into kk_geolist (name,datatype,url,dt_time) values('" + f + "','" + hz + "','" + str + "','" + time + "')";
-                int update = Db.update(sql);
-            }
-            /**
-             * 删除原压缩包，JFinal默认上传文件路径为 /upload（自动创建）
-             */
-            File delFile = new File(path + "/upload/" + delfilename);
-            if (delFile.exists()) {
-                delFile.delete();
-            }
+        }
+        if(shpPath==null){
+            return Kv.by("msg", "上传压缩文件没有shp").set("code", 400);
+        }
+        if(shxPath==null){
+            return Kv.by("msg", "上传压缩文件没有shx").set("code", 400);
+        }
+        if(dbfPath==null){
+            return Kv.by("msg", "上传压缩文件没有dbf").set("code", 400);
+        }
+        if(prjPath==null){
+            return Kv.by("msg", "上传压缩文件没有prj").set("code", 400);
+        }
+
+        GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
+
+        String RESTURL = config.getGeourl();
+        String RESTUSER = config.getGeouser();
+        String RESTPW = config.getGeopsw();
+
+
+
+        String workspace = "d";//jsus;
+        System.out.println("RESTURL:" + RESTURL);
+        GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
+        GeoServerRESTReader geoServerRESTReader = new GeoServerRESTReader(RESTURL,RESTUSER,RESTPW);
+
+
+        GeoServerRESTPublisher.UploadMethod method = GeoServerRESTPublisher.UploadMethod.EXTERNAL;
+
+
+        String codePage = CodePageUtils.getCodePage(s+"/"+name+".dbf");
+        System.out.println("codePage:"+codePage);
+
+        //发布到postgis数据库
+        importShpToPG(s+"/"+name+".shp",name,MapServerConstants.TYPE_ADD,codePage,"");
+
+        //修改完字段发布表
+        boolean b= Public.publishPg(name,name,name,id,"EPSG:4326","polygon");
+        if (b) {
             return Kv.by("msg", "发布成功").set("code", 200);
         } else {
-            return Kv.by("msg", "找不到文件").set("code", 400);
+            return Kv.by("msg", "发布失败").set("code", 400);
         }
+    }
+
+
+
+
+
+    public static void importShpToPG(String shpfile, String tbname, int updateType, String charsetName, String where) throws IOException {
+        ShapefileDataStore shpDataStore = null;
+        TimeUtils.startTime("read Shp feature");
+        try{
+            File file = new File(shpfile);
+            if(!file.exists()) {
+                return;
+            }
+            if(updateType==MapServerConstants.TYPE_ADD) {
+                //新增表格
+            } else if(updateType==MapServerConstants.UPDATE_TYPE_COVER) {
+                //覆盖更新
+                Db.update("delete from " + tbname);
+            } else if(updateType==MapServerConstants.UPDATE_TYPE_ADD) {
+                //增量更新
+            } else if(updateType==MapServerConstants.UPDATE_TYPE_FILTER && StrKit.notBlank(where)) {
+                //要素更新
+                Db.update("delete from " + tbname + " where " + where);
+            } else {
+                return;
+            }
+            shpDataStore = new ShapefileDataStore(file.toURI().toURL());
+            //设置字符编码
+            Charset charset = Charset.forName(charsetName);
+            shpDataStore.setCharset(charset);
+            String typeName = shpDataStore.getTypeNames()[0];
+            System.out.println("name: " + typeName);
+            tbname = StrKit.notBlank(tbname) ? tbname : typeName;
+            SimpleFeatureType schema = shpDataStore.getSchema(typeName);
+            CoordinateReferenceSystem srs = schema.getCoordinateReferenceSystem();
+            System.out.println(srs.toWKT());
+            Integer epsg = CRS.lookupEpsgCode(srs, true);
+            if(epsg==null) {
+                epsg = 4326;
+            }
+            String wkid=""+epsg;
+            System.out.println("wkid:"+wkid);
+
+            SimpleFeatureSource featureSource = null;
+            featureSource =  shpDataStore.getFeatureSource(typeName);
+            SimpleFeatureCollection result = featureSource.getFeatures();
+            System.out.println("feature size: " + result.size());
+            SimpleFeatureIterator itertor = result.features();
+
+            StringBuilder insertSql = new StringBuilder();
+            StringBuilder createSql = new StringBuilder();
+            createSql.append("DROP TABLE IF EXISTS \"public\".\"").append(tbname).append("\";");
+            createSql.append("CREATE TABLE \"public\".\"").append(tbname).append("\" (");
+            createSql.append("\"gid\" int4 not null,");
+            int count=0;//记录总插入数量
+            int sqlcount=0;//记录一次批量插入时的插入个数
+            int commitcount=10;//记录一次批量插入的上限数
+            while (itertor.hasNext())
+            {
+                SimpleFeature feature = itertor.next();
+                Collection<Property> p = feature.getProperties();
+                Iterator<Property> it = p.iterator();
+
+                String geometry = "";
+                if(sqlcount==0) {
+                    insertSql.delete(0, insertSql.length());
+                    insertSql.append("BEGIN;");
+                }
+                sqlcount++;
+                String id = feature.getID();
+                insertSql.append("insert into \"").append(tbname).append("\" values (").append(Integer.parseInt(id.replace(typeName + ".", ""))).append(",");
+                //FeatureId fid = feature.getIdentifier();
+                while(it.hasNext()) {
+                    Property pro = it.next();
+                    /*if(pro.getValue() instanceof Point) {
+                    	geometry = "st_geomfromtext('"+((Point)pro.getValue()).toString()+"'";
+                    	geometry += epsg==null ? ")" : ","+wkid+")";
+                    } else if(pro.getValue() instanceof Polygon) {
+                    	geometry = "st_geomfromtext('"+((Polygon)pro.getValue()).toString()+"'";
+                    	geometry += epsg==null ? ")" : ","+wkid+")";
+                    } else if(pro.getValue() instanceof MultiPolygon) {
+                    	geometry = "st_geomfromtext('"+((MultiPolygon)pro.getValue()).toString()+"'";
+                    	geometry += epsg==null ? ")" : ","+wkid+")";
+                    } else if(pro.getValue() instanceof LineString) {
+                    	geometry = "st_geomfromtext('"+((LineString)pro.getValue()).toString()+"'";
+                    	geometry += epsg==null ? ")" : ","+wkid+")";*/
+                    if(pro.getValue() instanceof Point) {
+                        geometry = "st_geomfromtext('"+ pro.getValue().toString()+"'";
+                        geometry += epsg==null ? ")" : ","+wkid+")";
+                    } else if(pro.getValue() instanceof Polygon) {
+                        geometry = "st_geomfromtext('"+pro.getValue().toString()+"'";
+                        geometry += epsg==null ? ")" : ","+wkid+")";
+                    } else if(pro.getValue() instanceof MultiPolygon) {
+                        geometry = "st_geomfromtext('"+pro.getValue().toString()+"'";
+                        geometry += epsg==null ? ")" : ","+wkid+")";
+                    } else if(pro.getValue() instanceof LineString) {
+                        geometry = "st_geomfromtext('"+pro.getValue().toString()+"'";
+                        geometry += epsg==null ? ")" : ","+wkid+")";
+                    } else {
+                        String type = Classes.getShortName(pro.getType().getBinding());
+                        if(type.equals("String")) {
+                            if(count==0) {
+                                createSql.append("\"").append(pro.getName()).append("\" varchar(250) COLLATE \"default\",");
+                            }
+                            if(pro.getValue()==null) {
+                                insertSql.append("null,");
+                            } else {
+                                insertSql.append("'").append(pro.getValue().toString().replace("'", "\"")).append("',");
+                            }
+
+                        } else if(type.equals("Double")) {
+                            if(count==0) {
+                                createSql.append("\"").append(pro.getName()).append("\" float4,");
+                            }
+                            insertSql.append(pro.getValue()).append(",");
+                        } else if(type.equals("Float")) {
+                            if(count==0) {
+                                createSql.append("\"").append(pro.getName()).append("\" float4,");
+                            }
+                            insertSql.append(pro.getValue()).append(",");
+                        } else if(type.equals("Integer")) {
+                            if(count==0) {
+                                createSql.append("\"").append(pro.getName()).append("\" int4,");
+                            }
+                            insertSql.append(pro.getValue()).append(",");
+                        } else {
+                            if(count==0) {
+                                createSql.append("\"").append(pro.getName()).append("\" varchar(250) COLLATE \"default\",");
+                            }
+                            insertSql.append("'").append(pro.getValue()).append("',");
+                        }
+                    }
+                }
+                insertSql.append(geometry).append(");");
+                if(count==0) {
+                    createSql.append("\"geom\" public.geometry, PRIMARY KEY (\"gid\")) WITH (OIDS=FALSE);");
+                    //System.out.println("createSql: "+ createSql.toString());
+                    //执行createSql
+                    if(updateType==MapServerConstants.TYPE_ADD) {
+                        MgrDb.use().execute(createSql.toString());
+                    }
+                }
+                if(sqlcount==commitcount) {
+                    insertSql.append(" COMMIT;");
+                    //System.out.println("insertSql: "+ insertSql.toString());
+                    //执行insertSql
+                    MgrDb.use().execute(insertSql.toString());
+                    sqlcount=0;
+                }
+                count++;
+            }
+            if(sqlcount!=0) {
+                insertSql.append(" COMMIT;");
+                //System.out.println("insertSql: "+ insertSql.toString());
+                //执行insertSql
+                MgrDb.use().execute(insertSql.toString());
+            }
+            itertor.close();
+            TimeUtils.endTime("read Shp feature");
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    public static Map<Integer, Object> ji(String name) {
+        List<Record> records=Db.find("select * from zjk");
+        List<Map<String, Object>> mapList_name = new ArrayList<>();
+
+        for (Record result_name:records){
+            List<Record> list_geom = Db.find("SELECT st_area(ST_Intersection(geom,?))/st_area(geom) as number ,gid FROM \"" + name + "\" WHERE ST_Intersects(geom,?) and ST_IsValid(geom)", result_name.getStr("geom"), result_name.getStr("geom"));
+
+            for (Record record : list_geom) {
+                if (record != null) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("gid", record.getInt("gid"));
+                    map.put("number", record.getDouble("number"));
+                    map.put("name", result_name.getStr("name"));
+                    mapList_name.add(map);
+                }
+            }
+        }
+
+
+        //方法一
+        Map<Integer, JSONObject> result = new HashMap<Integer, JSONObject>();
+        Map<Integer, Object> order = new HashMap<Integer, Object>();
+        for (Map<String, Object> map : mapList_name) {
+            Integer id = (Integer) map.get("gid");
+            String value = map.get("name").toString();
+            Double number = (Double) map.get("number");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("name", value);
+            jsonObject.put("number", number);
+            if (result.containsKey(id)) {
+                System.out.println("result" + result.get(id).getDouble("number") + "id:" + id);
+                System.out.println("map" + map.get("name") + "id:" + id);
+                System.out.println(number);
+                if (result.get(id).getDouble("number") > number) {
+                    order.put(id, value);
+                } else {
+                    order.put(id, result.get(id).getString("name"));
+                }
+            }
+            result.put(id, jsonObject);
+        }
+
+
+        return order;
+
+
     }
 
 }
