@@ -15,6 +15,7 @@ import com.lambkit.web.controller.LambkitController;
 import com.orbitz.okhttp3.OkHttpClient;
 import com.orbitz.okhttp3.Request;
 import com.orbitz.okhttp3.Response;
+import com.soli.server.model.Geolist;
 import com.soli.server.utils.Co;
 import com.soli.server.utils.IssueShpUtils;
 
@@ -198,7 +199,11 @@ public class WeatherController extends LambkitController {
 
     }
 
-    public void index() {
-        renderText("Hello,土壤");
+    public void getShp() {
+        List<Geolist> geolist=Geolist.service().dao().findAll();
+
+        renderJson(Co.ok("data", Ret.ok("geolist",geolist)));
+
     }
 }
+
