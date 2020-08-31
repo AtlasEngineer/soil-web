@@ -15,6 +15,7 @@ import com.lambkit.module.upms.server.UpmsModule;
 import com.lambkit.plugin.jwt.JwtTokenPlugin;
 import com.lambkit.web.websocket.WebSocketHandler;
 import com.soli.lambkit.interceptor.GlobalActionHandler;
+import com.soli.lambkit.interceptor.UnknownSessionInterceptor;
 import com.soli.server.MschModule;
 import com.soli.server.route.ApiRoute;
 
@@ -40,7 +41,7 @@ public class SoilConfig extends LambkitApplicationContext {
             public void configInterceptor(Interceptors me) {
                 super.configInterceptor(me);
 //				ApiInterceptorManager.me().addGlobalServiceInterceptor(new TokenInterceptor());
-                ApiInterceptorManager.me().addGlobalServiceInterceptor(new ApiJwtAuthInterceptor());
+                ApiInterceptorManager.me().addGlobalServiceInterceptor(new UnknownSessionInterceptor());
 //				me.add(new GlobalActionInterceptor());
             }
 

@@ -32,6 +32,7 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.DefaultSessionKey;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DefaultSubjectContext;
+import org.bouncycastle.util.Integers;
 
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -85,7 +86,7 @@ public class UserController extends LambkitController {
                 sql = sql.substring(0,sql.length()-1);
                 int update = Db.use("upms").update("UPDATE upms_user SET del = '1' WHERE user_id in (" + sql + ")");
                 if (update > 0 ){
-                    renderJson(Co.ok("data",  Ret.ok("msg", "修改成功")));
+                    renderJson(Co.ok("data",  Ret.ok("msg", "删除成功")));
                     return;
                 }else {
                     renderJson(Co.ok("data", Ret.fail("errorMsg", "删除失败")));
@@ -112,10 +113,10 @@ public class UserController extends LambkitController {
         String username = getPara("username");
         String password = getPara("password");
         Boolean isRemember = getParaToBoolean("isRemember",false);
-        if (!validateCaptcha("captcha")) {
-            renderJson(Co.ok("data", Ret.fail("errorMsg", "验证码错误")));
-            return;
-        }
+//        if (!validateCaptcha("captcha")) {
+//            renderJson(Co.ok("data", Ret.fail("errorMsg", "验证码错误")));
+//            return;
+//        }
         //校验
         if (StringUtils.isBlank(username)) {
             renderJson(Co.ok("data", Ret.fail("errorMsg", "请填写用户名")));
@@ -257,6 +258,7 @@ public class UserController extends LambkitController {
     /**
      *  获取除当前用户用户列表
      */
+    @Clear()
     public void getUserList(){
         // 获取当前登陆对象
         String serverSessionId = this.getRequest().getHeader("Authorization");;
@@ -276,15 +278,38 @@ public class UserController extends LambkitController {
             String name = getPara("username");
             String roleId = getPara("roleId");
             String time = getPara("time");
+            String realname = getPara("realname");
+            String phone = getPara("phone");
+            String status = getPara("status");
 
 
-            String sqlSel = "SELECT c.identity,a.del,a.realname,a.phone,a.workaddress,a.workunit,a.create_time as creatime,a.status,a.username,a.user_id ";
+            String sqlSel = "SELECT c.identity,a.del,a.realname,a.phone,a.workaddress,a.workunit,a.create_time as creatime,a.status,a.username,a.user_id,a.locked ";
             String sqlFrom = "FROM upms_user a " +
                     " LEFT JOIN upms_user_role b  ON a.user_id = b.user_id " +
                     " LEFT JOIN  upms_role c ON b.role_id = c.role_id " +
                     " WHERE a.del = '0' AND a.username != '"+ username +"' AND a.username != 'admin' ";
             if (!"admin".equals(username)){
                 sqlFrom += " AND b.role_id = '4' ";
+            }
+
+            /**
+             *  姓名
+             */
+            if (StringUtils.isNotBlank(realname)){
+                sqlFrom += " AND a.realname like '%" + realname + "%' ";
+            }
+            /**
+             *  手机号
+             */
+            if (StringUtils.isNotBlank(phone)){
+                sqlFrom += " AND a.phone = '" + phone + "' ";
+            }
+
+            /**
+             *  角色状态
+             */
+            if (StringUtils.isNotBlank(status)){
+                sqlFrom += " AND a.status = " + status + " ";
             }
 
             /**
@@ -442,6 +467,7 @@ public class UserController extends LambkitController {
         return flag;
     }
 
+    @Clear()
     @ApiOperation(url = "/user/audit", tag = "/user", httpMethod = "get", description = "审核用户")
     public void audit() {
         // 获取当前登陆对象
@@ -449,6 +475,7 @@ public class UserController extends LambkitController {
         String code = UpmsManager.me().getCache().getSession(serverSessionId);
         Integer id = getParaToInt("id");
         Integer status = getParaToInt("status");//0审核通过，1待审核，2审核未通过
+        Integer locked = getParaToInt("locked");
         String username = null ;
         if (!StringUtils.isNotBlank(code)) {
             System.out.println("无效访问unlogin");
@@ -479,8 +506,12 @@ public class UserController extends LambkitController {
             renderJson(Co.ok("data",Ret.fail("errorMsg", "您你没有权限审核用户")));
             return;
         }
-        userById.setLocked(status);
-        userById.set("status",0);
+        if (locked != null ){
+            userById.setLocked(locked);
+        }
+        if (status != null){
+            userById.set("status",status);
+        }
         boolean update = userById.update();
         if (update) {
             renderJson(Co.ok("data",Ret.ok("data", "审核成功")));
