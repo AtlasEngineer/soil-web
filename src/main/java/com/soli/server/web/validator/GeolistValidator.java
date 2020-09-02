@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.soli.server;
+package com.soli.server.web.validator;
 
-import com.lambkit.core.config.annotation.PropertieConfig;
+import com.jfinal.core.Controller;
+import com.lambkit.web.validator.LambkitValidator;
+
+import com.soli.server.model.Geolist;
 
 /**
  * @author yangyong 
@@ -25,35 +28,15 @@ import com.lambkit.core.config.annotation.PropertieConfig;
  * @version 1.0
  * @since 1.0
  */
-@PropertieConfig(prefix="lambkit.msch")
-public class MschConfig {
+public class GeolistValidator extends LambkitValidator {
 
-	private String serverType = "server";
-	private String version = "1.0";
-	private String dbconfig;
-
-	public String getServerType() {
-		return serverType;
-	}
-
-	public void setServerType(String serverType) {
-		this.serverType = serverType;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
+	@Override
+	protected String getTableName(Controller c) {
+		return Geolist.service().getTableName();
 	}
 	
-	public String getDbconfig() {
-		return dbconfig;
+	@Override
+	protected String getPrefix() {
+		return "model";//StrKit.firstCharToLowerCase(Geolist.class.getSimpleName());
 	}
-
-	public void setDbconfig(String dbconfig) {
-		this.dbconfig = dbconfig;
-	}
-	
 }

@@ -18,88 +18,94 @@ package com.soli.server;
 import com.jfinal.config.Routes;
 import com.jfinal.kit.StrKit;
 import com.lambkit.Lambkit;
+import com.lambkit.common.service.ServiceManager;
 import com.lambkit.core.rpc.RpcConfig;
 import com.lambkit.db.datasource.ActiveRecordPluginWrapper;
 import com.lambkit.module.LambkitModule;
 
-import com.atlas.server.MschConfig;
+import com.soli.server.MschConfig;
+import com.soli.server.model.Geolist;
+import com.soli.server.service.GeolistService;
+import com.soli.server.service.impl.GeolistServiceImpl;
+import com.soli.server.service.impl.GeolistServiceMock;
+import com.soli.server.web.tag.GeolistMarker;
 
 /**
- * @author yangyong
- * @version 1.0
+ * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-08-17
+ * @date 2020-08-28
+ * @version 1.0
  * @since 1.0
  */
-public class MschModule extends LambkitModule {
+public class MschModule extends LambkitModule  {
 
-    @Override
-    public void configMapping(ActiveRecordPluginWrapper arp) {
-        if (StrKit.isBlank(getConfig().getDbconfig())) {
-            mapping(arp);
-        }
-    }
+	@Override
+	public void configMapping(ActiveRecordPluginWrapper arp) {
+		if(StrKit.isBlank(getConfig().getDbconfig())) {
+			mapping(arp);
+		}
+	}
 
-    @Override
-    public void configMapping(String name, ActiveRecordPluginWrapper arp) {
-        super.configMapping(name, arp);
-        if (StrKit.notBlank(name) && name.equals(getConfig().getDbconfig())) {
-            mapping(arp);
-        }
-    }
+	@Override
+	public void configMapping(String name, ActiveRecordPluginWrapper arp) {
+		super.configMapping(name, arp);
+		if(StrKit.notBlank(name) && name.equals(getConfig().getDbconfig())) {
+			mapping(arp);
+		}
+	}
 
-    @Override
-    public void configRoute(Routes me) {
-        // TODO Auto-generated method stub
-    }
+	@Override
+	public void configRoute(Routes me) {
+		// TODO Auto-generated method stub
+	}
 
-    @Override
-    public void onStart() {
-        // TODO Auto-generated method stub
-        addTag(this);
-        if ("server".equals(getConfig().getServerType())) {
-            registerLocalService();
-        } else if ("client".equals(getConfig().getServerType())) {
-            registerRemoteService();
-        }
-    }
+	@Override
+	public void onStart() {
+		// TODO Auto-generated method stub
+		addTag(this);
+		if("server".equals(getConfig().getServerType())) {
+			registerLocalService();
+		} else if("client".equals(getConfig().getServerType())) {
+			registerRemoteService();
+		}
+	}
 
-    public void mapping(ActiveRecordPluginWrapper arp) {
-    }
+	public void mapping(ActiveRecordPluginWrapper arp) {
+		arp.addMapping("tr_geolist", "id", Geolist.class);
+	}
 
-    public void addTag(LambkitModule lk) {
+	public void addTag(LambkitModule lk) {
+		lk.addTag("geolist", new GeolistMarker());
+	}
 
-    }
+	public void registerLocalService() {
+		registerLocalService(getRpcGroup(), getRpcVersion(), getRpcPort());
+	}
 
-    public void registerLocalService() {
-        registerLocalService(getRpcGroup(), getRpcVersion(), getRpcPort());
-    }
+	public void registerLocalService(String group, String version, int port) {
+		ServiceManager.me().mapping(GeolistService.class, GeolistServiceImpl.class, GeolistServiceMock.class, group, version, port);
+	}
 
-    public void registerLocalService(String group, String version, int port) {
-    }
+	public void registerRemoteService() {
+		registerRemoteService(getRpcGroup(), getRpcVersion(), getRpcPort());
+	}
 
-    public void registerRemoteService() {
-        registerRemoteService(getRpcGroup(), getRpcVersion(), getRpcPort());
-    }
+	public void registerRemoteService(String group, String version, int port) {
+		ServiceManager.me().remote(GeolistService.class, GeolistServiceMock.class, group, version, port);
+	}
 
-    public void registerRemoteService(String group, String version, int port) {
-    }
-
-    public int getRpcPort() {
-        return Lambkit.config(RpcConfig.class).getDefaultPort();
-    }
-
-    public String getRpcGroup() {
-        return Lambkit.config(RpcConfig.class).getDefaultGroup();
-    }
-
-    public String getRpcVersion() {
-        return getConfig().getVersion();
-    }
-
-    public MschConfig getConfig() {
-        return Lambkit.config(MschConfig.class);
-    }
+	public int getRpcPort() {
+		return Lambkit.config(RpcConfig.class).getDefaultPort();
+	}
+	public String getRpcGroup() {
+		return Lambkit.config(RpcConfig.class).getDefaultGroup();
+	}
+	public String getRpcVersion() {
+		return getConfig().getVersion();
+	}
+	public MschConfig getConfig() {
+		return Lambkit.config(MschConfig.class);
+	}
 }
 
