@@ -16,4 +16,20 @@ public class DirectoryServiceMock extends LambkitModelServiceImpl implements Dir
     public Ret getDirectoryList(String name, Integer lever) {
         return null;
     }
+
+    @Override
+    public Ret getSubDirectoriesList(String name, Integer parentId) {
+        return null;
+    }
+
+    @Override
+    public Ret addDirectories(String name, Integer parentId, Integer level) {
+        return null;
+    }
+
+    @Override
+    public Ret delDirectories(Integer id) {
+        return null;
+    }
+
 }
