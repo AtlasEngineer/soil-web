@@ -11,9 +11,8 @@ public class QueryShapeServiceMock extends LambkitModelServiceImpl implements Qu
         return null;
     }
 
-
     @Override
-    public Ret getDirectoryList(String name, Integer lever) {
+    public Ret getPoint(Integer id, Double lon, Double lat) {
         return null;
     }
 }

@@ -9,7 +9,7 @@ import com.lambkit.core.api.route.ApiRenderJFinalJson;
 public interface QueryShapeService extends LambkitService {
 
     @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "queryShp.getDirectoryList",useLogin = false)
-    public Ret getDirectoryList(String name, Integer lever);
+    @ApiMapping(value = "queryShp.point",useLogin = false)
+    public Ret getPoint(Integer id,Double lon ,Double lat);
 
 }
