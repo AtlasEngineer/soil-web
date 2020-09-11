@@ -1,4 +1,4 @@
-package com.atlas.server.utils;
+package com.soli.server.utils;
 
 import com.lambkit.common.util.StringUtils;
 import org.apache.commons.codec.binary.Base64;
