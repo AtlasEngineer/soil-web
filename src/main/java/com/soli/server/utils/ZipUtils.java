@@ -1,7 +1,7 @@
 /**
  * 2010-4-12
  */
-package com.atlas.server.utils;
+package com.soli.server.utils;
 
 import com.alibaba.druid.util.StringUtils;
 import org.apache.commons.io.FileUtils;

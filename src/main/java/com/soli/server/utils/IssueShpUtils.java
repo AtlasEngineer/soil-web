@@ -74,7 +74,7 @@ public class IssueShpUtils {
         //解压后文件夹
         String s = PathKit.getWebRootPath() + "/d/" + name;
         try {
-            com.atlas.server.utils.ZipUtils.decompress(file.getPath(), s);
+            ZipUtils.decompress(file.getPath(), s);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -189,7 +189,7 @@ public class IssueShpUtils {
         //解压后文件夹
         String s = PathKit.getWebRootPath() + "/d/" + name;
         try {
-            com.atlas.server.utils.ZipUtils.decompress(file.getPath(), s);
+            ZipUtils.decompress(file.getPath(), s);
         } catch (Exception e) {
             e.printStackTrace();
         }
