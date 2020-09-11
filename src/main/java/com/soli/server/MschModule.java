@@ -25,7 +25,10 @@ import com.lambkit.module.LambkitModule;
 
 import com.soli.server.MschConfig;
 import com.soli.server.model.Geolist;
+import com.soli.server.service.DirectoryService;
 import com.soli.server.service.GeolistService;
+import com.soli.server.service.impl.DirectoryServiceImpl;
+import com.soli.server.service.impl.DirectoryServiceMock;
 import com.soli.server.service.impl.GeolistServiceImpl;
 import com.soli.server.service.impl.GeolistServiceMock;
 import com.soli.server.web.tag.GeolistMarker;
@@ -85,6 +88,7 @@ public class MschModule extends LambkitModule  {
 
 	public void registerLocalService(String group, String version, int port) {
 		ServiceManager.me().mapping(GeolistService.class, GeolistServiceImpl.class, GeolistServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(DirectoryService.class, DirectoryServiceImpl.class, DirectoryServiceMock.class, group, version, port);
 	}
 
 	public void registerRemoteService() {
@@ -93,6 +97,7 @@ public class MschModule extends LambkitModule  {
 
 	public void registerRemoteService(String group, String version, int port) {
 		ServiceManager.me().remote(GeolistService.class, GeolistServiceMock.class, group, version, port);
+		ServiceManager.me().remote(DirectoryService.class, DirectoryServiceMock.class, group, version, port);
 	}
 
 	public int getRpcPort() {
