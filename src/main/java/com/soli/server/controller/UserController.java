@@ -113,10 +113,8 @@ public class UserController extends LambkitController {
         String username = getPara("username");
         String password = getPara("password");
         Boolean isRemember = getParaToBoolean("isRemember",false);
-//        if (!validateCaptcha("captcha")) {
-//            renderJson(Co.ok("data", Ret.fail("errorMsg", "验证码错误")));
-//            return;
-//        }
+
+
         //校验
         if (StringUtils.isBlank(username)) {
             renderJson(Co.ok("data", Ret.fail("errorMsg", "请填写用户名")));
@@ -149,44 +147,11 @@ public class UserController extends LambkitController {
             }else if (upmsUser.getLocked() == 1){
                 renderJson(Co.ok("data",Ret.fail("errorMsg","账号正在审核中")));
                 return;
-            }
-                else {
-                List<UpmsUserRole> userRole = UpmsUserRole.service().dao().find(UpmsUserRole.sql().andUserIdEqualTo(upmsUser.getUserId()).example());
-                ArrayList<Integer> roles = new ArrayList<>();
-                //获取权限集合
-                List<String> perlist = new ArrayList<>();
-                List<String> urilist = new ArrayList<>();
-                for (UpmsUserRole upmsUserRole : userRole) {
-                    roles.add(upmsUserRole.getRoleId());
-                    List<UpmsRolePermission> upmsRolePermissions = UpmsRolePermission.service().dao().find(UpmsRolePermission.sql().andRoleIdEqualTo(Long.valueOf(upmsUserRole.getRoleId())).example());
-                    for (UpmsRolePermission urp : upmsRolePermissions) {
-                        UpmsPermission per = UpmsPermission.service().dao().findById(urp.getPermissionId());
-                        if (per == null) {
-                            continue;
-                        }
-                        if (per.getSystemId() == 6) {
-                            perlist.add(per.getPermissionValue());
-                            if (StringUtils.isNotBlank(per.getUri()) && !urilist.contains(per.getUri())) {
-                                urilist.add(per.getUri());
-                            }
-                        }
-                    }
-                    List<UpmsUserPermission> upmsUserPermissions = UpmsUserPermission.service().dao().find(UpmsUserPermission.sql().andUserIdEqualTo(upmsUser.getUserId()).example());
-                    for (UpmsUserPermission uup : upmsUserPermissions) {
-                        UpmsPermission per = UpmsPermission.service().dao().findById(uup.getPermissionId());
-                        if (per == null) {
-                            continue;
-                        }
-                        if (per.getSystemId() == 6) {
-                            perlist.add(per.getPermissionValue());
-                            if (StringUtils.isNotBlank(per.getUri()) && !urilist.contains(per.getUri())) {
-                                urilist.add(per.getUri());
-                            }
-                        }
-                    }
-                }
-                perlist = removeNull(perlist);
-                renderJson(Co.ok("data", Ret.ok("sessionId",login.getData()).set("userMsg", upmsUser.put("role_id", roles)).set("perlist", perlist).set("urilist", urilist)));
+            } else {
+
+                //renderJson(Co.ok("data", Ret.ok("sessionId",login.getData()).set("userMsg", upmsUser.put("role_id", roles)).set("perlist", perlist).set("urilist", urilist)));
+                renderJson(Co.ok("data", Ret.ok("sessionId",login.getData())));
+
                 return;
                  }
         }else {
@@ -226,12 +191,48 @@ public class UserController extends LambkitController {
             renderJson(Co.ok("data", Ret.fail("errorMsg", "当前登录用户异常")));
             return;
         }
+
+        List<UpmsUserRole> userRoles = UpmsUserRole.service().dao().find(UpmsUserRole.sql().andUserIdEqualTo(upmsUser.getUserId()).example());
+        ArrayList<Integer> roles = new ArrayList<>();
+        //获取权限集合
+        List<String> perlist = new ArrayList<>();
+        List<String> urilist = new ArrayList<>();
+        for (UpmsUserRole upmsUserRole : userRoles) {
+            roles.add(upmsUserRole.getRoleId());
+            List<UpmsRolePermission> upmsRolePermissions = UpmsRolePermission.service().dao().find(UpmsRolePermission.sql().andRoleIdEqualTo(Long.valueOf(upmsUserRole.getRoleId())).example());
+            for (UpmsRolePermission urp : upmsRolePermissions) {
+                UpmsPermission per = UpmsPermission.service().dao().findById(urp.getPermissionId());
+                if (per == null) {
+                    continue;
+                }
+                if (per.getSystemId() == 6) {
+                    perlist.add(per.getPermissionValue());
+                    if (StringUtils.isNotBlank(per.getUri()) && !urilist.contains(per.getUri())) {
+                        urilist.add(per.getUri());
+                    }
+                }
+            }
+            List<UpmsUserPermission> upmsUserPermissions = UpmsUserPermission.service().dao().find(UpmsUserPermission.sql().andUserIdEqualTo(upmsUser.getUserId()).example());
+            for (UpmsUserPermission uup : upmsUserPermissions) {
+                UpmsPermission per = UpmsPermission.service().dao().findById(uup.getPermissionId());
+                if (per == null) {
+                    continue;
+                }
+                if (per.getSystemId() == 6) {
+                    perlist.add(per.getPermissionValue());
+                    if (StringUtils.isNotBlank(per.getUri()) && !urilist.contains(per.getUri())) {
+                        urilist.add(per.getUri());
+                    }
+                }
+            }
+        }
+        perlist = removeNull(perlist);
         UpmsUserRole userRole = UpmsUserRole.service().findFirst(UpmsUserRole.sql().andUserIdEqualTo(upmsUser.getUserId()).example());
         UpmsRole role = UpmsRole.service().findFirst(UpmsRole.sql().andRoleIdEqualTo(Long.valueOf(userRole.getRoleId())).example());
         upmsUser.put("rolename", role.getName());
         upmsUser.put("roleid", role.getRoleId());
         upmsUser.put("roletitle", role.getTitle());
-        renderJson(Co.ok("data", Ret.ok("data", upmsUser)));
+        renderJson(Co.ok("data", Ret.ok("data", Co.by("user",upmsUser).set("perlist", perlist))));
     }
 
     /**
