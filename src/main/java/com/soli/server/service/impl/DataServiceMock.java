@@ -31,7 +31,17 @@ import com.soli.server.service.DataService;
  */
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
     @Override
+    public Ret search(String name, Integer type, String[] times, Integer pageNum, Integer pageSize) {
+        return null;
+    }
+
+    @Override
     public Ret add(String name, String url, Integer type, Integer directoryid) {
+        return null;
+    }
+
+    @Override
+    public Ret del(Integer[] ids) {
         return null;
     }
 }

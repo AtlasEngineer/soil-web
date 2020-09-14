@@ -23,6 +23,8 @@ import com.lambkit.core.api.route.ApiMapping;
 import com.lambkit.core.api.route.ApiRenderJFinalJson;
 import com.soli.server.model.Data;
 
+import java.util.Date;
+
 /**
  * @author yangyong 
  * @website: www.lambkit.com
@@ -34,7 +36,19 @@ import com.soli.server.model.Data;
 public interface DataService extends LambkitService<Data> {
 
     @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.edit",useLogin = false)
+    public Ret edit(Integer id);
+
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.search",useLogin = false)
+    public Ret search(String name, Integer type, String[] times,Integer pageNum,Integer pageSize);
+
+    @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.add",useLogin = false)
     public Ret add(String name,String url,Integer type,Integer directoryid);
+
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.del",useLogin = false)
+    public Ret del(Integer[] ids);
 
 }

@@ -2,7 +2,10 @@ package com.soli.server.utils;
 
 import com.jfinal.kit.Kv;
 import com.jfinal.kit.PathKit;
+import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.util.TimeUtils;
+import com.linuxense.javadbf.DBFField;
+import com.linuxense.javadbf.DBFReader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -27,6 +30,8 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -71,6 +76,44 @@ public class readShp {
             ds.dispose();
             shapeDS.dispose();
         } catch (Exception e) { e.printStackTrace();    }
+    }
+
+    public static List<Record> readDBF(String path) {
+        List<Record> records = new ArrayList<>();
+        InputStream fis = null;
+        try {
+            // 读取文件的输入流
+            fis = new FileInputStream(path);
+            // 根据输入流初始化一个DBFReader实例，用来读取DBF文件信息
+            DBFReader reader = new DBFReader(fis);
+//            reader.setCharactersetName(codeString);
+            // System.out.println(reader.getCharset());
+            // 调用DBFReader对实例方法得到path文件中字段的个数
+            int fieldsCount = reader.getFieldCount();
+            // 取出字段信息
+//            for (int i = 0; i < fieldsCount; i++) {
+//                records.add(output);
+//            }
+            Object[] rowValues; // 一条条取出path文件中记录
+            while ((rowValues = reader.nextRecord()) != null) {
+                Record record = new Record();
+                for (int i = 0; i < rowValues.length; i++) {
+                    String val = new String(rowValues[i].toString().getBytes(reader.getCharset()));
+                    DBFField field = reader.getField(i);
+                    String key = new String(field.getName().getBytes(reader.getCharset()));
+                    record.set(key, val);
+                }
+                records.add(record);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fis.close();
+            } catch (Exception e) {
+            }
+        }
+        return records;
     }
 
     public static void write(String filepath) {
