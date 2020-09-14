@@ -15,6 +15,7 @@
  */
 package com.soli.server.service.impl;
 
+import com.jfinal.kit.Ret;
 import com.lambkit.common.service.BaseServiceMock;
 
 import com.soli.server.model.Data;
@@ -29,4 +30,8 @@ import com.soli.server.service.DataService;
  * @since 1.0
  */
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
+    @Override
+    public Ret add(String name, String url, Integer type, Integer directoryid) {
+        return null;
+    }
 }
