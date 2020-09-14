@@ -61,6 +61,41 @@ public class IssueShpUtils {
         System.out.println(kv);
     }
 
+    public static Kv uploadShp(String s,String name) throws Exception {
+
+        GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
+        String RESTURL = config.getGeourl();//http://localhost:8080/geoserver
+        String RESTUSER = config.getGeouser();//admin
+        String RESTPW = config.getGeopsw();//"Q7P0XFU$2YRQaq08";
+
+        String workspace = "d";//jsus;
+
+        GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
+        GeoServerRESTReader geoServerRESTReader = new GeoServerRESTReader(RESTURL,RESTUSER,RESTPW);
+        boolean b = false;
+
+        GeoServerRESTPublisher.UploadMethod method = GeoServerRESTPublisher.UploadMethod.EXTERNAL;
+        //获取dbf编码
+        String codePage = CodePageUtils.getCodePage(s+"/"+name+".dbf");
+        System.out.println("codePage:"+codePage);
+
+
+        NameValuePair[] storeParams = new NameValuePair[1];
+        storeParams[0] = new NameValuePair("charset", codePage);
+        URI shapeFile = new URI(String.format("file:%s", s));
+
+        try {
+            b = publisher.publishShp(workspace, name, storeParams, name, method, shapeFile, "EPSG:4326", "");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (b) {
+            return Kv.by("msg", "发布成功").set("code", 200);
+        } else {
+            return Kv.by("msg", "发布失败").set("code", 400);
+        }
+    }
+
     public static Kv uploadShp(String filepath) throws Exception {
         System.out.println(filepath);
         File file = new File(PathKit.getWebRootPath() + filepath);

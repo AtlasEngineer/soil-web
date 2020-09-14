@@ -1,6 +1,17 @@
 package com.soli.server.controller;
 
 
+import com.jfinal.kit.Kv;
+import com.jfinal.plugin.activerecord.Db;
+import com.lambkit.Lambkit;
+import com.lambkit.common.util.DateTimeUtils;
+import com.lambkit.common.util.StringUtils;
+import com.lambkit.module.upms.rpc.model.UpmsUser;
+import com.lambkit.plugin.jwt.JwtConfig;
+import com.lambkit.plugin.jwt.JwtKit;
+import com.lambkit.plugin.jwt.impl.JwtUser;
+import com.lambkit.web.RequestManager;
+import com.soli.server.model.Data;
 import com.soli.server.utils.Co;
 import com.jfinal.aop.Clear;
 import com.jfinal.kit.PathKit;
@@ -10,12 +21,211 @@ import com.lambkit.common.util.PathUtils;
 import com.lambkit.component.swagger.annotation.ApiOperation;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.controller.LambkitController;
+import com.soli.server.utils.IssueShpUtils;
+import com.soli.server.utils.IssueTiffUtils;
+import com.soli.server.utils.ZipUtils;
 
 import java.io.File;
+import java.util.Date;
 import java.util.UUID;
 
 @Clear(JwtTokenInterceptor.class)
 public class UploadController extends LambkitController {
+
+    /**
+     * @return void
+     * @Author queer
+     * @Description //TODO 上传发布数据（0：shp,1：tiff，2：word，excle等）
+     * @Date 9:30 2019/11/21
+     * @Param [image-file]
+     **/
+    @Clear
+    @ApiOperation(url = "/upload/uploadData", tag = "/upload", httpMethod = "post", description = "上传科研项目空间数据")
+    public void uploadData() {
+        //getFile一定放在第一个参数去获取，否则都获取不到参数
+        UploadFile uf = getFile();
+        File file = uf.getFile();
+        String token = RequestManager.me().getRequest().getHeader("Authorization");
+        if (StringUtils.isBlank(token)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请登录")));
+            return;
+        }
+        String content = getPara("content");
+        JwtConfig config = Lambkit.config(JwtConfig.class);
+        String tokenPrefix = config.getTokenPrefix();
+        String authToken = token.substring(tokenPrefix.length());
+        String username = JwtKit.getJwtUser(authToken);
+        if (username == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "token异常")));
+            return;
+        }
+        System.out.println("username : " + username);
+        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
+        if (upmsUser == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
+            return;
+        }
+        Integer project_id = getParaToInt("project_id");
+        if (project_id == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "project_id不能为空")));
+            return;
+        }
+        Integer type = getParaToInt("type");
+        Integer directoryid = getParaToInt("directoryid");
+
+        String yname = file.getName();
+        System.out.println("上传时文件名：" + file.getName());
+        String rootPath = PathKit.getWebRootPath() + "/upload/datafile/";
+        String fileext = PathUtils.getExtensionName(file.getName());
+        String filename = UUID.randomUUID().toString() + "." + fileext;
+        if (file.length() > 52428800) {
+            file.delete();
+            setAttr("msg", "文件大小不能大于50MB");
+            setAttr("error", "true");
+        } else if (!"zip".equals(fileext) && (type == 1 || type == 0)) {
+            file.delete();
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
+            return;
+        } else if (!"jpg".equals(fileext) && !"png".equals(fileext) && !"gif".equals(fileext) && !"jpeg".equals(fileext)
+                && !"doc".equals(fileext) && !"docx".equals(fileext) && !"pdf".equals(fileext) && !"ppt".equals(fileext)
+                && !"pptx".equals(fileext) && !"JPG".equals(fileext) && !"txt".equals(fileext) && !"xlsx".equals(fileext)
+                && !"xls".equals(fileext) && !"MOV".equals(fileext) && !"zip".equals(fileext) && type == 2) {
+            file.delete();
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
+            return;
+        } else {
+            //重命名
+            boolean b = file.renameTo(new File(rootPath + filename));
+            if (!b) {
+                renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "重命名失败")));
+                return;
+            }
+            String root = PathKit.getWebRootPath().replace("\\", "/");
+            File file1 = new File(rootPath + filename);
+            if (file == null) {
+                renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "找不到该文件")));
+                return;
+            }
+            String name = filename.split("\\.")[0];
+            //发布
+            Kv kv = null;
+            if (type == 1 || type == 0) {
+                //解压后文件夹
+                String s = root + "/d/" + name;
+                try {
+                    ZipUtils.decompress(file1.getPath(), s);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "解压错误")));
+                    return;
+                }
+
+                //判断数据type
+                File files = new File(s);
+                String[] fileList = files.list();
+                //0 shp,1 tiff,2文档
+                String shpPath = null;
+                String shxPath = null;
+                String dbfPath = null;
+                String prjPath = null;
+                String tifPath = null;
+                for (String y : fileList) {
+                    File file2 = new File(s + "/" + y);
+                    if (file2.isFile()) {
+                        String[] split = file2.getName().split("\\.");//尾椎集合
+                        StringBuffer sb = new StringBuffer();
+                        for (int i = 1; i < split.length; i++) {
+                            sb.append(split[i] + ".");
+                        }
+                        String s1 = sb.toString().substring(0, sb.length() - 1);
+                        File file01 = new File(root + "/d/" + name + "/" + name + "." + s1);
+                        file2.renameTo(file01);
+
+                        if ("tif".equals(s1) || "tiff".equals(s1)) {
+                            type = 1;
+                            tifPath = file01.getPath();
+                        } else if (type == 0) {
+                            if ("shp".equals(s1)) {
+                                shpPath = file01.getPath();
+                            }
+                            if ("shx".equals(s1)) {
+                                shxPath = file01.getPath();
+                            }
+                            if ("dbf".equals(s1)) {
+                                dbfPath = file01.getPath();
+                            }
+                            if ("prj".equals(s1)) {
+                                prjPath = file01.getPath();
+                            }
+                        }
+                    }
+                }
+                if (type == 0) {
+                    if (shpPath == null) {
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "上传压缩文件没有shp")));
+                        return;
+                    }
+                    if (shxPath == null) {
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "上传压缩文件没有shx")));
+                        return;
+                    }
+                    if (dbfPath == null) {
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "上传压缩文件没有dbf")));
+                        return;
+                    }
+                    if (prjPath == null) {
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "上传压缩文件没有prj")));
+                        return;
+                    }
+                    //发布shp
+                    try {
+                        kv = IssueShpUtils.uploadShp(s, name);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (type == 1) {
+                    if(tifPath == null){
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "上传压缩文件没有tif")));
+                        return;
+                    }
+                    //发布tiff
+                    try {
+                        kv = IssueTiffUtils.uploadTiff(tifPath, name);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (kv.getInt("code") != 200) {
+                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", kv.get("msg"))));
+                    return;
+                }
+            }
+
+            Data data = new Data();
+            data.setName(yname);
+            data.setType(type);
+            data.setDel(0);
+            data.setDirectoryid(directoryid);
+            if (type == 0 || type == 1) {
+                data.setUrl("d:" + name);
+            } else {
+                data.setUrl("/upload/datafile/" + filename);
+            }
+            data.setTime(new Date());
+            data.setUserid(upmsUser.getUserId().intValue());
+            boolean save = data.save();
+            if (save) {
+                if (kv != null && kv.get("sld") != null) {
+                    renderJson(Co.ok("data", Co.by("state", "ok").set("sld", kv.get("sld"))));
+                } else {
+                    renderJson(Co.ok("data", Co.by("state", "ok")));
+                }
+            } else {
+                renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "保存失败")));
+            }
+        }
+    }
 
 
     /**
@@ -23,18 +233,17 @@ public class UploadController extends LambkitController {
      * @Author: yangxueyang
      * @Date: 2019/8/28
      */
-    public void uploadZip(){
+    public void uploadZip() {
         UploadFile uf = getFile();
         File file = uf.getFile();
         String rootPath = PathKit.getWebRootPath() + "/upload/zip/";
         String fileext = PathUtils.getExtensionName(file.getName());
-        String filename = UUID.randomUUID().toString() + "."+"zip";
+        String filename = UUID.randomUUID().toString() + "." + "zip";
 
-        if(!"zip".equals(fileext))
-        {
+        if (!"zip".equals(fileext)) {
             renderJson(Co.ok("data", Co.fail("errorMsg", "图片格式不正确")));
             file.delete();
-        }else {
+        } else {
             boolean b = file.renameTo(new File(rootPath + filename));
             if (!b) {
                 renderJson(Co.ok("data", Co.fail("errorMsg", "重命名失败")));
@@ -44,6 +253,7 @@ public class UploadController extends LambkitController {
         }
 
     }
+
     /**
      * @return void
      * @Author queer
