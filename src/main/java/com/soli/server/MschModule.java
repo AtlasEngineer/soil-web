@@ -24,13 +24,13 @@ import com.lambkit.db.datasource.ActiveRecordPluginWrapper;
 import com.lambkit.module.LambkitModule;
 
 import com.soli.server.MschConfig;
+import com.soli.server.model.Data;
 import com.soli.server.model.Geolist;
+import com.soli.server.service.DataService;
 import com.soli.server.service.DirectoryService;
 import com.soli.server.service.GeolistService;
-import com.soli.server.service.impl.DirectoryServiceImpl;
-import com.soli.server.service.impl.DirectoryServiceMock;
-import com.soli.server.service.impl.GeolistServiceImpl;
-import com.soli.server.service.impl.GeolistServiceMock;
+import com.soli.server.service.impl.*;
+import com.soli.server.web.tag.DataMarker;
 import com.soli.server.web.tag.GeolistMarker;
 
 /**
@@ -76,10 +76,12 @@ public class MschModule extends LambkitModule  {
 
 	public void mapping(ActiveRecordPluginWrapper arp) {
 		arp.addMapping("tr_geolist", "id", Geolist.class);
+		arp.addMapping("tr_data", "id", Data.class);
 	}
 
 	public void addTag(LambkitModule lk) {
 		lk.addTag("geolist", new GeolistMarker());
+		lk.addTag("data", new DataMarker());
 	}
 
 	public void registerLocalService() {
@@ -87,6 +89,7 @@ public class MschModule extends LambkitModule  {
 	}
 
 	public void registerLocalService(String group, String version, int port) {
+		ServiceManager.me().mapping(DataService.class, DataServiceImpl.class, DataServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(GeolistService.class, GeolistServiceImpl.class, GeolistServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(DirectoryService.class, DirectoryServiceImpl.class, DirectoryServiceMock.class, group, version, port);
 	}
@@ -96,6 +99,7 @@ public class MschModule extends LambkitModule  {
 	}
 
 	public void registerRemoteService(String group, String version, int port) {
+		ServiceManager.me().remote(DataService.class, DataServiceMock.class, group, version, port);
 		ServiceManager.me().remote(GeolistService.class, GeolistServiceMock.class, group, version, port);
 		ServiceManager.me().remote(DirectoryService.class, DirectoryServiceMock.class, group, version, port);
 	}
