@@ -19,13 +19,13 @@ public class DirectoryServiceImpl extends LambkitModelServiceImpl implements Dir
     /**
      * 获取指定层级目录列表
      * @param name
-     * @param lever
+     * @param level
      * @return
      */
     @Override
     public Ret getDirectoryList(String name, Integer level) {
 
-        String sql = "SELECT * FROM tr_directory WHERE lever = " + lever ;
+        String sql = "SELECT * FROM tr_directory WHERE lever = " + level ;
         if (StringUtils.isNotBlank(name)){
             sql += " AND name like '%"+name+"%'";
         }
