@@ -97,7 +97,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
-    public Ret search(String name, Integer type, String[] times, Integer pageNum, Integer pageSize) {
+    public Ret search(String name, String type, String[] times, Integer pageNum, Integer pageSize) {
         if (pageNum == null) {
             pageNum = 1;
         }
@@ -108,7 +108,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         if (StringUtils.isNotBlank(name)) {
             sql.append(" and name like %" + name + "% ");
         }
-        if (type != null) {
+        if (StringUtils.isNotBlank(type)) {
             sql.append(" and type = '" + type + "' ");
         }
         if (times.length > 1) {
