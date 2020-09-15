@@ -66,34 +66,34 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         Data data = Data.service().dao().findById(id);
         if (data == null || data.getType() != 0) {
-			return Ret.fail("errorMsg", "数据不存在或数据类型错误");
+            return Ret.fail("errorMsg", "数据不存在或数据类型错误");
         }
         //获取该数据dbf
-		String url = data.getUrl();
-		String[] split = url.split(":");
-		String dbfPath = PathKit.getWebRootPath()+"/d/"+split[1]+"/"+split[1]+".dbf";
+        String url = data.getUrl();
+        String[] split = url.split(":");
+        String dbfPath = PathKit.getWebRootPath() + "/d/" + split[1] + "/" + split[1] + ".dbf";
 
-		Record record = new Record();
-		InputStream fis = null;
-		try {
-			fis = new FileInputStream(dbfPath);
-			DBFReader reader = new DBFReader(fis);
-			int fieldsCount = reader.getFieldCount();
+        Record record = new Record();
+        InputStream fis = null;
+        try {
+            fis = new FileInputStream(dbfPath);
+            DBFReader reader = new DBFReader(fis);
+            int fieldsCount = reader.getFieldCount();
             for (int i = 0; i < fieldsCount; i++) {
-				DBFField field = reader.getField(i);
-				String key = new String(field.getName().getBytes(reader.getCharset()));
-				DBFDataType type = field.getType();
-				record.set(key,type);
+                DBFField field = reader.getField(i);
+                String key = new String(field.getName().getBytes(reader.getCharset()));
+                DBFDataType type = field.getType();
+                record.set(key, type);
             }
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				fis.close();
-			} catch (Exception e) {
-			}
-		}
-		return Ret.ok("data",record);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fis.close();
+            } catch (Exception e) {
+            }
+        }
+        return Ret.ok("data", record);
     }
 
     @Override
@@ -111,28 +111,28 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         if (StringUtils.isNotBlank(type)) {
             sql.append(" and type = '" + type + "' ");
         }
-        if (times.length > 1) {
+        if (times != null && times.length > 1) {
             sql.append(" and timme between '" + times[0] + "' and '" + times[1] + "' ");
         }
         sql.append(" order by time desc");
         Page<Data> paginate = Data.service().dao().paginate(pageNum, pageSize, "select * ", sql.toString());
-        return Ret.ok("data", paginate);
+        return Ret.ok("page",paginate);
     }
 
     @Override
     public Ret add(String name, String url, Integer type, Integer directoryid) {
-        JwtUser me = (JwtUser) RequestManager.me().getRequest().getAttribute("me");
-        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(me.getUserName()).example());
-
-        Data data = new Data();
-        data.setName(name);
-        data.setType(type);
-        data.setDel(0);
-        data.setDirectoryid(directoryid);
-        data.setUrl(url);
-        data.setTime(new Date());
-        data.setUserid(upmsUser.getUserId().intValue());
-        data.save();
+//        JwtUser me = (JwtUser) RequestManager.me().getRequest().getAttribute("me");0
+//        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(me.getUserName()).example());
+//
+//        Data data = new Data();
+//        data.setName(name);
+//        data.setType(type);
+//        data.setDel(0);
+//        data.setDirectoryid(directoryid);
+//        data.setUrl(url);
+//        data.setTime(new Date());
+//        data.setUserid(upmsUser.getUserId().intValue());
+//        data.save();
         return Ret.ok("msg", "添加成功");
     }
 
