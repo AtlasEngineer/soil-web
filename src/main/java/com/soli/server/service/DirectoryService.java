@@ -10,7 +10,7 @@ public interface DirectoryService extends LambkitService {
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "directory.getDirectoryList",useLogin = false)
-    public Ret getDirectoryList(String name,Integer lever);
+    public Ret getDirectoryList(String name,Integer level);
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "directory.getSubDirectoriesList",useLogin = false)
@@ -19,7 +19,6 @@ public interface DirectoryService extends LambkitService {
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "directory.addDirectories",useLogin = false)
     public Ret addDirectories(String name,Integer parentId,Integer level);
-
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "directory.delDirectories",useLogin = false)

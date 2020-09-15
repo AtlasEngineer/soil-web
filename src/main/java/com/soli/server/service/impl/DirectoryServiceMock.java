@@ -13,7 +13,7 @@ public class DirectoryServiceMock extends LambkitModelServiceImpl implements Dir
 
 
     @Override
-    public Ret getDirectoryList(String name, Integer lever) {
+    public Ret getDirectoryList(String name, Integer level) {
         return null;
     }
 
