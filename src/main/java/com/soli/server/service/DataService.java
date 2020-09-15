@@ -41,7 +41,7 @@ public interface DataService extends LambkitService<Data> {
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.search",useLogin = false)
-    public Ret search(String name, Integer type, String[] times,Integer pageNum,Integer pageSize);
+    public Ret search(String name, String type, String[] times,Integer pageNum,Integer pageSize);
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.add",useLogin = false)

@@ -36,7 +36,7 @@ public class DataServiceMock extends BaseServiceMock<Data> implements DataServic
     }
 
     @Override
-    public Ret search(String name, Integer type, String[] times, Integer pageNum, Integer pageSize) {
+    public Ret search(String name, String type, String[] times, Integer pageNum, Integer pageSize) {
         return null;
     }
 
