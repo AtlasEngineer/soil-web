@@ -25,7 +25,7 @@ public class DirectoryServiceImpl extends LambkitModelServiceImpl implements Dir
     @Override
     public Ret getDirectoryList(String name, Integer level) {
 
-        String sql = "SELECT * FROM tr_directory WHERE lever = " + level ;
+        String sql = "SELECT * FROM tr_directory WHERE level = " + level ;
         if (StringUtils.isNotBlank(name)){
             sql += " AND name like '%"+name+"%'";
         }
