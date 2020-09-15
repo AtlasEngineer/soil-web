@@ -62,13 +62,17 @@ public class UploadController extends LambkitController {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
             return;
         }
-        Integer project_id = getParaToInt("project_id");
-        if (project_id == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "project_id不能为空")));
-            return;
-        }
+
         Integer type = getParaToInt("type");
         Integer directoryid = getParaToInt("directoryid");
+        if (type == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择数据类型")));
+            return;
+        }
+        if (directoryid == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择目录")));
+            return;
+        }
 
         String yname = file.getName();
         System.out.println("上传时文件名：" + file.getName());
