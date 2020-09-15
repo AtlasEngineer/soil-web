@@ -6,6 +6,7 @@ import com.jfinal.plugin.activerecord.Db;
 import com.lambkit.Lambkit;
 import com.lambkit.common.util.DateTimeUtils;
 import com.lambkit.common.util.StringUtils;
+import com.lambkit.module.upms.UpmsManager;
 import com.lambkit.module.upms.rpc.model.UpmsUser;
 import com.lambkit.plugin.jwt.JwtConfig;
 import com.lambkit.plugin.jwt.JwtKit;
@@ -29,6 +30,8 @@ import java.io.File;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.soli.server.utils.CodePageUtils.getUserEntity;
+
 @Clear(JwtTokenInterceptor.class)
 public class UploadController extends LambkitController {
 
@@ -45,23 +48,17 @@ public class UploadController extends LambkitController {
         //getFile一定放在第一个参数去获取，否则都获取不到参数
         UploadFile uf = getFile();
         File file = uf.getFile();
-        String token = RequestManager.me().getRequest().getHeader("Authorization");
-        if (StringUtils.isBlank(token)) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请登录")));
+
+        String serverSessionId = this.getRequest().getHeader("Authorization");;
+        String code = UpmsManager.me().getCache().getSession(serverSessionId);
+        if (!StringUtils.isNotBlank(code)) {
+            System.out.println("无效访问unlogin");
+            this.renderJson(Co.ok("data",Ret.fail("errorMsg", "请重新登录")));
             return;
         }
-        String content = getPara("content");
-        JwtConfig config = Lambkit.config(JwtConfig.class);
-        String tokenPrefix = config.getTokenPrefix();
-        String authToken = token.substring(tokenPrefix.length());
-        String username = JwtKit.getJwtUser(authToken);
-        if (username == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "token异常")));
-            return;
-        }
-        System.out.println("username : " + username);
-        UpmsUser upmsUser = UpmsUser.service().dao().findFirst(UpmsUser.sql().andUsernameEqualTo(username).example());
-        if (upmsUser == null) {
+        UpmsUser user = getUserEntity();
+
+        if (user == null) {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "当前登录用户异常")));
             return;
         }
@@ -213,7 +210,7 @@ public class UploadController extends LambkitController {
                 data.setUrl("/upload/datafile/" + filename);
             }
             data.setTime(new Date());
-            data.setUserid(upmsUser.getUserId().intValue());
+            data.setUserid(user.getUserId().intValue());
             boolean save = data.save();
             if (save) {
                 if (kv != null && kv.get("sld") != null) {
