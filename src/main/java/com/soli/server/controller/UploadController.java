@@ -78,7 +78,7 @@ public class UploadController extends LambkitController {
         System.out.println("上传时文件名：" + file.getName());
         String rootPath = PathKit.getWebRootPath() + "/upload/datafile/";
         String fileext = PathUtils.getExtensionName(file.getName());
-        String filename = UUID.randomUUID().toString() + "." + fileext;
+        String filename = "d-"+UUID.randomUUID().toString() + "." + fileext;
         if (file.length() > 52428800) {
             file.delete();
             setAttr("msg", "文件大小不能大于50MB");

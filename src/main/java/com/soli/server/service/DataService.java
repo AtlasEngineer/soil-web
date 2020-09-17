@@ -35,6 +35,11 @@ import java.util.Date;
  */
 public interface DataService extends LambkitService<Data> {
 
+
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.searchCalendar",useLogin = false)
+    public Ret searchCalendar(Integer month);
+
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.edit",useLogin = false)
     public Ret edit(Integer id);

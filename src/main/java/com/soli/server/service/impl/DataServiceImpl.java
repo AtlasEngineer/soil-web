@@ -17,8 +17,10 @@ package com.soli.server.service.impl;
 
 import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;
+import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
+import com.lambkit.Lambkit;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
@@ -30,10 +32,13 @@ import com.lambkit.web.RequestManager;
 import com.linuxense.javadbf.DBFDataType;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
+import com.soli.lambkit.start.GeoServerConfig;
 import com.soli.server.service.DataService;
 import com.soli.server.model.Data;
 import com.soli.server.utils.readShp;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -57,6 +62,25 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             DAO = AopKit.singleton(Data.class);
         }
         return DAO;
+    }
+
+    @Override
+    public Ret searchCalendar(Integer month) {
+        if (month == null) {
+            return Ret.fail("errorMsg", "请选择月份");
+        }
+//        int status;
+//        if (day < 11 && day > 0) {
+//            status = 0;
+//        }else if (day < 21 && day > 10) {
+//            status = 1;
+//        }else {
+//            status = 2;
+//        }
+        List<Record> st0 = Db.find("select * from whxx_shengzhang where month = '" + month + "' and status = '0' ");
+        List<Record> st1 = Db.find("select * from whxx_shengzhang where month = '" + month + "' and status = '1' ");
+        List<Record> st2 = Db.find("select * from whxx_shengzhang where month = '" + month + "' and status = '2' ");
+        return Ret.ok("st0", st0).set("st1", st1).set("st2", st2);
     }
 
     @Override
@@ -116,7 +140,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         sql.append(" order by time desc");
         Page<Data> paginate = Data.service().dao().paginate(pageNum, pageSize, "select * ", sql.toString());
-        return Ret.ok("page",paginate);
+        return Ret.ok("page", paginate);
     }
 
     @Override
@@ -141,10 +165,28 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         if (ids == null) {
             return Ret.fail("errorMsg", "请选择要删除的数据");
         }
+        //删除geoserver服务
+        GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
+        String RESTURL = config.getGeourl();
+        String RESTUSER = config.getGeouser();
+        String RESTPW = config.getGeopsw();
+        GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
         for (int i = 0; i < ids.length; i++) {
             Data data = Data.service().dao().findById(ids[i]);
             if (data != null) {
                 data.delete();
+                //删除文件
+                String webRootPath = PathKit.getWebRootPath();
+                File file;
+                if (data.getType() == 2) {
+                    file = new File(webRootPath + data.getUrl());
+                } else {
+                    publisher.removeLayer("d",data.getUrl().split(":")[1]);
+                    file = new File(webRootPath + "/d/" + data.getUrl().split(":")[1]);
+                }
+                if (file.exists()) {
+                    file.delete();
+                }
             }
         }
         return Ret.ok("msg", "删除成功");
