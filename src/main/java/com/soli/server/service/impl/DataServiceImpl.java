@@ -130,13 +130,13 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         StringBuffer sql = new StringBuffer("from tr_data where 1 = 1 ");
         if (StringUtils.isNotBlank(name)) {
-            sql.append(" and name like %" + name + "% ");
+            sql.append(" and name like '%" + name + "%' ");
         }
         if (StringUtils.isNotBlank(type)) {
             sql.append(" and type = '" + type + "' ");
         }
         if (times != null && times.length > 1) {
-            sql.append(" and timme between '" + times[0] + "' and '" + times[1] + "' ");
+            sql.append(" and time between '" + times[0] + "' and '" + times[1] + "' ");
         }
         sql.append(" order by time desc");
         Page<Data> paginate = Data.service().dao().paginate(pageNum, pageSize, "select * ", sql.toString());

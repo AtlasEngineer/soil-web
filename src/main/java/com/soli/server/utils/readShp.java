@@ -10,9 +10,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-import org.geotools.data.FeatureWriter;
-import org.geotools.data.FileDataStoreFactorySpi;
-import org.geotools.data.Transaction;
+import org.geotools.data.*;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.data.shapefile.files.ShpFiles;
@@ -23,23 +21,98 @@ import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
+import org.geotools.feature.FeatureCollections;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+
+import org.geotools.data.DataUtilities;
+import org.geotools.data.DefaultTransaction;
+import org.geotools.data.Transaction;
+
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.Serializable;
+import java.io.*;
+import java.net.MalformedURLException;
 import java.nio.charset.Charset;
 import java.util.*;
 
 public class readShp {
 
     public static void main(String[] args) {
-        transShape("C:/Users/xuzhonghao/Desktop/North_China_Albers_ge/North_China_Albers_ge.shp","C:/Users/xuzhonghao/Desktop/newshp/newshp.shp");
+        //transShape("C:/Users/xuzhonghao/Desktop/North_China_Albers_ge/North_China_Albers_ge.shp", "C:/Users/xuzhonghao/Desktop/newshp/newshp.shp");
+
+    }
+
+    public void addFeatureToShp(String srcfilepath) throws IOException {
+        try{
+            //定义属性
+            final SimpleFeatureType TYPE = DataUtilities.createType("Location",
+                    "location:Point," + // <- the geometry attribute: Point type
+                            "POIID:String," + // <- a String attribute
+                            "MESHID:String," + // a number attribute
+                            "OWNER:String"
+            );
+            SimpleFeatureCollection collection = FeatureCollections.newCollection();
+            GeometryFactory geometryFactory = new GeometryFactory();
+            SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
+
+            double latitude = Double.parseDouble("116.123456789");
+            double longitude = Double.parseDouble("39.120001");
+            String POIID = "2050003092";
+            String MESHID = "0";
+            String OWNER = "340881";
+            Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+            Object[] obj = {point, POIID, MESHID, OWNER};
+
+            SimpleFeatureIterator iterator = collection.features();
+            try {
+                while( iterator.hasNext() ){
+                    SimpleFeature feature = iterator.next();
+                    System.out.println( feature.getID() );
+                }
+            }
+            finally {
+                iterator.close();
+            }
+//            SimpleFeature feature = featureBuilder.buildFeature(null, obj);
+//            collection.add(feature);
+//            feature = featureBuilder.buildFeature(null, obj);
+//            collection.add(feature);
+            File newFile = new File("D:/newPoi.shp");
+            ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
+            Map<String, Serializable> params = new HashMap<String, Serializable>();
+            params.put("url", newFile.toURI().toURL());
+            params.put("create spatial index", Boolean.TRUE);
+            ShapefileDataStore newDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
+            newDataStore.createSchema(TYPE);
+            newDataStore.forceSchemaCRS(DefaultGeographicCRS.WGS84);
+
+            Transaction transaction = new DefaultTransaction("create");
+            String typeName = newDataStore.getTypeNames()[0];
+            SimpleFeatureSource featureSource = newDataStore.getFeatureSource(typeName);
+
+            if (featureSource instanceof SimpleFeatureStore) {
+                SimpleFeatureStore featureStore = (SimpleFeatureStore) featureSource;
+                featureStore.setTransaction(transaction);
+                try {
+                    featureStore.addFeatures(collection);
+                    transaction.commit();
+                } catch (Exception problem) {
+                    problem.printStackTrace();
+                    transaction.rollback();
+                } finally {
+                    transaction.close();
+                }
+            } else {
+                System.out.println(typeName + " does not support read/write access");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void transShape(String srcfilepath, String destfilepath) {
@@ -75,7 +148,9 @@ public class readShp {
             writer.close();
             ds.dispose();
             shapeDS.dispose();
-        } catch (Exception e) { e.printStackTrace();    }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static List<Record> readDBF(String path) {
@@ -121,7 +196,7 @@ public class readShp {
             //创建shape文件对象
             File file = new File(filepath);
             Map<String, Serializable> params = new HashMap<String, Serializable>();
-            params.put( ShapefileDataStoreFactory.URLP.key, file.toURI().toURL() );
+            params.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
             ShapefileDataStore ds = (ShapefileDataStore) new ShapefileDataStoreFactory().createNewDataStore(params);
             //定义图形信息和属性信息
             SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
@@ -157,7 +232,8 @@ public class readShp {
             } finally {
                 reader.close();
             }
-        } catch (Exception e) { }
+        } catch (Exception e) {
+        }
     }
 
     public static Kv readShpXY1(String path) {
@@ -181,18 +257,18 @@ public class readShp {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Kv.by("xy", Kv.by("maxX",maxX).set("maxY",maxY).set("minX",minX).set("minY" , minY));
+        return Kv.by("xy", Kv.by("maxX", maxX).set("maxY", maxY).set("minX", minX).set("minY", minY));
     }
 
 
-	public static Kv readShpXY(String path ){
-		ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
-		double maxX=0;
-		double maxY=0;
-		double minX=0;
-		double minY=0;
+    public static Kv readShpXY(String path) {
+        ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
+        double maxX = 0;
+        double maxY = 0;
+        double minX = 0;
+        double minY = 0;
 
-		try {
+        try {
 //			//第一种方式，获取shapefile所有同名文件句柄(如果存在读取，否则新建)
 //			ShapefileDataStore sds = (ShapefileDataStore) dataStoreFactory.createDataStore(new File(path).toURI().toURL());
 //			sds.setCharset(Charset.forName("GBK"));
@@ -203,18 +279,18 @@ public class readShp {
 //			SimpleFeatureSource featureSource2 = shpDataStore.getFeatureSource();
 //			SimpleFeatureIterator itertor2 = featureSource2.getFeatures().features();
 
-			//第三种方式，获取shapefile矢量文件
-			ShpFiles sf = new ShpFiles(path);
-			ShapefileReader r = new ShapefileReader(sf, false, false, new GeometryFactory() );
-			ShapefileHeader header = r.getHeader();
-			 maxX = header.maxX();
-			 maxY = header.maxY();
-			 minX = header.minX();
-			 minY = header.minY();
-			System.out.println("maxX:"+maxX);
-			System.out.println("maxY:"+maxY);
-			System.out.println("minX:"+minX);
-			System.out.println("minY:"+minY);
+            //第三种方式，获取shapefile矢量文件
+            ShpFiles sf = new ShpFiles(path);
+            ShapefileReader r = new ShapefileReader(sf, false, false, new GeometryFactory());
+            ShapefileHeader header = r.getHeader();
+            maxX = header.maxX();
+            maxY = header.maxY();
+            minX = header.minX();
+            minY = header.minY();
+            System.out.println("maxX:" + maxX);
+            System.out.println("maxY:" + maxY);
+            System.out.println("minX:" + minX);
+            System.out.println("minY:" + minY);
 //			while (r.hasNext()) {
 //				Geometry shape = (Geometry) r.nextRecord().shape();  //com.vividsolutions.jts.geom.Geometry;
 //				System.out.println(shape.toString());
@@ -236,11 +312,11 @@ public class readShp {
 //				}
 //			}
 //			itertor.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return Kv.by("maxX",maxX).set("maxY",maxY).set("minX",minX).set("minY",minY);
-	}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Kv.by("maxX", maxX).set("maxY", maxY).set("minX", minX).set("minY", minY);
+    }
 
     public String checktype(String url) {
         ShapefileDataStore shpDataStore = null;
