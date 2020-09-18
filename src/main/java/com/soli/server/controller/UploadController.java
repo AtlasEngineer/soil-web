@@ -202,15 +202,19 @@ public class UploadController extends LambkitController {
                     return;
                 }
             }
-
             Data data = new Data();
             data.setName(yname);
             data.setType(type);
             data.setDel(0);
             data.setDirectoryid(directoryid);
-            if (type == 0 || type == 1) {
+            if (type == 0) {
+                data.set("isedit",1);
+                data.setUrl("d:" + name);
+            }else if(type == 1){
+                data.set("isedit",0);
                 data.setUrl("d:" + name);
             } else {
+                data.set("isedit",0);
                 data.setUrl("/upload/datafile/" + filename);
             }
             data.setTime(new Date());

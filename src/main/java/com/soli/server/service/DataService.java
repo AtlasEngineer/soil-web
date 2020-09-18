@@ -15,6 +15,7 @@
  */
 package com.soli.server.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jfinal.kit.Ret;
 import com.lambkit.common.service.LambkitService;
 
@@ -35,6 +36,9 @@ import java.util.Date;
  */
 public interface DataService extends LambkitService<Data> {
 
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.searchCalendar",useLogin = false)
+    public Ret addFeatureForShp(Integer id, JSONObject json,String latlons);
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.searchCalendar",useLogin = false)
@@ -46,7 +50,7 @@ public interface DataService extends LambkitService<Data> {
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.search",useLogin = false)
-    public Ret search(String name, String type, String[] times,Integer pageNum,Integer pageSize);
+    public Ret search(String name, String type, String[] times,String directoryid,Integer pageNum,Integer pageSize);
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.add",useLogin = false)

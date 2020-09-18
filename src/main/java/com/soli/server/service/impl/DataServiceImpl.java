@@ -15,6 +15,8 @@
  */
 package com.soli.server.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.jfinal.kit.Kv;
 import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
@@ -24,18 +26,19 @@ import com.lambkit.Lambkit;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
-
 import com.lambkit.module.upms.rpc.model.UpmsUser;
-import com.lambkit.module.upms.rpc.model.UpmsUserRole;
-import com.lambkit.plugin.jwt.impl.JwtUser;
-import com.lambkit.web.RequestManager;
 import com.linuxense.javadbf.DBFDataType;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
 import com.soli.lambkit.start.GeoServerConfig;
 import com.soli.server.service.DataService;
 import com.soli.server.model.Data;
+import com.soli.server.utils.Co;
+import com.soli.server.utils.GeometryRelated;
+import com.soli.server.utils.IssueShpUtils;
 import com.soli.server.utils.readShp;
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.io.WKTReader;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 
 import java.io.File;
@@ -44,6 +47,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+
+import static com.soli.server.utils.CodePageUtils.getUserEntity;
 
 /**
  * @author yangyong
@@ -62,6 +68,49 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             DAO = AopKit.singleton(Data.class);
         }
         return DAO;
+    }
+
+    @Override
+    public Ret addFeatureForShp(Integer id, JSONObject json,String latlons) {
+        UpmsUser user = getUserEntity();
+        if (user == null) {
+            return Ret.fail("errorMsg", "当前登录用户异常");
+        }
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择要编辑的矢量数据");
+        }
+        if (json == null) {
+            return Ret.fail("errorMsg", "json不能为空");
+        }
+
+        Data data = Data.service().dao().findById(id);
+        if (data.getType() != 0) {
+            return Ret.fail("errorMsg", "当前数据不可编辑");
+        }
+        String name = data.getUrl().split(":")[1];
+        String webRootPath = PathKit.getWebRootPath();
+        try {
+            String path = webRootPath + "/d/" + name + "/" + name + ".shp";
+            String newName = UUID.randomUUID().toString();
+            String newShp = webRootPath + "/d/" + name + "/" + newName + ".shp";
+            File file1 = new File(webRootPath + "/d/" + name);
+            if (!file1.exists()) {
+                file1.mkdir();
+            }
+            readShp.exportShp(path, newShp, json,latlons);
+            File file = new File(webRootPath + "/d/" + name);
+            file.delete();
+            //重新发布并更新url
+            Kv kv = IssueShpUtils.uploadShp(webRootPath + "/d/" + name, name);
+            data.setUrl("d:" + name);
+            data.setTime(new Date());
+            data.setUserid(user.getUserId().intValue());
+            data.update();
+            return Ret.ok("name", name);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Ret.fail("errorMsg", e.getMessage());
+        }
     }
 
     @Override
@@ -89,8 +138,8 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择要编辑的矢量数据");
         }
         Data data = Data.service().dao().findById(id);
-        if (data == null || data.getType() != 0) {
-            return Ret.fail("errorMsg", "数据不存在或数据类型错误");
+        if (data == null || data.getInt("isedit") != 1) {
+            return Ret.fail("errorMsg", "数据不存在或数据不可编辑");
         }
         //获取该数据dbf
         String url = data.getUrl();
@@ -117,11 +166,12 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             } catch (Exception e) {
             }
         }
+        record.set("type", "Polygon");
         return Ret.ok("data", record);
     }
 
     @Override
-    public Ret search(String name, String type, String[] times, Integer pageNum, Integer pageSize) {
+    public Ret search(String name, String type, String[] times, String directoryid, Integer pageNum, Integer pageSize) {
         if (pageNum == null) {
             pageNum = 1;
         }
@@ -137,6 +187,9 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         if (times != null && times.length > 1) {
             sql.append(" and time between '" + times[0] + "' and '" + times[1] + "' ");
+        }
+        if (StringUtils.isNotBlank(directoryid)) {
+            sql.append(" and directoryid = '" + directoryid + "' ");
         }
         sql.append(" order by time desc");
         Page<Data> paginate = Data.service().dao().paginate(pageNum, pageSize, "select * ", sql.toString());
@@ -181,7 +234,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 if (data.getType() == 2) {
                     file = new File(webRootPath + data.getUrl());
                 } else {
-                    publisher.removeLayer("d",data.getUrl().split(":")[1]);
+                    publisher.removeLayer("d", data.getUrl().split(":")[1]);
                     file = new File(webRootPath + "/d/" + data.getUrl().split(":")[1]);
                 }
                 if (file.exists()) {

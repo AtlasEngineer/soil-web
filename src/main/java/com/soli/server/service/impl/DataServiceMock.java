@@ -15,6 +15,7 @@
  */
 package com.soli.server.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jfinal.kit.Ret;
 import com.lambkit.common.service.BaseServiceMock;
 
@@ -31,6 +32,11 @@ import com.soli.server.service.DataService;
  */
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
     @Override
+    public Ret addFeatureForShp(Integer id, JSONObject json,String latlons) {
+        return null;
+    }
+
+    @Override
     public Ret searchCalendar(Integer month) {
         return null;
     }
@@ -41,7 +47,7 @@ public class DataServiceMock extends BaseServiceMock<Data> implements DataServic
     }
 
     @Override
-    public Ret search(String name, String type, String[] times, Integer pageNum, Integer pageSize) {
+    public Ret search(String name, String type, String[] times, String directoryid, Integer pageNum, Integer pageSize) {
         return null;
     }
 

@@ -1,15 +1,14 @@
 package com.soli.server.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jfinal.kit.Kv;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.util.TimeUtils;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.io.WKTReader;
 import org.geotools.data.*;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
@@ -22,7 +21,9 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 
@@ -30,7 +31,10 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
 
+import org.geotools.geometry.jts.GeometryBuilder;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -47,72 +51,88 @@ public class readShp {
 
     }
 
-    public void addFeatureToShp(String srcfilepath) throws IOException {
-        try{
-            //定义属性
-            final SimpleFeatureType TYPE = DataUtilities.createType("Location",
-                    "location:Point," + // <- the geometry attribute: Point type
-                            "POIID:String," + // <- a String attribute
-                            "MESHID:String," + // a number attribute
-                            "OWNER:String"
-            );
-            SimpleFeatureCollection collection = FeatureCollections.newCollection();
-            GeometryFactory geometryFactory = new GeometryFactory();
-            SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
+    public static boolean exportShp(String path, String shpPath, JSONObject jsonObject,String latlons) throws Exception {
+        //源文件
+        ShapefileDataStore shapeDS = (ShapefileDataStore) new ShapefileDataStoreFactory().createDataStore(new File(path).toURI().toURL());
+        SimpleFeatureSource fs = shapeDS.getFeatureSource(shapeDS.getTypeNames()[0]);
+        SimpleFeatureCollection featureCollection = fs.getFeatures();
+        FeatureIterator<SimpleFeature> iterator = featureCollection.features();
+        SimpleFeatureType pgfeaturetype = fs.getSchema();
+        //新文件
+        File file = new File(shpPath);
 
-            double latitude = Double.parseDouble("116.123456789");
-            double longitude = Double.parseDouble("39.120001");
-            String POIID = "2050003092";
-            String MESHID = "0";
-            String OWNER = "340881";
-            Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
-            Object[] obj = {point, POIID, MESHID, OWNER};
+        Map<String, Serializable> params = new HashMap<String, Serializable>();
+        params.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
+        ShapefileDataStore shpDataStore = (ShapefileDataStore) new ShapefileDataStoreFactory().createNewDataStore(params);
 
-            SimpleFeatureIterator iterator = collection.features();
-            try {
-                while( iterator.hasNext() ){
-                    SimpleFeature feature = iterator.next();
-                    System.out.println( feature.getID() );
-                }
+        SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
+        typeBuilder.init(pgfeaturetype);
+        typeBuilder.setCRS(CRS.decode("EPSG:4326", true));
+        pgfeaturetype = typeBuilder.buildFeatureType();
+        shpDataStore.setCharset(shapeDS.getCharset());
+        shpDataStore.createSchema(pgfeaturetype);
+
+        //创建新feature
+        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+//        GeometryBuilder gb = new GeometryBuilder(geometryFactory);
+        //创建一个geometry
+        WKTReader reader = new WKTReader( geometryFactory );
+        Polygon polygon = (Polygon) reader.read("POLYGON((" + latlons + "))");
+//        Polygon polygon = gb.polygon(112, 112, 112, 35, 35, 35, 35, 112);
+//        Polygon polygon = geometryFactory.createPolygon(new Coordinate(123, 32));
+        SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(pgfeaturetype);
+        //添加的数据一定按照SimpleFeatureType给的字段顺序进行赋值
+        //添加geometry属性
+        int attributeCount = pgfeaturetype.getAttributeCount();
+        for (int i = 0; i < attributeCount; i++) {
+            String name = pgfeaturetype.getDescriptor(i).getName().toString();
+            System.out.println(pgfeaturetype.getDescriptor(i).getName());
+            if("the_geom".equals(name)){
+                featureBuilder.add(polygon);
+            }else{
+                featureBuilder.add(jsonObject.get(name));
             }
-            finally {
-                iterator.close();
-            }
-//            SimpleFeature feature = featureBuilder.buildFeature(null, obj);
-//            collection.add(feature);
-//            feature = featureBuilder.buildFeature(null, obj);
-//            collection.add(feature);
-            File newFile = new File("D:/newPoi.shp");
-            ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
-            Map<String, Serializable> params = new HashMap<String, Serializable>();
-            params.put("url", newFile.toURI().toURL());
-            params.put("create spatial index", Boolean.TRUE);
-            ShapefileDataStore newDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
-            newDataStore.createSchema(TYPE);
-            newDataStore.forceSchemaCRS(DefaultGeographicCRS.WGS84);
+        }
+        SimpleFeature simpleFeature1 = featureBuilder.buildFeature(null);
 
-            Transaction transaction = new DefaultTransaction("create");
-            String typeName = newDataStore.getTypeNames()[0];
-            SimpleFeatureSource featureSource = newDataStore.getFeatureSource(typeName);
+        FeatureWriter<SimpleFeatureType, SimpleFeature> featureWriter = shpDataStore.getFeatureWriter(shpDataStore.getTypeNames()[0], Transaction.AUTO_COMMIT);
+        //添加源数据
+        while (iterator.hasNext()) {
+            Feature feature = iterator.next();
+            SimpleFeature simpleFeature = featureWriter.next();
+            simpleFeature.setValue(feature.getProperties());
+            featureWriter.write();
+        }
+        SimpleFeature next = featureWriter.next();
+        next.setValue(simpleFeature1.getProperties());
+        iterator.close();
+        featureWriter.close();
+        return true;
+    }
 
-            if (featureSource instanceof SimpleFeatureStore) {
-                SimpleFeatureStore featureStore = (SimpleFeatureStore) featureSource;
-                featureStore.setTransaction(transaction);
-                try {
-                    featureStore.addFeatures(collection);
-                    transaction.commit();
-                } catch (Exception problem) {
-                    problem.printStackTrace();
-                    transaction.rollback();
-                } finally {
-                    transaction.close();
-                }
-            } else {
-                System.out.println(typeName + " does not support read/write access");
+    /**
+     * 读取数据类型
+     * @param shpPath
+     * @return
+     */
+    public static String getShpType(String shpPath) {
+        try {
+            ShapefileDataStore shapefileDataStore = new ShapefileDataStore(new File(shpPath).toURI().toURL());
+            FeatureCollection featureCollection = shapefileDataStore.getFeatureSource().getFeatures();
+
+            SimpleFeatureIterator features = (SimpleFeatureIterator) featureCollection.features();
+            while (features.hasNext()) {
+                SimpleFeature next = features.next();
+
+                //坐标系转换
+                Geometry geometry = (Geometry) next.getDefaultGeometry();
+                // Point MultiPoint Polygon MutiPolygon LineString  MultiLineString
+                return geometry.getGeometryType();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public static void transShape(String srcfilepath, String destfilepath) {
