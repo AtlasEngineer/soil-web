@@ -37,7 +37,7 @@ import java.util.Date;
 public interface DataService extends LambkitService<Data> {
 
     @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "data.searchCalendar",useLogin = false)
+    @ApiMapping(value = "data.addFeatureForShp",useLogin = false)
     public Ret addFeatureForShp(Integer id, JSONObject json,String latlons);
 
     @ApiBody(ApiRenderJFinalJson.class)
