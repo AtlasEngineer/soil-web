@@ -23,14 +23,15 @@ import com.lambkit.core.rpc.RpcConfig;
 import com.lambkit.db.datasource.ActiveRecordPluginWrapper;
 import com.lambkit.module.LambkitModule;
 
-import com.soli.server.MschConfig;
 import com.soli.server.model.Data;
+import com.soli.server.model.Directory;
 import com.soli.server.model.Geolist;
 import com.soli.server.service.DataService;
 import com.soli.server.service.DirectoryService;
 import com.soli.server.service.GeolistService;
 import com.soli.server.service.impl.*;
 import com.soli.server.web.tag.DataMarker;
+import com.soli.server.web.tag.DirectoryMarker;
 import com.soli.server.web.tag.GeolistMarker;
 
 /**
@@ -77,11 +78,13 @@ public class MschModule extends LambkitModule  {
 	public void mapping(ActiveRecordPluginWrapper arp) {
 		arp.addMapping("tr_geolist", "id", Geolist.class);
 		arp.addMapping("tr_data", "id", Data.class);
+		arp.addMapping("tr_directory", "id", Directory.class);
 	}
 
 	public void addTag(LambkitModule lk) {
 		lk.addTag("geolist", new GeolistMarker());
 		lk.addTag("data", new DataMarker());
+		lk.addTag("directory", new DirectoryMarker());
 	}
 
 	public void registerLocalService() {
