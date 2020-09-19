@@ -33,10 +33,7 @@ import com.linuxense.javadbf.DBFReader;
 import com.soli.lambkit.start.GeoServerConfig;
 import com.soli.server.service.DataService;
 import com.soli.server.model.Data;
-import com.soli.server.utils.Co;
-import com.soli.server.utils.GeometryRelated;
-import com.soli.server.utils.IssueShpUtils;
-import com.soli.server.utils.readShp;
+import com.soli.server.utils.*;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.WKTReader;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
@@ -71,7 +68,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
-    public Ret addFeatureForShp(Integer id, JSONObject json,String latlons) {
+    public Ret addFeatureForShp(Integer id, JSONObject json, String latlons) {
         UpmsUser user = getUserEntity();
         if (user == null) {
             return Ret.fail("errorMsg", "当前登录用户异常");
@@ -97,7 +94,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             if (!file1.exists()) {
                 file1.mkdir();
             }
-            readShp.exportShp(path, newShp, json,latlons);
+            readShp.exportShp(path, newShp, json, latlons);
             File file = new File(webRootPath + "/d/" + name);
             file.delete();
             //重新发布并更新url
@@ -193,6 +190,21 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         sql.append(" order by time desc");
         Page<Data> paginate = Data.service().dao().paginate(pageNum, pageSize, "select * ", sql.toString());
+        List<Data> list = paginate.getList();
+        String webRootPath = PathKit.getWebRootPath();
+        for (int i = 0; i < list.size(); i++) {
+            Data data = list.get(i);
+            Integer type1 = data.getType();
+            Kv kv = null;
+            if (type1 == 0) {
+                kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
+            } else if (type1 == 1) {
+                kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
+            }
+            if (kv != null) {
+                data.put(kv);
+            }
+        }
         return Ret.ok("page", paginate);
     }
 
