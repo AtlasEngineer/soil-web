@@ -49,11 +49,12 @@ public class UploadController extends LambkitController {
         UploadFile uf = getFile();
         File file = uf.getFile();
 
-        String serverSessionId = this.getRequest().getHeader("Authorization");;
+        String serverSessionId = this.getRequest().getHeader("Authorization");
+        ;
         String code = UpmsManager.me().getCache().getSession(serverSessionId);
         if (!StringUtils.isNotBlank(code)) {
             System.out.println("无效访问unlogin");
-            this.renderJson(Co.ok("data",Ret.fail("errorMsg", "请重新登录")));
+            this.renderJson(Co.ok("data", Ret.fail("errorMsg", "请重新登录")));
             return;
         }
         UpmsUser user = getUserEntity();
@@ -78,7 +79,7 @@ public class UploadController extends LambkitController {
         System.out.println("上传时文件名：" + file.getName());
         String rootPath = PathKit.getWebRootPath() + "/upload/datafile/";
         String fileext = PathUtils.getExtensionName(file.getName());
-        String filename = "d-"+UUID.randomUUID().toString() + "." + fileext;
+        String filename = UUID.randomUUID().toString() + "." + fileext;
         if (file.length() > 52428800) {
             file.delete();
             setAttr("msg", "文件大小不能大于50MB");
@@ -110,6 +111,11 @@ public class UploadController extends LambkitController {
             String name = filename.split("\\.")[0];
             //发布
             Kv kv = null;
+            if (type == 0) {
+                name = "shp-"+name;
+            } else if (type == 1) {
+                name = "tif-"+name;
+            }
             if (type == 1 || type == 0) {
                 //解压后文件夹
                 String s = root + "/d/" + name;
@@ -186,7 +192,7 @@ public class UploadController extends LambkitController {
                     }
                 }
                 if (type == 1) {
-                    if(tifPath == null){
+                    if (tifPath == null) {
                         renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "上传压缩文件没有tif")));
                         return;
                     }
@@ -208,13 +214,13 @@ public class UploadController extends LambkitController {
             data.setDel(0);
             data.setDirectoryid(directoryid);
             if (type == 0) {
-                data.set("isedit",1);
+                data.set("isedit", 1);
                 data.setUrl("d:" + name);
-            }else if(type == 1){
-                data.set("isedit",0);
+            } else if (type == 1) {
+                data.set("isedit", 0);
                 data.setUrl("d:" + name);
             } else {
-                data.set("isedit",0);
+                data.set("isedit", 0);
                 data.setUrl("/upload/datafile/" + filename);
             }
             data.setTime(new Date());
