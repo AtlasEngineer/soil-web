@@ -56,6 +56,9 @@ public class DirectoryServiceImpl extends LambkitModelServiceImpl implements Dir
 
     @Override
     public Ret delDirectories(Integer id) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择正确的目录");
+        }
         Record tr_directory = Db.findById("tr_directory", id);
         if (tr_directory != null) {
             Integer level = tr_directory.getInt("level");
@@ -94,12 +97,12 @@ public class DirectoryServiceImpl extends LambkitModelServiceImpl implements Dir
             record.set("del", 0);
             Db.save("tr_directory", record);
             id1 = record.getInt("id");
-        }else{
+        } else {
             id1 = first1.getInt("id");
         }
         if (level2 != null) {
             Integer id2 = 0;
-            Record first2 = Db.findFirst("select * from tr_directory where name = ? and  parent_id = ? ", level2,id1);
+            Record first2 = Db.findFirst("select * from tr_directory where name = ? and  parent_id = ? ", level2, id1);
             if (first1 == null) {
                 Record record = new Record();
                 record.set("parent_id", id1);
@@ -109,12 +112,12 @@ public class DirectoryServiceImpl extends LambkitModelServiceImpl implements Dir
                 record.set("del", 0);
                 Db.save("tr_directory", record);
                 id2 = record.getInt("id");
-            }else{
+            } else {
                 id2 = first2.getInt("id");
             }
             if (level3 != null) {
-                Record first3 = Db.findFirst("select * from tr_directory where name = ? and  parent_id = ? ", level3,id2);
-                if (first1 == null) {
+                Record first3 = Db.findFirst("select * from tr_directory where name = ? and  parent_id = ? ", level3, id2);
+                if (first3 == null) {
                     Record record = new Record();
                     record.set("parent_id", id2);
                     record.set("level", 3);
@@ -123,13 +126,13 @@ public class DirectoryServiceImpl extends LambkitModelServiceImpl implements Dir
                     record.set("del", 0);
                     Db.save("tr_directory", record);
                     return Ret.ok("msg", "添加成功");
-                }else{
+                } else {
                     return Ret.ok("msg", "该目录已存在");
                 }
-            }else{
+            } else {
                 return Ret.ok("msg", "添加成功");
             }
-        }else{
+        } else {
             return Ret.ok("msg", "添加成功");
         }
     }
