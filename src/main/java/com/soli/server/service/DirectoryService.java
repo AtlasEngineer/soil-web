@@ -18,7 +18,7 @@ public interface DirectoryService extends LambkitService {
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "directory.addDirectories",useLogin = false)
-    public Ret addDirectories(String name,Integer parentId,Integer level);
+    public Ret addDirectories(String level1,String level2,String level3);
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "directory.delDirectories",useLogin = false)

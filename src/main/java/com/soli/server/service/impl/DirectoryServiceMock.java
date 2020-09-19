@@ -23,9 +23,10 @@ public class DirectoryServiceMock extends LambkitModelServiceImpl implements Dir
     }
 
     @Override
-    public Ret addDirectories(String name, Integer parentId, Integer level) {
+    public Ret addDirectories(String level1, String level2, String level3) {
         return null;
     }
+
 
     @Override
     public Ret delDirectories(Integer id) {
