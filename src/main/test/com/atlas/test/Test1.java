@@ -58,7 +58,6 @@ class test1 {
         SimpleFeatureType pgfeaturetype = fs.getSchema();
         //新文件
         File file = new File(shpPath);
-
         Map<String, Serializable> params = new HashMap<String, Serializable>();
         params.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
         ShapefileDataStore shpDataStore = (ShapefileDataStore) new ShapefileDataStoreFactory().createNewDataStore(params);
