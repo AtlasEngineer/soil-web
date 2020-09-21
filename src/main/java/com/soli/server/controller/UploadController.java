@@ -49,6 +49,7 @@ public class UploadController extends LambkitController {
         UploadFile uf = getFile();
         File file = uf.getFile();
 
+
         String serverSessionId = this.getRequest().getHeader("Authorization");
         ;
         String code = UpmsManager.me().getCache().getSession(serverSessionId);
