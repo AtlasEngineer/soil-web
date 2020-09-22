@@ -164,7 +164,7 @@ public class WeatherController extends LambkitController {
 
         String cname = pg.getStr("cname");
 
-        String url_ptah = "https://tianqiapi.com/api?version=v1&appid=66734781&appsecret=5b80caba77ff9738d5bac0b884339e1a&city="+cname+"";
+        String url_ptah = "https://tianqiapi.com/api?version=v1&appid=66734781&appsecret=xX1MZFk2&city="+cname+"";
 
         try {
             OkHttpClient client = new OkHttpClient().newBuilder()
@@ -174,7 +174,7 @@ public class WeatherController extends LambkitController {
                     .method("GET", null)
                     .build();
             Response response = client.newCall(request).execute();
-            renderJson(Co.ok("data", JSON.parseObject(response.body().string())));
+            renderJson(Co.ok("data",Ret.ok("data", JSON.parseObject(response.body().string()))));
         } catch (IOException e) {
             e.printStackTrace();
         }
