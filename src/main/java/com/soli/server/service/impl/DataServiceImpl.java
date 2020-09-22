@@ -126,15 +126,12 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         String webRootPath = PathKit.getWebRootPath().replace("\\", "/");
         try {
             String path = webRootPath + "/d/" + name + "/" + name + ".shp";
-            String newName = UUID.randomUUID().toString();
-            String newShp = webRootPath + "/d/" + name + "/" + newName + ".shp";
-            File file1 = new File(webRootPath + "/d/" + name);
-            if (!file1.exists()) {
-                file1.mkdir();
-            }
-            readShp.exportShp(path, newShp, json, latlons);
-            File file = new File(webRootPath + "/d/" + name);
-            file.delete();
+
+            String fileDir = webRootPath + "/d/" + name;
+            //压缩
+            ZipUtils.compress(fileDir,webRootPath+"/upload/datafile/"+name+".zip");
+
+            readShp.exportShp(path, name, json, latlons);
             //重新发布并更新url
             Kv kv = IssueShpUtils.uploadShp(webRootPath + "/d/" + name, name);
             data.setUrl("d:" + name);
