@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-class test1 {
+public class Test1 {
 
     public static void main(String[] args) {
         try {
@@ -58,6 +58,9 @@ class test1 {
         SimpleFeatureType pgfeaturetype = fs.getSchema();
         //新文件
         File file = new File(shpPath);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
         Map<String, Serializable> params = new HashMap<String, Serializable>();
         params.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
         ShapefileDataStore shpDataStore = (ShapefileDataStore) new ShapefileDataStoreFactory().createNewDataStore(params);
@@ -97,9 +100,16 @@ class test1 {
             SimpleFeature simpleFeature = featureWriter.next();
             simpleFeature.setValue(feature.getProperties());
             featureWriter.write();
+            //添加新要素
+            if(!iterator.hasNext()){
+                SimpleFeature next = featureWriter.next();
+                feature.setValue(simpleFeature1.getProperties());
+                next.setValue(feature.getProperties());
+                featureWriter.write();
+            }
         }
-        SimpleFeature next = featureWriter.next();
-        next.setValue(simpleFeature1.getProperties());
+
+
         iterator.close();
         featureWriter.close();
         return true;

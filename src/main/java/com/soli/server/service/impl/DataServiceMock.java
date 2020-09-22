@@ -32,6 +32,16 @@ import com.soli.server.service.DataService;
  */
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
     @Override
+    public Ret searchSoilAttribute(Integer id) {
+        return null;
+    }
+
+    @Override
+    public Ret searchTkByType() {
+        return null;
+    }
+
+    @Override
     public Ret addFeatureForShp(Integer id, JSONObject json,String latlons) {
         return null;
     }

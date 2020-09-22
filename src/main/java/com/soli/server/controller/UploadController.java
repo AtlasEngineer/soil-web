@@ -98,6 +98,11 @@ public class UploadController extends LambkitController {
             return;
         } else {
             //重命名
+            if (type == 0) {
+                filename = "shp-"+filename;
+            } else if (type == 1) {
+                filename = "tif-"+filename;
+            }
             boolean b = file.renameTo(new File(rootPath + filename));
             if (!b) {
                 renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "重命名失败")));
@@ -112,11 +117,6 @@ public class UploadController extends LambkitController {
             String name = filename.split("\\.")[0];
             //发布
             Kv kv = null;
-            if (type == 0) {
-                name = "shp-"+name;
-            } else if (type == 1) {
-                name = "tif-"+name;
-            }
             if (type == 1 || type == 0) {
                 //解压后文件夹
                 String s = root + "/d/" + name;

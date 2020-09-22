@@ -37,6 +37,14 @@ import java.util.Date;
 public interface DataService extends LambkitService<Data> {
 
     @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.searchSoilAttribute",useLogin = false)
+    public Ret searchSoilAttribute(Integer id);
+
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.searchTkByType",useLogin = false)
+    public Ret searchTkByType();
+
+    @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.addFeatureForShp",useLogin = false)
     public Ret addFeatureForShp(Integer id, JSONObject json,String latlons);
 

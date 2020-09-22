@@ -4,7 +4,11 @@ package com.soli.server.utils;
 import com.jfinal.kit.Kv;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.Record;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoordinates2D;
 import org.geotools.coverage.grid.GridCoverage2D;
@@ -29,7 +33,7 @@ import static java.lang.Math.pow;
 public class ReadTiffUtils {
 
     /**
-     *  点查询指定URl 的 tif
+     * 点查询指定URl 的 tif
      */
     public static double getAltitude(Double lon, Double lat, String url) throws Exception {
         File file = new File(url);
@@ -48,7 +52,70 @@ public class ReadTiffUtils {
     }
 
     /**
-     *  面查询指定URl 的 tif
+     * 面查询指定URl 的 tif
+     */
+    public static double getAltitudeByWkt(String wkt, String url) throws TransformException, IOException, ParseException {
+        File file = new File(url);
+        Hints tiffHints = new Hints();
+        tiffHints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE));
+        tiffHints.add(new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, DefaultGeographicCRS.WGS84));
+        GeoTiffReader tifReader = new GeoTiffReader(file, tiffHints);
+        GridCoverage2D coverage = tifReader.read(null);
+        // 获取坐标系
+        CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
+        List<Double> lons = new ArrayList<>();
+        List<Double> lats = new ArrayList<>();
+
+        WKTReader reader = new WKTReader(new GeometryFactory(new PrecisionModel(), 4326));
+        Polygon polygon = (Polygon) reader.read(wkt);
+
+        Double min_lon = polygon.getEnvelopeInternal().getMinX();
+        Double max_lon = polygon.getEnvelopeInternal().getMaxX();
+        Double min_lat = polygon.getEnvelopeInternal().getMinY();
+        Double max_lat = polygon.getEnvelopeInternal().getMaxY();
+        // 通过地理坐标获取行列号
+        DirectPosition position1 = new DirectPosition2D(crs, max_lon, max_lat);
+        Point2D point2d1 = coverage.getGridGeometry().worldToGrid(position1);
+        int max_x = (int) point2d1.getX();
+        int max_y = (int) point2d1.getY();
+        DirectPosition position2 = new DirectPosition2D(crs, min_lon, min_lat);
+        Point2D point2d2 = coverage.getGridGeometry().worldToGrid(position2);
+        int min_x = (int) point2d2.getX();
+        int min_y = (int) point2d2.getY();
+
+        double sum = 0;
+        int count = 0;
+        GridSampleDimension sampleDimension = coverage.getSampleDimension(0);
+        double nodData = sampleDimension.getMinimumValue();
+        for (int i = min_x; i < max_x; i++) {
+            for (int j = max_y; j < min_y; j++) {
+                GridCoordinates2D coord = new GridCoordinates2D(i, j);
+                DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
+                double lon = tmpPos.getCoordinate()[0];
+                double lat = tmpPos.getCoordinate()[1];
+                boolean iscontains = GeometryRelated.withinGeo(lon, lat, wkt);
+                if (iscontains) {
+                    Double pix = getObjectClass(coverage.evaluate(tmpPos));
+                    if (nodData != pix) {
+                        //加入计算平均值
+                        sum = sum + pix;
+                        count++;
+                    }
+                }
+            }
+        }
+
+        if (count == 0) {
+            return 0;
+        } else {
+            return Arith.div(sum, count, 2);
+        }
+
+
+    }
+
+    /**
+     * 面查询指定URl 的 tif
      */
     public static double getAltitudeList(String latlons, String url) throws TransformException, IOException, ParseException {
         File file = new File(url);
@@ -59,60 +126,60 @@ public class ReadTiffUtils {
         GridCoverage2D coverage = tifReader.read(null);
         // 获取坐标系
         CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
-            List<Double> lons = new ArrayList<>();
-            List<Double> lats = new ArrayList<>();
-            String[] split = latlons.split(",");
-            for (int i = 0; i < split.length; i++) {
-                String s = split[i];
-                lons.add(Double.parseDouble(s.split(" ")[0]));
-                lats.add(Double.parseDouble(s.split(" ")[1]));
-            }
-            Double min_lon = Collections.min(lons);
-            Double max_lon = Collections.max(lons);
-            Double min_lat = Collections.min(lats);
-            Double max_lat = Collections.max(lats);
-            // 通过地理坐标获取行列号
-            DirectPosition position1 = new DirectPosition2D(crs, max_lon, max_lat);
-            Point2D point2d1 = coverage.getGridGeometry().worldToGrid(position1);
-            int max_x = (int) point2d1.getX();
-            int max_y = (int) point2d1.getY();
-            DirectPosition position2 = new DirectPosition2D(crs, min_lon, min_lat);
-            Point2D point2d2 = coverage.getGridGeometry().worldToGrid(position2);
-            int min_x = (int) point2d2.getX();
-            int min_y = (int) point2d2.getY();
+        List<Double> lons = new ArrayList<>();
+        List<Double> lats = new ArrayList<>();
+        String[] split = latlons.split(",");
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            lons.add(Double.parseDouble(s.split(" ")[0]));
+            lats.add(Double.parseDouble(s.split(" ")[1]));
+        }
+        Double min_lon = Collections.min(lons);
+        Double max_lon = Collections.max(lons);
+        Double min_lat = Collections.min(lats);
+        Double max_lat = Collections.max(lats);
+        // 通过地理坐标获取行列号
+        DirectPosition position1 = new DirectPosition2D(crs, max_lon, max_lat);
+        Point2D point2d1 = coverage.getGridGeometry().worldToGrid(position1);
+        int max_x = (int) point2d1.getX();
+        int max_y = (int) point2d1.getY();
+        DirectPosition position2 = new DirectPosition2D(crs, min_lon, min_lat);
+        Point2D point2d2 = coverage.getGridGeometry().worldToGrid(position2);
+        int min_x = (int) point2d2.getX();
+        int min_y = (int) point2d2.getY();
 
-            double sum = 0;
-            int count = 0;
-            GridSampleDimension sampleDimension = coverage.getSampleDimension(0);
-            double nodData = sampleDimension.getMinimumValue();
-            for (int i = min_x; i < max_x; i++) {
-                for (int j = max_y; j < min_y; j++) {
-                    GridCoordinates2D coord = new GridCoordinates2D(i, j);
-                    DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
-                    double lon = tmpPos.getCoordinate()[0];
-                    double lat = tmpPos.getCoordinate()[1];
-                    boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))");
-                    if (iscontains) {
-                        Double pix = getObjectClass(coverage.evaluate(tmpPos));
-                        if (nodData != pix) {
-                            //加入计算平均值
-                            sum = sum + pix;
-                            count++;
-                        }
+        double sum = 0;
+        int count = 0;
+        GridSampleDimension sampleDimension = coverage.getSampleDimension(0);
+        double nodData = sampleDimension.getMinimumValue();
+        for (int i = min_x; i < max_x; i++) {
+            for (int j = max_y; j < min_y; j++) {
+                GridCoordinates2D coord = new GridCoordinates2D(i, j);
+                DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
+                double lon = tmpPos.getCoordinate()[0];
+                double lat = tmpPos.getCoordinate()[1];
+                boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))");
+                if (iscontains) {
+                    Double pix = getObjectClass(coverage.evaluate(tmpPos));
+                    if (nodData != pix) {
+                        //加入计算平均值
+                        sum = sum + pix;
+                        count++;
                     }
                 }
             }
+        }
 
-            if (count == 0) {
-                return 0;
-            } else {
-                return Arith.div(sum, count, 2);
-            }
+        if (count == 0) {
+            return 0;
+        } else {
+            return Arith.div(sum, count, 2);
+        }
 
 
     }
 
-    public static double getByGeom(String geom,String url) throws Exception{
+    public static double getByGeom(String geom, String url) throws Exception {
         File file = new File(url);
         Hints tiffHints = new Hints();
         tiffHints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE));
@@ -428,21 +495,21 @@ public class ReadTiffUtils {
         for (int i = 0; i < listx.size(); i++) {
             sumX += listx.get(i);
         }
-        Double ax = Arith.div(sumX,listx.size());
+        Double ax = Arith.div(sumX, listx.size());
         Double sumY = 0.0;
         for (int i = 0; i < listy.size(); i++) {
             sumY += listx.get(i);
         }
-        Double ay = Arith.div(sumX , listx.size());
+        Double ay = Arith.div(sumX, listx.size());
         Double em = 0.0;
         Double ez = 0.0;
         for (int i = 0; i < listx.size(); i++) {
             em += ((listx.get(i) - ax) * (listy.get(i) - ay));
             ez += pow((listx.get(i) - ax), 2);
         }
-        Double result =0.0;
-        if(ez != 0){
-            result =  Arith.div(em , ez);
+        Double result = 0.0;
+        if (ez != 0) {
+            result = Arith.div(em, ez);
         }
         return result;
     }

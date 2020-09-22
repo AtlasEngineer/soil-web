@@ -67,6 +67,44 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         return DAO;
     }
 
+
+    @Override
+    public Ret searchSoilAttribute(Integer id) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择地块");
+        }
+        Record tiankuai = Db.findFirst("select st_astext(geom) as wkt from tr_tiankuai where id = ?", id);
+        if (tiankuai != null) {
+            try {
+                String wkt = tiankuai.getStr("wkt");
+                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/黏粒/黏粒含量.tif");
+                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/砂粒/砂粒含量.tif");
+
+//                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/黏粒/黏粒含量.tif");
+//                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/砂粒/砂粒含量.tif");
+//                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/黏粒/黏粒含量.tif");
+//                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/砂粒/砂粒含量.tif");
+//                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/黏粒/黏粒含量.tif");
+//                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/砂粒/砂粒含量.tif");
+//                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/黏粒/黏粒含量.tif");
+//                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/砂粒/砂粒含量.tif");
+
+                return Ret.ok("data", Ret.by("黏粒含量",zlhl).set("砂粒含量",slhl));
+            }catch (Exception e){
+                return Ret.fail("errorMsg", "读取像素值错误，请联系管理员");
+            }
+        }else{
+            return Ret.fail("errorMsg", "地块不存在");
+        }
+    }
+
+    @Override
+    public Ret searchTkByType() {
+        List<Record> typesNum = Db.find("select type,count(type) from tr_tiankuai GROUP BY type");
+        List<Record> typesArea = Db.find("SELECT type,sum(st_area(ST_Transform(geom,4527))) as area from tr_tiankuai GROUP BY type");
+        return Ret.ok("typesNum", typesNum).set("typesArea", typesArea);
+    }
+
     @Override
     public Ret addFeatureForShp(Integer id, JSONObject json, String latlons) {
         UpmsUser user = getUserEntity();
@@ -85,7 +123,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "当前数据不可编辑");
         }
         String name = data.getUrl().split(":")[1];
-        String webRootPath = PathKit.getWebRootPath();
+        String webRootPath = PathKit.getWebRootPath().replace("/", File.separator);;
         try {
             String path = webRootPath + "/d/" + name + "/" + name + ".shp";
             String newName = UUID.randomUUID().toString();
