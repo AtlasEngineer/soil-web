@@ -174,7 +174,7 @@ public class WeatherController extends LambkitController {
                     .method("GET", null)
                     .build();
             Response response = client.newCall(request).execute();
-            renderJson(Co.ok("data", JSON.parseObject(response.body().string())));
+            renderJson(Co.ok("data",Ret.ok("data", JSON.parseObject(response.body().string()))));
         } catch (IOException e) {
             e.printStackTrace();
         }
