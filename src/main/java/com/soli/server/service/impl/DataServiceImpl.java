@@ -123,7 +123,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "当前数据不可编辑");
         }
         String name = data.getUrl().split(":")[1];
-        String webRootPath = PathKit.getWebRootPath().replace("/", File.separator);;
+        String webRootPath = PathKit.getWebRootPath().replace("\\", "/");
         try {
             String path = webRootPath + "/d/" + name + "/" + name + ".shp";
             String newName = UUID.randomUUID().toString();
