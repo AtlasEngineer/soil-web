@@ -36,6 +36,11 @@ import java.util.Date;
  */
 public interface DataService extends LambkitService<Data> {
 
+
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.getTkCenterAndJson",useLogin = false)
+    public Ret getTkCenterAndJson(Integer id);
+
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.searchSoilAttribute",useLogin = false)
     public Ret searchSoilAttribute(Integer id);

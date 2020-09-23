@@ -32,6 +32,11 @@ import com.soli.server.service.DataService;
  */
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
     @Override
+    public Ret getTkCenterAndJson(Integer id) {
+        return null;
+    }
+
+    @Override
     public Ret searchSoilAttribute(Integer id) {
         return null;
     }

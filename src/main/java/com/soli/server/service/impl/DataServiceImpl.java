@@ -69,6 +69,13 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
 
 
     @Override
+    public Ret getTkCenterAndJson(Integer id) {
+        Record center = Db.findFirst("select st_x(ST_Centroid(geom)) as x,st_y(ST_Centroid(geom)) as y from tr_tiankuai where id = ?", id);
+        Record geojson = Db.findFirst("select st_geojson(geom) from tr_tiankuai where id = ?", id);
+        return Ret.ok("center",center).set("geojson",geojson);
+    }
+
+    @Override
     public Ret searchSoilAttribute(Integer id) {
         if (id == null) {
             return Ret.fail("errorMsg", "请选择地块");
@@ -83,7 +90,6 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 double yjt = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/有机碳/有机碳.tif");
                 double ph = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/PH.tif");
                 double bctrhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/表层土砾石含量.tif");
-
 
                 return Ret.ok("data", Ret.by("黏粒含量", zlhl).set("砂粒含量", slhl).set("CEC", cec).set("有机碳", yjt)
                         .set("PH", ph).set("表层土砾石含量", bctrhl)
