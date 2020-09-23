@@ -77,7 +77,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     @Override
     public Ret getTkCenterAndJson(Integer id) {
         Record center = Db.findFirst("select st_x(ST_Centroid(geom)) as x,st_y(ST_Centroid(geom)) as y from tr_tiankuai where id = ?", id);
-        Record geojson = Db.findFirst("select st_geojson(geom) from tr_tiankuai where id = ?", id);
+        Record geojson = Db.findFirst("select st_asgeojson(geom) from tr_tiankuai where id = ?", id);
         return Ret.ok("center",center).set("geojson",geojson);
     }
 
