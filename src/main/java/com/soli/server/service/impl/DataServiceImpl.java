@@ -67,6 +67,11 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         return DAO;
     }
 
+    @Override
+    public Ret getTkAllCenter() {
+        Record center = Db.findFirst(" SELECT st_x(ST_Centroid(st_union(geom))) as x,st_y(ST_Centroid(st_union(geom))) as y from tr_tiankuai");
+        return  Ret.ok("center",center);
+    }
 
     @Override
     public Ret getTkCenterAndJson(Integer id) {
