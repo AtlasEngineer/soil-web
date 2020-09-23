@@ -77,23 +77,22 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         if (tiankuai != null) {
             try {
                 String wkt = tiankuai.getStr("wkt");
+                double cec = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/CEC.tif");
                 double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/黏粒/黏粒含量.tif");
                 double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/砂粒/砂粒含量.tif");
+                double yjt = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/有机碳/有机碳.tif");
+                double ph = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/PH.tif");
+                double bctrhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/表层土砾石含量.tif");
 
-//                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/黏粒/黏粒含量.tif");
-//                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/砂粒/砂粒含量.tif");
-//                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/黏粒/黏粒含量.tif");
-//                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/砂粒/砂粒含量.tif");
-//                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/黏粒/黏粒含量.tif");
-//                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/砂粒/砂粒含量.tif");
-//                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/黏粒/黏粒含量.tif");
-//                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/砂粒/砂粒含量.tif");
 
-                return Ret.ok("data", Ret.by("黏粒含量",zlhl).set("砂粒含量",slhl));
-            }catch (Exception e){
+                return Ret.ok("data", Ret.by("黏粒含量", zlhl).set("砂粒含量", slhl).set("CEC", cec).set("有机碳", yjt)
+                        .set("PH", ph).set("表层土砾石含量", bctrhl)
+                        //没有数据部分
+                        .set("粉粒", zlhl).set("有效钾",yjt).set("有效磷",yjt).set("总氮", yjt));
+            } catch (Exception e) {
                 return Ret.fail("errorMsg", "读取像素值错误，请联系管理员");
             }
-        }else{
+        } else {
             return Ret.fail("errorMsg", "地块不存在");
         }
     }
@@ -105,8 +104,8 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         Record areaCount = Db.findFirst("SELECT sum(st_area(ST_Transform(geom,4527))) as count from tr_tiankuai");
         List<Record> typesArea = Db.find("SELECT type,sum(st_area(ST_Transform(geom,4527))) as area from tr_tiankuai GROUP BY type");
         return Ret.ok("typesNum", typesNum).set("typesArea", typesArea)
-                .set("numCount",numCount.getDouble("count"))
-                .set("areaCount",areaCount.getDouble("count"));
+                .set("numCount", numCount.getDouble("count"))
+                .set("areaCount", areaCount.getDouble("count"));
     }
 
     @Override
@@ -133,7 +132,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
 
             String fileDir = webRootPath + "/d/" + name;
             //压缩
-            ZipUtils.compress(fileDir,webRootPath+"/upload/datafile/"+name+".zip");
+            ZipUtils.compress(fileDir, webRootPath + "/upload/datafile/" + name + ".zip");
 
             readShp.exportShp(path, name, json, latlons);
             //重新发布并更新url
