@@ -23,6 +23,7 @@ import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.Lambkit;
+import com.lambkit.common.LambkitConfig;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
@@ -87,14 +88,16 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择地块");
         }
         Record tiankuai = Db.findFirst("select st_astext(geom) as wkt from tr_tiankuai where id = ?", id);
+        GeoServerConfig geoServerConfig = new GeoServerConfig();
+        String respath = geoServerConfig.getRespath().replace("\\", "/");
         if (tiankuai != null) {
             try {
                 String wkt = tiankuai.getStr("wkt");
-                double cec = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/CEC.tif");
-                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/黏粒/黏粒含量.tif");
-                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/砂粒/砂粒含量.tif");
-                double yjt = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/有机碳/有机碳.tif");
-                double ph = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/PH.tif");
+                double cec = ReadTiffUtils.getAltitudeByWkt(wkt, respath+"/土壤/CEC.tif");
+                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath+"/土壤/黏粒/黏粒含量.tif");
+                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath+"/土壤/砂粒/砂粒含量.tif");
+                double yjt = ReadTiffUtils.getAltitudeByWkt(wkt, respath+"/土壤/有机碳/有机碳.tif");
+                double ph = ReadTiffUtils.getAltitudeByWkt(wkt, respath+"/土壤/PH.tif");
                 double bctrhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/表层土砾石含量.tif");
 
                 return Ret.ok("data", Ret.by("黏粒含量", zlhl).set("砂粒含量", slhl).set("CEC", cec).set("有机碳", yjt)

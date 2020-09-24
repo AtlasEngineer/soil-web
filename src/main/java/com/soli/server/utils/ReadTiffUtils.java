@@ -63,9 +63,6 @@ public class ReadTiffUtils {
         GridCoverage2D coverage = tifReader.read(null);
         // 获取坐标系
         CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
-        List<Double> lons = new ArrayList<>();
-        List<Double> lats = new ArrayList<>();
-
         WKTReader reader = new WKTReader(new GeometryFactory(new PrecisionModel(), 4326));
         Polygon polygon = (Polygon) reader.read(wkt);
 
@@ -87,6 +84,8 @@ public class ReadTiffUtils {
         int count = 0;
         GridSampleDimension sampleDimension = coverage.getSampleDimension(0);
         double nodData = sampleDimension.getMinimumValue();
+        System.out.println(min_x+"至"+max_x);
+        System.out.println(max_y+"至"+min_y);
         for (int i = min_x; i < max_x; i++) {
             for (int j = max_y; j < min_y; j++) {
                 GridCoordinates2D coord = new GridCoordinates2D(i, j);
