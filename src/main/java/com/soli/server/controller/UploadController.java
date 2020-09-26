@@ -89,10 +89,7 @@ public class UploadController extends LambkitController {
             file.delete();
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
             return;
-        } else if (!"jpg".equals(fileext) && !"png".equals(fileext) && !"gif".equals(fileext) && !"jpeg".equals(fileext)
-                && !"doc".equals(fileext) && !"docx".equals(fileext) && !"pdf".equals(fileext) && !"ppt".equals(fileext)
-                && !"pptx".equals(fileext) && !"JPG".equals(fileext) && !"txt".equals(fileext) && !"xlsx".equals(fileext)
-                && !"xls".equals(fileext) && !"MOV".equals(fileext) && !"zip".equals(fileext) && type == 2) {
+        } else if ( !"xlsx".equals(fileext) && !"xls".equals(fileext)) {
             file.delete();
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
             return;
