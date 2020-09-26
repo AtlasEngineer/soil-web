@@ -18,25 +18,25 @@ package com.soli.server.web.validator;
 import com.jfinal.core.Controller;
 import com.lambkit.web.validator.LambkitValidator;
 
-import com.soli.server.model.Geolist;
+import com.soli.server.model.HnwJgpz;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-08-28
+ * @date 2020-09-26
  * @version 1.0
  * @since 1.0
  */
-public class GeolistValidator extends LambkitValidator {
+public class HnwJgpzValidator extends LambkitValidator {
 
 	@Override
 	protected String getTableName(Controller c) {
-		return Geolist.service().getTableName();
+		return HnwJgpz.service().getTableName();
 	}
 	
 	@Override
 	protected String getPrefix() {
-		return "model";//StrKit.firstCharToLowerCase(Geolist.class.getSimpleName());
+		return "model";//StrKit.firstCharToLowerCase(HnwJgpz.class.getSimpleName());
 	}
 }

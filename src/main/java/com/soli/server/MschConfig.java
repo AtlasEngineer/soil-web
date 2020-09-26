@@ -21,7 +21,7 @@ import com.lambkit.core.config.annotation.PropertieConfig;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-08-28
+ * @date 2020-09-26
  * @version 1.0
  * @since 1.0
  */

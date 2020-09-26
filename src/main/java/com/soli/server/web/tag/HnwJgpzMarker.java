@@ -18,8 +18,8 @@ package com.soli.server.web.tag;
 import java.io.IOException;
 import java.util.Map;
 
-import com.soli.server.model.Geolist;
-import com.soli.server.service.GeolistService;
+import com.soli.server.model.HnwJgpz;
+import com.soli.server.service.HnwJgpzService;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.common.service.ServiceKit;
 import com.lambkit.web.tag.LambkitTemplateModel;
@@ -35,38 +35,46 @@ import freemarker.template.TemplateModel;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-08-28
+ * @date 2020-09-26
  * @version 1.0
  * @since 1.0
  */
 /**
- * tr_geolist标签<br>
+ * hnw_jgpz标签<br>
  * 参数：{id:主键}
- * 返回值：{entity:tr_geolist信息}
+ * 返回值：{entity:hnw_jgpz信息}
  * @author lambkit
  */
-public class GeolistMarker extends LambkitTemplateModel {
+public class HnwJgpzMarker extends LambkitTemplateModel {
 
 	@Override
 	public void onRender(Environment env, Map params, TemplateModel[] loopVars,
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		// TODO Auto-generated method stub
-		String id = get(params, "id");
-		String name = get(params, "name");
-		String datatype = get(params, "datatype");
+		String category = get(params, "category");
+		String tag = get(params, "tag");
+		String product = get(params, "product");
+		String place = get(params, "place");
+		String price = get(params, "price");
+		String status = get(params, "status");
+		String upTime = get(params, "up_time");
 		String url = get(params, "url");
-		String dtTime = get(params, "dt_time");
+		String id = get(params, "id");
 		int pagenum = getInt(params, "pagenum", 0);
 		int pagesize = getInt(params, "pagesize", 0);
 		String wheresql = get(params, "sql", null);
-		String sql = " from tr_geolist where "; 
+		String sql = " from hnw_jgpz where "; 
 		if(wheresql == null) {
 			sql += " 1=1 ";
-			if(StringUtils.hasText(id)) sql += " and id like '%" + id + "%'";//bigserial
-			if(StringUtils.hasText(name)) sql += " and name like '%" + name + "%'";//varchar
-			if(StringUtils.hasText(datatype)) sql += " and datatype like '%" + datatype + "%'";//varchar
+			if(StringUtils.hasText(category)) sql += " and category like '%" + category + "%'";//varchar
+			if(StringUtils.hasText(tag)) sql += " and tag like '%" + tag + "%'";//varchar
+			if(StringUtils.hasText(product)) sql += " and product like '%" + product + "%'";//varchar
+			if(StringUtils.hasText(place)) sql += " and place like '%" + place + "%'";//varchar
+			if(StringUtils.hasText(price)) sql += " and price like '%" + price + "%'";//varchar
+			if(StringUtils.hasText(status)) sql += " and status like '%" + status + "%'";//varchar
+			if(StringUtils.hasText(upTime)) sql += " and up_time like '%" + upTime + "%'";//varchar
 			if(StringUtils.hasText(url)) sql += " and url like '%" + url + "%'";//varchar
-			if(StringUtils.hasText(dtTime)) sql += " and dt_time like '%" + dtTime + "%'";//timestamp
+			if(StringUtils.hasText(id)) sql += " and id like '%" + id + "%'";//bigserial
 		} else {
 			sql += wheresql;
 		}
@@ -77,7 +85,7 @@ public class GeolistMarker extends LambkitTemplateModel {
 			sql += " order by " + orderby;
 		}
 		
-		GeolistService service = Geolist.service();
+		HnwJgpzService service = HnwJgpz.service();
 		
 		String tagEntityKeyname = get(params, "key", "entity");
 		if(pagenum==0) {

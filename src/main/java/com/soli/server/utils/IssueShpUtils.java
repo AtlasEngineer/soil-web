@@ -11,7 +11,6 @@ import com.lambkit.Lambkit;
 import com.lambkit.common.util.TimeUtils;
 import com.lambkit.db.mgr.util.MgrDb;
 import com.soli.lambkit.start.GeoServerConfig;
-import com.soli.server.model.Geolist;
 import com.soli.server.utils.CodePageUtils;
 import com.soli.server.utils.MapServerConstants;
 import com.soli.server.utils.Public;
@@ -199,12 +198,6 @@ public class IssueShpUtils {
             e.printStackTrace();
         }
         if (b) {
-            Geolist geolist=new Geolist();
-            geolist.setDatatype("shp");
-            geolist.setName(name);
-            geolist.setUrl("d:"+name);
-            geolist.setDtTime(new Date());
-            geolist.save();
             return Kv.by("msg", "发布成功").set("code", 200);
         } else {
             return Kv.by("msg", "发布失败").set("code", 400);

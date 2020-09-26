@@ -1,7 +1,6 @@
 package com.soli.server.controller;
 
 
-
 import com.alibaba.fastjson.JSON;
 import com.jfinal.aop.Clear;
 import com.jfinal.kit.Kv;
@@ -15,14 +14,12 @@ import com.lambkit.web.controller.LambkitController;
 import com.orbitz.okhttp3.OkHttpClient;
 import com.orbitz.okhttp3.Request;
 import com.orbitz.okhttp3.Response;
-import com.soli.server.model.Geolist;
+import com.soli.server.model.Directory;
 import com.soli.server.utils.Co;
 import com.soli.server.utils.IssueShpUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Clear(JwtTokenInterceptor.class)
 public class WeatherController extends LambkitController {
@@ -134,7 +131,7 @@ public class WeatherController extends LambkitController {
             }
             res.set("img", Db.findFirst(img.toString()));
         }
-        renderJson(Co.ok("data",res));
+        renderJson(Co.ok("data", res));
     }
 
 
@@ -164,7 +161,7 @@ public class WeatherController extends LambkitController {
 
         String cname = pg.getStr("cname");
 
-        String url_ptah = "https://tianqiapi.com/api?version=v1&appid=66734781&appsecret=xX1MZFk2&city="+cname+"";
+        String url_ptah = "https://tianqiapi.com/api?version=v1&appid=66734781&appsecret=xX1MZFk2&city=" + cname + "";
 
         try {
             OkHttpClient client = new OkHttpClient().newBuilder()
@@ -174,7 +171,7 @@ public class WeatherController extends LambkitController {
                     .method("GET", null)
                     .build();
             Response response = client.newCall(request).execute();
-            renderJson(Co.ok("data",Ret.ok("data", JSON.parseObject(response.body().string()))));
+            renderJson(Co.ok("data", Ret.ok("data", JSON.parseObject(response.body().string()))));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -193,16 +190,33 @@ public class WeatherController extends LambkitController {
         Integer code = kv.getInt("code");
         if (code == 400) {
             renderJson(Co.ok("data", kv.get("errorMsg")));
-        }else {
+        } else {
             renderJson(Co.ok("data", Ret.ok("msg", "成功")));
         }
 
     }
 
-    public void getShp() {
-        List<Geolist> geolist=Geolist.service().dao().findAll();
 
-        renderJson(Co.ok("data", Ret.ok("geolist",geolist)));
+    @Clear
+    public void list() {
+        List<Directory> oneLevelLists = Directory.service().find(Directory.sql().andLevelEqualTo(1).andDelEqualTo("0").example());
+        for (Directory directory : oneLevelLists) {
+            List<Directory> twoLevelLists = Directory.service().find(Directory.sql().andLevelEqualTo(2).andDelEqualTo("0").andParentIdEqualTo(directory.getId()).example());
+            for (Directory dir : twoLevelLists) {
+                if (dir.getName().equals("作物价格")) {
+                    Map<String,Object> map1=new HashMap<>();
+                    Map<String,Object> map2=new HashMap<>();
+                    map1.put("name","粮油米面");
+                    map2.put("name","种子种苗");
+                    List<Map<String,Object>> mapList=new ArrayList<>();
+                    mapList.add(map1);
+                    mapList.add(map2);
+                    dir.put("twoLevelLists",mapList);
+                }
+            }
+            directory.put("twoLevelLists", twoLevelLists);
+        }
+        renderJson(Co.ok("data", Ret.ok("oneLevelLists", oneLevelLists)));
 
     }
 }

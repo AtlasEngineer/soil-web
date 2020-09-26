@@ -20,38 +20,38 @@ import com.lambkit.Lambkit;
 import com.lambkit.common.service.ServiceKit;
 import com.lambkit.db.sql.column.Column;
 import com.soli.server.MschConfig;
-import com.soli.server.model.base.BaseGeolist;
-import com.soli.server.model.sql.GeolistCriteria;
-import com.soli.server.service.GeolistService;
-import com.soli.server.service.impl.GeolistServiceImpl;
+import com.soli.server.model.base.BaseHnwJgpz;
+import com.soli.server.model.sql.HnwJgpzCriteria;
+import com.soli.server.service.HnwJgpzService;
+import com.soli.server.service.impl.HnwJgpzServiceImpl;
 
 /**
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-08-28
+ * @date 2020-09-26
  * @version 1.0
  * @since 1.0
  */
-public class Geolist extends BaseGeolist<Geolist> {
+public class HnwJgpz extends BaseHnwJgpz<HnwJgpz> {
 
 	private static final long serialVersionUID = 1L;
 	
-	public static GeolistService service() {
-		return ServiceKit.inject(GeolistService.class, GeolistServiceImpl.class);
+	public static HnwJgpzService service() {
+		return ServiceKit.inject(HnwJgpzService.class, HnwJgpzServiceImpl.class);
 	}
 	
-	public static GeolistCriteria sql() {
-		return new GeolistCriteria();
+	public static HnwJgpzCriteria sql() {
+		return new HnwJgpzCriteria();
 	}
 	
-	public static GeolistCriteria sql(Column column) {
-		GeolistCriteria that = new GeolistCriteria();
+	public static HnwJgpzCriteria sql(Column column) {
+		HnwJgpzCriteria that = new HnwJgpzCriteria();
 		that.add(column);
         return that;
     }
 
-	public Geolist() {
+	public HnwJgpz() {
 		MschConfig config = Lambkit.config(MschConfig.class);
 		String dbconfig = config.getDbconfig();
 		if(StrKit.notBlank(dbconfig)) {
