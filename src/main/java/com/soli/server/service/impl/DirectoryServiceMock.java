@@ -31,6 +31,16 @@ import com.soli.server.service.DirectoryService;
  */
 public class DirectoryServiceMock extends BaseServiceMock<Directory> implements DirectoryService {
     @Override
+    public Ret updateDataDirectory(Integer directory_id, Integer data_id) {
+        return null;
+    }
+
+    @Override
+    public Ret add(Integer level, String name, Integer parent_id) {
+        return null;
+    }
+
+    @Override
     public Ret getDirectoryList(String name, Integer level) {
         return null;
     }
