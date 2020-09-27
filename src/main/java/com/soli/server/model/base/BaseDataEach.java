@@ -76,11 +76,11 @@ public abstract class BaseDataEach<M extends BaseDataEach<M>> extends LambkitMod
 	public void setUrl(java.lang.String url) {
 		this.set("url", url);
 	}
-	public java.lang.String getType() {
+	public java.lang.Integer getType() {
 		return this.get("type");
 	}
 
-	public void setType(java.lang.String type) {
+	public void setType(java.lang.Integer type) {
 		this.set("type", type);
 	}
 	public java.lang.Integer getDataId() {

@@ -13,6 +13,7 @@ import com.lambkit.plugin.jwt.JwtKit;
 import com.lambkit.plugin.jwt.impl.JwtUser;
 import com.lambkit.web.RequestManager;
 import com.soli.server.model.Data;
+import com.soli.server.model.DataEach;
 import com.soli.server.utils.Co;
 import com.jfinal.aop.Clear;
 import com.jfinal.kit.PathKit;
@@ -65,16 +66,23 @@ public class UploadController extends LambkitController {
             return;
         }
 
-        Integer type = getParaToInt("type");
-        Integer directoryid = getParaToInt("directoryid");
-        if (type == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择数据类型")));
+        Integer id = getParaToInt("id");
+        String dataName = getPara("name");
+        Date data_time = getParaToDate("data_time");
+        if (id == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择要查看的数据")));
             return;
         }
-        if (directoryid == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择目录")));
+        if (StringUtils.isBlank(dataName)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请输入数据名称")));
             return;
         }
+        if (data_time == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择数据时间")));
+            return;
+        }
+        Data data = Data.service().dao().findById(id);
+        Integer type = data.getType();
 
         String yname = file.getName();
         System.out.println("上传时文件名：" + file.getName());
@@ -89,16 +97,16 @@ public class UploadController extends LambkitController {
             file.delete();
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
             return;
-        } else if ( !"xlsx".equals(fileext) && !"xls".equals(fileext)) {
+        } else if (!"xlsx".equals(fileext) && !"xls".equals(fileext)) {
             file.delete();
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
             return;
         } else {
             //重命名
             if (type == 0) {
-                filename = "shp-"+filename;
+                filename = "shp-" + filename;
             } else if (type == 1) {
-                filename = "tif-"+filename;
+                filename = "tif-" + filename;
             }
             boolean b = file.renameTo(new File(rootPath + filename));
             if (!b) {
@@ -206,19 +214,16 @@ public class UploadController extends LambkitController {
                     return;
                 }
             }
-            Data data = new Data();
-            data.setName(yname);
-            data.setType(type);
-            data.setDel(0);
-            data.setDirectoryid(directoryid);
-            if (type == 0) {
-                data.set("isedit", 1);
+            DataEach dataEach = new DataEach();
+            dataEach.setName(yname);
+            dataEach.setType(type);
+            dataEach.setDataId(id);
+            dataEach.setDataTime(data_time);
+            dataEach.setTime(new Date());
+            data.setUserid(user.getUserId().intValue());
+            if (type == 0||type == 1) {
                 data.setUrl("d:" + name);
-            } else if (type == 1) {
-                data.set("isedit", 0);
-                data.setUrl("d:" + name);
-            } else {
-                data.set("isedit", 0);
+           } else {
                 data.setUrl("/upload/datafile/" + filename);
             }
             data.setTime(new Date());

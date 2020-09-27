@@ -629,62 +629,53 @@ public class DataEachCriteria extends Columns implements Serializable {
 		notEmpty("type");
 		return this;
 	}
-        public DataEachCriteria andTypeLike(java.lang.String value) {
-    	   addCriterion("type", value, ConditionMode.FUZZY, "type", "java.lang.String", "String");
-    	   return this;
-      }
-
-      public DataEachCriteria andTypeNotLike(java.lang.String value) {
-          addCriterion("type", value, ConditionMode.NOT_FUZZY, "type", "java.lang.String", "String");
-          return this;
-      }
-      public DataEachCriteria andTypeEqualTo(java.lang.String value) {
-          addCriterion("type", value, ConditionMode.EQUAL, "type", "java.lang.String", "String");
+       public DataEachCriteria andTypeEqualTo(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.EQUAL, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public DataEachCriteria andTypeNotEqualTo(java.lang.String value) {
-          addCriterion("type", value, ConditionMode.NOT_EQUAL, "type", "java.lang.String", "String");
+      public DataEachCriteria andTypeNotEqualTo(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.NOT_EQUAL, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public DataEachCriteria andTypeGreaterThan(java.lang.String value) {
-          addCriterion("type", value, ConditionMode.GREATER_THEN, "type", "java.lang.String", "String");
+      public DataEachCriteria andTypeGreaterThan(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.GREATER_THEN, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public DataEachCriteria andTypeGreaterThanOrEqualTo(java.lang.String value) {
-          addCriterion("type", value, ConditionMode.GREATER_EQUAL, "type", "java.lang.String", "String");
+      public DataEachCriteria andTypeGreaterThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.GREATER_EQUAL, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public DataEachCriteria andTypeLessThan(java.lang.String value) {
-          addCriterion("type", value, ConditionMode.LESS_THEN, "type", "java.lang.String", "String");
+      public DataEachCriteria andTypeLessThan(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.LESS_THEN, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public DataEachCriteria andTypeLessThanOrEqualTo(java.lang.String value) {
-          addCriterion("type", value, ConditionMode.LESS_EQUAL, "type", "java.lang.String", "String");
+      public DataEachCriteria andTypeLessThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("type", value, ConditionMode.LESS_EQUAL, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public DataEachCriteria andTypeBetween(java.lang.String value1, java.lang.String value2) {
-    	  addCriterion("type", value1, value2, ConditionMode.BETWEEN, "type", "java.lang.String", "String");
+      public DataEachCriteria andTypeBetween(java.lang.Integer value1, java.lang.Integer value2) {
+    	  addCriterion("type", value1, value2, ConditionMode.BETWEEN, "type", "java.lang.Integer", "Float");
     	  return this;
       }
 
-      public DataEachCriteria andTypeNotBetween(java.lang.String value1, java.lang.String value2) {
-          addCriterion("type", value1, value2, ConditionMode.NOT_BETWEEN, "type", "java.lang.String", "String");
+      public DataEachCriteria andTypeNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
+          addCriterion("type", value1, value2, ConditionMode.NOT_BETWEEN, "type", "java.lang.Integer", "Float");
           return this;
       }
         
-      public DataEachCriteria andTypeIn(List<java.lang.String> values) {
-          addCriterion("type", values, ConditionMode.IN, "type", "java.lang.String", "String");
+      public DataEachCriteria andTypeIn(List<java.lang.Integer> values) {
+          addCriterion("type", values, ConditionMode.IN, "type", "java.lang.Integer", "Float");
           return this;
       }
 
-      public DataEachCriteria andTypeNotIn(List<java.lang.String> values) {
-          addCriterion("type", values, ConditionMode.NOT_IN, "type", "java.lang.String", "String");
+      public DataEachCriteria andTypeNotIn(List<java.lang.Integer> values) {
+          addCriterion("type", values, ConditionMode.NOT_IN, "type", "java.lang.Integer", "Float");
           return this;
       }
 	public DataEachCriteria andDataIdIsNull() {

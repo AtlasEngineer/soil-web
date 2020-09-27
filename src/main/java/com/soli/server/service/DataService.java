@@ -36,7 +36,9 @@ import java.util.Date;
  */
 public interface DataService extends LambkitService<Data> {
 
-
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.getEach",useLogin = false)
+    public Ret getEach(Integer id);
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.getTkAllCenter",useLogin = false)

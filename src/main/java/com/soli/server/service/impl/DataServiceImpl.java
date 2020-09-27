@@ -32,6 +32,7 @@ import com.linuxense.javadbf.DBFDataType;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
 import com.soli.lambkit.start.GeoServerConfig;
+import com.soli.server.model.DataEach;
 import com.soli.server.service.DataService;
 import com.soli.server.model.Data;
 import com.soli.server.utils.*;
@@ -66,6 +67,15 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             DAO = AopKit.singleton(Data.class);
         }
         return DAO;
+    }
+
+    @Override
+    public Ret getEach(Integer id) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择数据");
+        }
+        List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(id).example().setOrderBy("data_time desc"));
+        return Ret.ok("list",dataEaches);
     }
 
     @Override
