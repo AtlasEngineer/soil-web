@@ -69,33 +69,33 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         return DAO;
     }
 
-public Ret getEach(Integer id) {
+    public Ret getEach(Integer id) {
         if (id == null) {
             return Ret.fail("errorMsg", "请选择数据");
         }
         List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(id).example().setOrderBy("data_time desc"));
-        return Ret.ok("list",dataEaches);
+        return Ret.ok("list", dataEaches);
     }
 
     @Override
     public Ret getTkAllCenter(String type) {
 //        Record center = Db.findFirst(" SELECT st_x(ST_Centroid(st_union(geom))) as x,st_y(ST_Centroid(st_union(geom))) as y from tr_tiankuai");
-        List<Record> center =null;
-        if(StringUtils.isNotBlank(type)){
-            center = Db.find(" SELECT dk_name,id,st_x(ST_Centroid(geom)) as x,st_y(ST_Centroid(geom)) as y from tr_tiankuai where del=0 and name=?",type);
-        }else {
+        List<Record> center = null;
+        if (StringUtils.isNotBlank(type)) {
+            center = Db.find(" SELECT dk_name,id,st_x(ST_Centroid(geom)) as x,st_y(ST_Centroid(geom)) as y from tr_tiankuai where del=0 and name=?", type);
+        } else {
             center = Db.find(" SELECT dk_name,id,st_x(ST_Centroid(geom)) as x,st_y(ST_Centroid(geom)) as y from tr_tiankuai where del=0");
         }
-        return  Ret.ok("center",center);
+        return Ret.ok("center", center);
     }
 
     @Override
     public Ret getTkCenterAndJson(Integer id) {
         Record center = Db.findFirst("select st_x(ST_Centroid(geom)) as x,st_y(ST_Centroid(geom)) as y from tr_tiankuai where id = ?", id);
         Record geojson = Db.findFirst("select st_asgeojson(geom) from tr_tiankuai where id = ?", id);
-      
-        Record record=Db.findFirst("select * from tr_tiankuai where id = ?",id);
-        return Ret.ok("center",center).set("geojson",geojson).set("record",record);
+
+        Record record = Db.findFirst("select * from tr_tiankuai where id = ?", id);
+        return Ret.ok("center", center).set("geojson", geojson).set("record", record);
 
     }
 
