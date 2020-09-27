@@ -35,7 +35,7 @@ public class GeneratorTest {
             options.put("tableRemovePrefixes", "tr_");
             //仅包含如下表格
             //options.put("includedTables", "ld_company,ld_research_team,ld_research_team_user,ld_field_option,ld_field_point,ld_field_point_image,ld_field_point_video,ld_field_project,ld_field_project_option,ld_field_type,ld_research_projects,ld_research_qurvey,ld_data_sharing,ld_data_research_area,ld_data_research_direction");
-            options.put("includedTables", "tr_catalogue");
+            options.put("includedTables", "tr_data_each");
             options.put("hasMgrTable", true);
             Msch.generator(templatePath, options, config);
             System.exit(0);

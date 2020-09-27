@@ -77,7 +77,6 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }else {
             center = Db.find(" SELECT dk_name,id,st_x(ST_Centroid(geom)) as x,st_y(ST_Centroid(geom)) as y from tr_tiankuai where del=0");
         }
-
         return  Ret.ok("center",center);
     }
 
@@ -87,6 +86,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         Record geojson = Db.findFirst("select st_asgeojson(geom) from tr_tiankuai where id = ?", id);
         Record record=Db.findFirst("select * from tr_tiankuai where id = ?",id);
         return Ret.ok("center",center).set("geojson",geojson).set("record",record);
+
     }
 
     @Override
@@ -100,17 +100,17 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         if (tiankuai != null) {
             try {
                 String wkt = tiankuai.getStr("wkt");
-                double cec = ReadTiffUtils.getAltitudeByWkt(wkt, respath+"/土壤/CEC.tif");
-                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath+"/土壤/黏粒/黏粒含量.tif");
-                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath+"/土壤/砂粒/砂粒含量.tif");
-                double yjt = ReadTiffUtils.getAltitudeByWkt(wkt, respath+"/土壤/有机碳/有机碳.tif");
-                double ph = ReadTiffUtils.getAltitudeByWkt(wkt, respath+"/土壤/PH.tif");
+                double cec = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/CEC.tif");
+                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/黏粒/黏粒含量.tif");
+                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/砂粒/砂粒含量.tif");
+                double yjt = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/有机碳/有机碳.tif");
+                double ph = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/PH.tif");
                 double bctrhl = ReadTiffUtils.getAltitudeByWkt(wkt, "/土壤/表层土砾石含量.tif");
 
                 return Ret.ok("data", Ret.by("黏粒含量", zlhl).set("砂粒含量", slhl).set("CEC", cec).set("有机碳", yjt)
                         .set("PH", ph).set("表层土砾石含量", bctrhl)
                         //没有数据部分
-                        .set("粉粒", zlhl).set("有效钾",yjt).set("有效磷",yjt).set("总氮", yjt));
+                        .set("粉粒", zlhl).set("有效钾", yjt).set("有效磷", yjt).set("总氮", yjt));
             } catch (Exception e) {
                 return Ret.fail("errorMsg", "读取像素值错误，请联系管理员");
             }
@@ -228,7 +228,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
-    public Ret search(String name, String type, String[] times, String directoryid, Integer pageNum, Integer pageSize) {
+    public Ret search(String name, Integer type, String[] times, Integer directoryid, Integer pageNum, Integer pageSize) {
         if (pageNum == null) {
             pageNum = 1;
         }
@@ -239,32 +239,32 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         if (StringUtils.isNotBlank(name)) {
             sql.append(" and name like '%" + name + "%' ");
         }
-        if (StringUtils.isNotBlank(type)) {
+        if (type != null) {
             sql.append(" and type = '" + type + "' ");
         }
         if (times != null && times.length > 1) {
             sql.append(" and time between '" + times[0] + "' and '" + times[1] + "' ");
         }
-        if (StringUtils.isNotBlank(directoryid)) {
+        if (directoryid != null) {
             sql.append(" and directoryid = '" + directoryid + "' ");
         }
         sql.append(" order by time desc");
         Page<Data> paginate = Data.service().dao().paginate(pageNum, pageSize, "select * ", sql.toString());
-        List<Data> list = paginate.getList();
-        String webRootPath = PathKit.getWebRootPath();
-        for (int i = 0; i < list.size(); i++) {
-            Data data = list.get(i);
-            Integer type1 = data.getType();
-            Kv kv = null;
-            if (type1 == 0) {
-                kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
-            } else if (type1 == 1) {
-                kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
-            }
-            if (kv != null) {
-                data.put(kv);
-            }
-        }
+//        List<Data> list = paginate.getList();
+//        String webRootPath = PathKit.getWebRootPath();
+//        for (int i = 0; i < list.size(); i++) {
+//            Data data = list.get(i);
+//            Integer type1 = data.getType();
+//            Kv kv = null;
+//            if (type1 == 0) {
+//                kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
+//            } else if (type1 == 1) {
+//                kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
+//            }
+//            if (kv != null) {
+//                data.put(kv);
+//            }
+//        }
         return Ret.ok("page", paginate);
     }
 

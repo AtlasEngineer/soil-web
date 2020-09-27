@@ -51,6 +51,16 @@ public class DirectoryServiceImpl extends LambkitModelServiceImpl<Directory> imp
     }
 
     @Override
+    public Ret searchAll() {
+        List<Directory> directories = Directory.service().dao().find(Directory.sql().andLevelEqualTo(1).example());
+        for (Directory directory : directories) {
+            List<Directory> dir = Directory.service().dao().find(Directory.sql().andParentIdEqualTo(directory.getId()).example());
+            directory.put("children",dir);
+        }
+        return Ret.ok("dir", directories);
+    }
+
+    @Override
     public Ret updateDataDirectory(Integer directory_id, Integer data_id) {
         if (data_id == null) {
             return Ret.fail("errorMsg", "请选择编辑的数据");
@@ -60,33 +70,33 @@ public class DirectoryServiceImpl extends LambkitModelServiceImpl<Directory> imp
         }
         Data data = Data.service().dao().findById(data_id);
         if (data != null) {
-			data.setDirectoryid(directory_id);
-			data.update();
-			return Ret.ok("msg", "修改成功");
-        }else{
-			return Ret.fail("errorMsg", "该数据不存在");
-		}
+            data.setDirectoryid(directory_id);
+            data.update();
+            return Ret.ok("msg", "修改成功");
+        } else {
+            return Ret.fail("errorMsg", "该数据不存在");
+        }
     }
 
     @Override
     public Ret add(Integer level, String name, Integer parent_id) {
-		if (level == null) {
-			return Ret.fail("errorMsg", "请选择目录级别");
-		}
-		if (parent_id == null) {
-			return Ret.fail("errorMsg", "请选择父目录");
-		}
-		if (StringUtils.isBlank(name)) {
-			return Ret.fail("errorMsg", "请输入目录名称");
-		}
-		Directory directory = new Directory();
-		directory.setDel("0");
-		directory.setName(name);
-		directory.setCreateTime(new Date());
-		directory.setLevel(level);
-		directory.setParentId(parent_id);
-		directory.save();
-		return Ret.ok("msg", "添加成功");
+        if (level == null) {
+            return Ret.fail("errorMsg", "请选择目录级别");
+        }
+        if (parent_id == null) {
+            return Ret.fail("errorMsg", "请选择父目录");
+        }
+        if (StringUtils.isBlank(name)) {
+            return Ret.fail("errorMsg", "请输入目录名称");
+        }
+        Directory directory = new Directory();
+        directory.setDel("0");
+        directory.setName(name);
+        directory.setCreateTime(new Date());
+        directory.setLevel(level);
+        directory.setParentId(parent_id);
+        directory.save();
+        return Ret.ok("msg", "添加成功");
     }
 
     /**
@@ -130,25 +140,8 @@ public class DirectoryServiceImpl extends LambkitModelServiceImpl<Directory> imp
         if (id == null) {
             return Ret.fail("errorMsg", "请选择正确的目录");
         }
-        Record tr_directory = Db.findById("tr_directory", id);
-        if (tr_directory != null) {
-            Integer level = tr_directory.getInt("level");
-            String sql = "";
-            if (level == 1) {
-                sql = "DELETE FROM tr_directory WHERE id IN ( " +
-                        " SELECT id FROM tr_directory WHERE parent_id IN ( SELECT ID FROM tr_directory WHERE parent_id = " + id + " ) " +
-                        " UNION " +
-                        " ( SELECT id FROM tr_directory WHERE parent_id = " + id + " ) " +
-                        ")";
-            } else if (level == 2) {
-                sql = "DELETE FROM tr_directory WHERE id IN ( " +
-                        " SELECT id FROM tr_directory WHERE parent_id IN ( SELECT ID FROM tr_directory WHERE parent_id = " + id + " ) " +
-                        ")";
-            } else {
-                sql = "DELETE FROM tr_directory WHERE id = " + id;
-            }
-            int update = Db.update(sql);
-        }
+        Db.delete("DELETE FROM tr_directory WHERE id = " + id);
+        Db.delete("DELETE FROM tr_directory WHERE parent_id = " + id);
         return Ret.ok("data", "success");
     }
 

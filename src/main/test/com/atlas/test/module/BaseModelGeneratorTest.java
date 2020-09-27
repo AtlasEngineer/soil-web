@@ -16,7 +16,7 @@ public class BaseModelGeneratorTest {
     public static void main(String[] args) {
             GeneratorConfig config = new GeneratorConfig();
             //生成java代码的存放地址
-            config.setOutRootDir("F:/laproject/landa-web/src/main/java");
+            config.setOutRootDir("D:/aaaaaa/java");
             //生成java代码的包地址
             config.setBasepackage("com.atlas.landa");
             //生成前端文件文件夹
@@ -32,9 +32,9 @@ public class BaseModelGeneratorTest {
             System.out.println("地址："+System.getProperty("user.dir"));
             Map<String,Object> options = Maps.newHashMap();
             //需要去掉的前缀
-            options.put("tableRemovePrefixes", "ld_");
+            options.put("tableRemovePrefixes", "tr_");
             //仅包含如下表格
-            options.put("includedTables", "ld_achievements_item");
+            options.put("includedTables", "tr_data_each");
             options.put("hasMgrTable", true);
             Msch.generator(templatePath, options, config);
             System.exit(0);

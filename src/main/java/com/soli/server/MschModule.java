@@ -22,8 +22,6 @@ import com.lambkit.common.service.ServiceManager;
 import com.lambkit.core.rpc.RpcConfig;
 import com.lambkit.db.datasource.ActiveRecordPluginWrapper;
 import com.lambkit.module.LambkitModule;
-
-import com.soli.server.MschConfig;
 import com.soli.server.model.*;
 import com.soli.server.service.*;
 import com.soli.server.service.impl.*;
@@ -77,7 +75,7 @@ public class MschModule extends LambkitModule  {
 		arp.addMapping("hnw_jgpz", "id", HnwJgpz.class);
 		arp.addMapping("tr_data", "id", Data.class);
 		arp.addMapping("tr_directory", "id", Directory.class);
-		arp.addMapping("tr_catalogue", "id", Catalogue.class);
+		arp.addMapping("tr_data_each", "id", DataEach.class);
 	}
 
 	public void addTag(LambkitModule lk) {
@@ -87,7 +85,7 @@ public class MschModule extends LambkitModule  {
 		lk.addTag("hnwJgpz", new HnwJgpzMarker());
 		lk.addTag("data", new DataMarker());
 		lk.addTag("directory", new DirectoryMarker());
-		lk.addTag("catalogue", new CatalogueMarker());
+		lk.addTag("dataEach", new DataEachMarker());
 	}
 
 	public void registerLocalService() {
@@ -102,6 +100,7 @@ public class MschModule extends LambkitModule  {
 		ServiceManager.me().mapping(DataService.class, DataServiceImpl.class, DataServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(DirectoryService.class, DirectoryServiceImpl.class, DirectoryServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(CatalogueService.class, CatalogueServiceImpl.class, CatalogueServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(DataEachService.class, DataEachServiceImpl.class, DataEachServiceMock.class, group, version, port);
 	}
 
 	public void registerRemoteService() {
@@ -116,6 +115,7 @@ public class MschModule extends LambkitModule  {
 		ServiceManager.me().remote(DataService.class, DataServiceMock.class, group, version, port);
 		ServiceManager.me().remote(DirectoryService.class, DirectoryServiceMock.class, group, version, port);
 		ServiceManager.me().remote(CatalogueService.class, CatalogueServiceMock.class, group, version, port);
+		ServiceManager.me().remote(DataEachService.class, DataEachServiceMock.class, group, version, port);
 	}
 
 	public int getRpcPort() {

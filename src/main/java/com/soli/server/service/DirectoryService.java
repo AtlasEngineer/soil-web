@@ -33,6 +33,11 @@ import com.soli.server.model.Directory;
  */
 public interface DirectoryService extends LambkitService<Directory> {
 
+
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "directory.searchAll",useLogin = false)
+    public Ret searchAll();
+
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "directory.updateDataDirectory",useLogin = false)
     public Ret updateDataDirectory(Integer directory_id,Integer data_id);
