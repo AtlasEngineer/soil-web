@@ -42,7 +42,7 @@ public class HnwJgpzServiceMock extends BaseServiceMock<HnwJgpz> implements HnwJ
     }
 
     @Override
-    public Ret hnwjByName(String name, Integer pageNum, Integer pageSize, List<String> time,String address,String type){
+    public Ret hnwjByName(String name, Integer pageNum, Integer pageSize, String time,String address,String type){
         HnwJgpzCriteria sql=HnwJgpz.sql();
         if(StringUtils.isBlank(name)){
             return  Ret.fail("errorMsg","类别不能为空");
@@ -52,12 +52,12 @@ public class HnwJgpzServiceMock extends BaseServiceMock<HnwJgpz> implements HnwJ
     }
 
     @Override
-    public Ret hnwfljgByName(String name, Integer pageNum, Integer pageSize, List<String> time, String address, String type) throws ParseException {
+    public Ret hnwfljgByName(String name, Integer pageNum, Integer pageSize, String time,String address,String type) throws ParseException {
         return null;
     }
 
     @Override
-    public Ret hnwnyjgByName(String name, Integer pageNum, Integer pageSize, List<String> time, String address, String type) throws ParseException {
+    public Ret hnwnyjgByName(String name, Integer pageNum, Integer pageSize, String time, String address, String type) throws ParseException {
         return null;
     }
 }
