@@ -243,21 +243,21 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         sql.append(" order by time desc");
         Page<Data> paginate = Data.service().dao().paginate(pageNum, pageSize, "select * ", sql.toString());
-        List<Data> list = paginate.getList();
-        String webRootPath = PathKit.getWebRootPath();
-        for (int i = 0; i < list.size(); i++) {
-            Data data = list.get(i);
-            Integer type1 = data.getType();
-            Kv kv = null;
-            if (type1 == 0) {
-                kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
-            } else if (type1 == 1) {
-                kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
-            }
-            if (kv != null) {
-                data.put(kv);
-            }
-        }
+//        List<Data> list = paginate.getList();
+//        String webRootPath = PathKit.getWebRootPath();
+//        for (int i = 0; i < list.size(); i++) {
+//            Data data = list.get(i);
+//            Integer type1 = data.getType();
+//            Kv kv = null;
+//            if (type1 == 0) {
+//                kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
+//            } else if (type1 == 1) {
+//                kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
+//            }
+//            if (kv != null) {
+//                data.put(kv);
+//            }
+//        }
         return Ret.ok("page", paginate);
     }
 
