@@ -32,7 +32,7 @@ import com.soli.server.service.DataService;
  */
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
     @Override
-    public Ret getTkAllCenter() {
+    public Ret getTkAllCenter(String type) {
         return null;
     }
 

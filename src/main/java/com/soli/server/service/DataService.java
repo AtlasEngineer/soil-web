@@ -40,7 +40,7 @@ public interface DataService extends LambkitService<Data> {
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.getTkAllCenter",useLogin = false)
-    public Ret getTkAllCenter();
+    public Ret getTkAllCenter(String type);
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.getTkCenterAndJson",useLogin = false)
