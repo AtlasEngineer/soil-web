@@ -22,7 +22,7 @@ import com.lambkit.common.service.ServiceManager;
 import com.lambkit.core.rpc.RpcConfig;
 import com.lambkit.db.datasource.ActiveRecordPluginWrapper;
 import com.lambkit.module.LambkitModule;
-import com.soli.server.model.Catalogue; 
+import com.soli.server.model.Catalogue;
 import com.soli.server.model.Data;
 import com.soli.server.model.Directory;
 import com.soli.server.model.HnwJgpz;

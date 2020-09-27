@@ -43,18 +43,18 @@ public interface HnwJgpzService extends LambkitService<HnwJgpz> {
     //作物价格
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.hnwjByName",useLogin = false)
-    public Ret hnwjByName(String name, Integer pageNum, Integer pageSize, List<String> time,String address,String type) throws ParseException;
+    public Ret hnwjByName(String name, Integer pageNum, Integer pageSize, String time,String address,String type) throws ParseException;
 
     //肥料价格
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.hnwfljgByName",useLogin = false)
-    public Ret hnwfljgByName(String name, Integer pageNum, Integer pageSize, List<String> time,String address,String type) throws ParseException;
+    public Ret hnwfljgByName(String name, Integer pageNum, Integer pageSize, String time,String address,String type) throws ParseException;
 
 
     //农药价格
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.hnwnyjgByName",useLogin = false)
-    public Ret hnwnyjgByName(String name, Integer pageNum, Integer pageSize, List<String> time,String address,String type) throws ParseException;
+    public Ret hnwnyjgByName(String name, Integer pageNum, Integer pageSize, String time, String address, String type) throws ParseException;
 
 
 

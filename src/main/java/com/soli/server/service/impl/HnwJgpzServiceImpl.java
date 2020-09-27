@@ -58,7 +58,7 @@ public class HnwJgpzServiceImpl extends LambkitModelServiceImpl<HnwJgpz> impleme
 	}
 
 	@Override
-	public Ret hnwjByName(String name, Integer pageNum, Integer pageSize, List<String> time,String address,String type) throws ParseException {
+	public Ret hnwjByName(String name, Integer pageNum, Integer pageSize, String time,String address,String type) throws ParseException {
 		HnwJgpzCriteria sql=HnwJgpz.sql();
 		if(StringUtils.isBlank(name)){
 			return  Ret.fail("errorMsg","类别不能为空");
@@ -73,22 +73,19 @@ public class HnwJgpzServiceImpl extends LambkitModelServiceImpl<HnwJgpz> impleme
 			sql.andPlaceLike("%"+address+"%");
 		}
 		if(StringUtils.isNotBlank(type)){
-			sql.andProductLike("%"+address+"%");
+			sql.andTagLike("%"+type+"%");
 		}
-		if(time!=null&&time.size()!=0){
+		if(time!=null&&time.length()!=0){
 			SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
-			sql.andUpTimeBetween(sdf.parse(time.get(0)),sdf.parse(time.get(1)));
+			sql.andUpTimeEqualTo(sdf.parse(time));
 		}
 		Page<HnwJgpz> page=HnwJgpz.service().dao().paginate(pageNum,pageSize,sql.andCategoryEqualTo(name).example().setOrderBy("up_time desc"));
 		return Ret.ok("data",page);
 	}
 
 	@Override
-	public Ret hnwfljgByName(String name, Integer pageNum, Integer pageSize, List<String> time, String address, String type) throws ParseException {
+	public Ret hnwfljgByName(String name, Integer pageNum, Integer pageSize, String time,String address,String type) throws ParseException {
 
-		if(StringUtils.isBlank(name)){
-			return  Ret.fail("errorMsg","类别不能为空");
-		}
 		if (pageNum == null) {
 			pageNum = 1;
 		}
@@ -98,13 +95,13 @@ public class HnwJgpzServiceImpl extends LambkitModelServiceImpl<HnwJgpz> impleme
 		StringBuffer stringBuffer=new StringBuffer();
 		stringBuffer.append("from hnw_fljg where 1=1 ");
 		if(StringUtils.isNotBlank(type)){
-			stringBuffer.append(" and product like '%"+type+"%'");
+			stringBuffer.append(" and tag like '%"+type+"%'");
 		}
 		if(StringUtils.isNotBlank(address)){
 			stringBuffer.append(" and place like '%"+address+"%'");
 		}
-		if (time != null && time.size() > 1) {
-			stringBuffer.append(" and time between '" + time.get(0) + "' and '" + time.get(1)+ "' ");
+		if (time != null && time.length() > 1) {
+			stringBuffer.append(" and up_time = '" + time + "' ");
 		}
 		stringBuffer.append(" order by up_time desc ");
 		Page<Record> page= Db.paginate(pageNum,pageSize,"select *",stringBuffer.toString());
@@ -112,10 +109,8 @@ public class HnwJgpzServiceImpl extends LambkitModelServiceImpl<HnwJgpz> impleme
 	}
 
 	@Override
-	public Ret hnwnyjgByName(String name, Integer pageNum, Integer pageSize, List<String> time, String address, String type) throws ParseException {
-		if(StringUtils.isBlank(name)){
-			return  Ret.fail("errorMsg","类别不能为空");
-		}
+	public Ret hnwnyjgByName(String name, Integer pageNum, Integer pageSize, String time, String address, String type) throws ParseException {
+
 		if (pageNum == null) {
 			pageNum = 1;
 		}
@@ -125,13 +120,13 @@ public class HnwJgpzServiceImpl extends LambkitModelServiceImpl<HnwJgpz> impleme
 		StringBuffer stringBuffer=new StringBuffer();
 		stringBuffer.append("from hnw_nyjg where 1=1 ");
 		if(StringUtils.isNotBlank(type)){
-			stringBuffer.append(" and product like '%"+type+"%'");
+			stringBuffer.append(" and tag like '%"+type+"%'");
 		}
 		if(StringUtils.isNotBlank(address)){
 			stringBuffer.append(" and place like '%"+address+"%'");
 		}
-		if (time != null && time.size() > 1) {
-			stringBuffer.append(" and time between '" + time.get(0) + "' and '" + time.get(1)+ "' ");
+		if (time != null && time.length() > 1) {
+			stringBuffer.append(" and up_time = '" + time + "' ");
 		}
 		stringBuffer.append(" order by up_time desc ");
 		Page<Record> page= Db.paginate(pageNum,pageSize,"select *",stringBuffer.toString());
