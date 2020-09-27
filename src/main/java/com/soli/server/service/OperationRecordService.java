@@ -13,9 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.soli.server;
+package com.soli.server.service;
 
-import com.lambkit.core.config.annotation.PropertieConfig;
+import com.jfinal.kit.Ret;
+import com.lambkit.common.service.LambkitService;
+
+import com.lambkit.core.api.route.ApiBody;
+import com.lambkit.core.api.route.ApiMapping;
+import com.lambkit.core.api.route.ApiRenderJFinalJson;
+import com.soli.server.model.OperationRecord;
+
+import java.util.List;
 
 /**
  * @author yangyong 
@@ -25,35 +33,19 @@ import com.lambkit.core.config.annotation.PropertieConfig;
  * @version 1.0
  * @since 1.0
  */
-@PropertieConfig(prefix="lambkit.msch")
-public class MschConfig {
+public interface OperationRecordService extends LambkitService<OperationRecord> {
 
-	private String serverType = "server";
-	private String version = "1.0";
-	private String dbconfig;
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "operationRecord.search",useLogin = false)
+    public Ret all(Integer pageNum, Integer pageSize, String name, String type, String username, List<String> time);
 
-	public String getServerType() {
-		return serverType;
-	}
 
-	public void setServerType(String serverType) {
-		this.serverType = serverType;
-	}
 
-	public String getVersion() {
-		return version;
-	}
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "operationRecord.del",useLogin = false)
+    public Ret all(Integer id[]);
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
-	
-	public String getDbconfig() {
-		return dbconfig;
-	}
 
-	public void setDbconfig(String dbconfig) {
-		this.dbconfig = dbconfig;
-	}
-	
+
+
 }

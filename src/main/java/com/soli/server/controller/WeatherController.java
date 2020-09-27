@@ -8,18 +8,29 @@ import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.util.StringUtils;
+import com.lambkit.module.upms.UpmsManager;
 import com.lambkit.module.upms.rpc.model.UpmsUser;
+import com.lambkit.plugin.auth.AuthManager;
+import com.lambkit.plugin.auth.IUser;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
+import com.lambkit.web.RequestManager;
 import com.lambkit.web.controller.LambkitController;
 import com.orbitz.okhttp3.OkHttpClient;
 import com.orbitz.okhttp3.Request;
 import com.orbitz.okhttp3.Response;
 import com.soli.server.model.Directory;
+import com.soli.server.model.OperationRecord;
+import com.soli.server.model.OperationRecordImg;
+import com.soli.server.model.Tiankuai;
 import com.soli.server.utils.Co;
 import com.soli.server.utils.IssueShpUtils;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static com.soli.server.utils.CodePageUtils.getUserEntity;
 
 @Clear(JwtTokenInterceptor.class)
 public class WeatherController extends LambkitController {
@@ -177,25 +188,6 @@ public class WeatherController extends LambkitController {
         }
     }
 
-    public void uploadShp() throws Exception {
-
-        String url = getPara("url");
-
-        if (StringUtils.isBlank(url)) {
-            renderJson(Co.fail("msg", "数据路径不能为空"));
-            return;
-        }
-
-        Kv kv = IssueShpUtils.uploadShp(url);
-        Integer code = kv.getInt("code");
-        if (code == 400) {
-            renderJson(Co.ok("data", kv.get("errorMsg")));
-        } else {
-            renderJson(Co.ok("data", Ret.ok("msg", "成功")));
-        }
-
-    }
-
 
     @Clear
     public void list() {
@@ -204,14 +196,14 @@ public class WeatherController extends LambkitController {
             List<Directory> twoLevelLists = Directory.service().find(Directory.sql().andLevelEqualTo(2).andDelEqualTo("0").andParentIdEqualTo(directory.getId()).example());
             for (Directory dir : twoLevelLists) {
                 if (dir.getName().equals("作物价格")) {
-                    Map<String,Object> map1=new HashMap<>();
-                    Map<String,Object> map2=new HashMap<>();
-                    map1.put("name","粮油米面");
-                    map2.put("name","种子种苗");
-                    List<Map<String,Object>> mapList=new ArrayList<>();
+                    Map<String, Object> map1 = new HashMap<>();
+                    Map<String, Object> map2 = new HashMap<>();
+                    map1.put("name", "粮油米面");
+                    map2.put("name", "种子种苗");
+                    List<Map<String, Object>> mapList = new ArrayList<>();
                     mapList.add(map1);
                     mapList.add(map2);
-                    dir.put("twoLevelLists",mapList);
+                    dir.put("twoLevelLists", mapList);
                 }
             }
             directory.put("twoLevelLists", twoLevelLists);
@@ -219,5 +211,381 @@ public class WeatherController extends LambkitController {
         renderJson(Co.ok("data", Ret.ok("oneLevelLists", oneLevelLists)));
 
     }
+
+    /**
+     * 添加田间操作记录
+     */
+    public void addOperationRecord() {
+
+        String name = getPara("name");
+        String type = getPara("type");
+        String img = getPara("img");
+        String content = getPara("content");
+
+        if (StringUtils.isBlank(name)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "名称不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(type)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "类型不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(img)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "图片不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(content)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "内容不能为空")));
+            return;
+        }
+        String serverSessionId = this.getRequest().getHeader("Authorization");
+        String code = UpmsManager.me().getCache().getSession(serverSessionId);
+
+        String username = null;
+        if (!StringUtils.isNotBlank(code)) {
+            System.out.println("无效访问unlogin");
+            this.renderJson(Co.ok("data", Ret.fail("errorMsg", "请重新登陆")));
+            return;
+        }
+        System.out.println("name : " + username);
+        UpmsUser upmsUser = getUserEntity();
+        if (upmsUser == null) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "获取用户信息错误")));
+            return;
+        }
+
+        String imgs[] = img.split(",");
+
+        OperationRecord operationRecord = new OperationRecord();
+        operationRecord.setName(name);
+        operationRecord.setTime(new Date());
+        operationRecord.setContent(content);
+        operationRecord.setDel(0);
+        operationRecord.setType(type);
+        operationRecord.setUserId(upmsUser.getUserId().intValue());
+        operationRecord.setUsername(upmsUser.getRealname());
+        boolean result = operationRecord.save();
+        if (result) {
+            for (String s : imgs) {
+                OperationRecordImg operationRecordImg = new OperationRecordImg();
+                operationRecordImg.setUrl(s);
+                operationRecordImg.setOperationId(operationRecord.getId().intValue());
+                operationRecordImg.save();
+            }
+            renderJson(Co.ok("data", Ret.ok()));
+            return;
+        } else {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "添加失败")));
+            return;
+        }
+
+    }
+
+
+    /**
+     * 修改田间操作记录
+     */
+    public void updateOperationRecord() {
+
+        String name = getPara("name");
+        String type = getPara("type");
+        String img = getPara("img");
+        String content = getPara("content");
+        Integer id = getInt("id");
+
+        if (id == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "id不能为空")));
+            return;
+        }
+        List<OperationRecordImg> operationRecordImgs = OperationRecordImg.service().dao().find(OperationRecordImg.sql().andOperationIdEqualTo(id).example());
+        for (OperationRecordImg operationRecordImg : operationRecordImgs) {
+            operationRecordImg.delete();
+
+        }
+        if (StringUtils.isBlank(name)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "名称不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(type)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "类型不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(img)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "图片不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(content)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "内容不能为空")));
+            return;
+        }
+        String serverSessionId = this.getRequest().getHeader("Authorization");
+        String code = UpmsManager.me().getCache().getSession(serverSessionId);
+
+        String username = null;
+        if (!StringUtils.isNotBlank(code)) {
+            System.out.println("无效访问unlogin");
+            this.renderJson(Co.ok("data", Ret.fail("errorMsg", "请重新登陆")));
+            return;
+        }
+        System.out.println("name : " + username);
+        UpmsUser upmsUser = getUserEntity();
+        if (upmsUser == null) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "获取用户信息错误")));
+            return;
+        }
+
+        String imgs[] = img.split(",");
+
+        OperationRecord operationRecord = OperationRecord.service().dao().findById(id);
+        operationRecord.setName(name);
+        operationRecord.setTime(new Date());
+        operationRecord.setContent(content);
+        operationRecord.setDel(0);
+        operationRecord.setType(type);
+        operationRecord.setUserId(upmsUser.getUserId().intValue());
+        operationRecord.setUsername(upmsUser.getRealname());
+        boolean result = operationRecord.update();
+        if (result) {
+            for (String s : imgs) {
+                OperationRecordImg operationRecordImg = new OperationRecordImg();
+                operationRecordImg.setUrl(s);
+                operationRecordImg.setOperationId(operationRecord.getId().intValue());
+                operationRecordImg.save();
+            }
+            renderJson(Co.ok("data", Ret.ok()));
+            return;
+        } else {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "添加失败")));
+            return;
+        }
+
+    }
+
+
+
+
+    /**
+     * 添加地块
+     */
+    public void addDK() throws ParseException {
+
+        String name = getPara("dk_name");//地块名称
+        String type = getPara("type");//作物
+        String address = getPara("address");//地址
+        String url = getPara("url");
+        String time = getPara("time");
+        String farmland = getPara("farmland");//田亩
+        String perimeter = getPara("perimeter");//周长
+        String farm = getPara("farm");//农场
+        String altitude = getPara("altitude");//海拔
+        String slope = getPara("slope");//坡度
+        String growers = getPara("growers");//种植户
+        String phone = getPara("phone");//联系方式
+        String person = getPara("person");//负责人
+        String fertilizer = getPara("fertilizer");//施肥建议
+        String dk_type = getPara("dk_type");//土地类型
+        String density = getPara("density");//密度
+        String irrigation=getPara("irrigation");//灌溉方式
+        String latlons=getPara("latlons");
+        String geom_type=getPara("geom_type");//面的类型
+
+
+        String serverSessionId = this.getRequest().getHeader("Authorization");
+        String code = UpmsManager.me().getCache().getSession(serverSessionId);
+
+        String username = null;
+        if (!StringUtils.isNotBlank(code)) {
+            System.out.println("无效访问unlogin");
+            this.renderJson(Co.ok("data", Ret.fail("errorMsg", "请重新登陆")));
+            return;
+        }
+        System.out.println("name : " + username);
+        UpmsUser upmsUser = getUserEntity();
+        if (upmsUser == null) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "获取用户信息错误")));
+            return;
+        }
+
+        if (StringUtils.isBlank(name)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "地块名称不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(latlons)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "latlons不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(type)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "作物类型不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(address)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "地址不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(url)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "url不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(time)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "时间不能为空")));
+            return;
+        }
+        Record record=Db.findFirst("select st_geometryfromtext('POLYGON(("+latlons+"))',4326) as geom");
+
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Tiankuai tiankuai=new Tiankuai();
+        tiankuai.setType(type);
+        tiankuai.setDkName(name);
+        tiankuai.setName(geom_type);
+        tiankuai.setDkAddress(address);
+        tiankuai.setDkUrl(url);
+        tiankuai.setDkBeginTime(sdf.parse(time.split(",")[0]));
+        tiankuai.setDkEndTime(sdf.parse(time.split(",")[1]));
+        tiankuai.setDkFarmland(farmland);
+        tiankuai.setDkPerimeter(perimeter);
+        tiankuai.setDkFarm(farm);
+        tiankuai.setDkAltitude(altitude);
+        tiankuai.setDkSlope(slope);
+        tiankuai.setDkGrowers(growers);
+        tiankuai.setDkPhone(phone);
+        tiankuai.setDkPerson(person);
+        tiankuai.setDkFertilizer(fertilizer);
+        tiankuai.setDkUserId(upmsUser.getUserId().intValue());
+        tiankuai.setDkUsername(upmsUser.getRealname());
+        tiankuai.setDkTime(new Date());
+        tiankuai.setDel(0);
+        tiankuai.setGeom(record.get("geom"));
+        tiankuai.setDkType(dk_type);
+        tiankuai.setDkDensity(density);
+        tiankuai.setDkIrrigation(irrigation);
+        boolean result=tiankuai.save();
+        if (result) {
+            renderJson(Co.ok("data", Ret.ok()));
+            return;
+        } else {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "添加失败")));
+            return;
+        }
+
+    }
+
+
+    /**
+     * 编辑地块
+     */
+    public void updateDK() throws ParseException {
+
+        String name = getPara("dk_name");//地块名称
+        String type = getPara("type");//作物
+        String address = getPara("address");//地址
+        String url = getPara("url");
+        String time = getPara("time");
+        String farmland = getPara("farmland");//田亩
+        String perimeter = getPara("perimeter");//周长
+        String farm = getPara("farm");//农场
+        String altitude = getPara("altitude");//海拔
+        String slope = getPara("slope");//坡度
+        String growers = getPara("growers");//种植户
+        String phone = getPara("phone");//联系方式
+        String person = getPara("person");//负责人
+        String fertilizer = getPara("fertilizer");//施肥建议
+        String dk_type = getPara("dk_type");//土地类型
+        String density = getPara("density");//密度
+        String irrigation=getPara("irrigation");//灌溉方式
+        String latlons=getPara("latlons");
+        Integer id=getParaToInt("id");
+        String geom_type=getPara("geom_type");//面的类型
+
+        if(id==null){
+            this.renderJson(Co.ok("data", Ret.fail("errorMsg", "id为空")));
+            return;
+        }
+
+
+        String serverSessionId = this.getRequest().getHeader("Authorization");
+        String code = UpmsManager.me().getCache().getSession(serverSessionId);
+
+        String username = null;
+        if (!StringUtils.isNotBlank(code)) {
+            System.out.println("无效访问unlogin");
+            this.renderJson(Co.ok("data", Ret.fail("errorMsg", "请重新登陆")));
+            return;
+        }
+        System.out.println("name : " + username);
+        UpmsUser upmsUser = getUserEntity();
+        if (upmsUser == null) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "获取用户信息错误")));
+            return;
+        }
+
+        if (StringUtils.isBlank(name)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "地块名称不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(latlons)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "latlons不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(type)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "作物类型不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(address)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "地址不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(url)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "url不能为空")));
+            return;
+        }
+        if (StringUtils.isBlank(time)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "时间不能为空")));
+            return;
+        }
+        Record record=Db.findFirst("select st_geometryfromtext('POLYGON(("+latlons+"))',4326) as geom");
+
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Tiankuai tiankuai=Tiankuai.service().dao().findById(id);
+        if(tiankuai==null){
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "未查到")));
+            return;
+        }
+        tiankuai.setType(type);
+        tiankuai.setName(geom_type);
+        tiankuai.setDkName(name);
+        tiankuai.setDkAddress(address);
+        tiankuai.setDkUrl(url);
+        tiankuai.setDkBeginTime(sdf.parse(time.split(",")[0]));
+        tiankuai.setDkEndTime(sdf.parse(time.split(",")[1]));
+        tiankuai.setDkFarmland(farmland);
+        tiankuai.setDkPerimeter(perimeter);
+        tiankuai.setDkFarm(farm);
+        tiankuai.setDkAltitude(altitude);
+        tiankuai.setDkSlope(slope);
+        tiankuai.setDkGrowers(growers);
+        tiankuai.setDkPhone(phone);
+        tiankuai.setDkPerson(person);
+        tiankuai.setDkFertilizer(fertilizer);
+        tiankuai.setDkUserId(upmsUser.getUserId().intValue());
+        tiankuai.setDkUsername(upmsUser.getRealname());
+        tiankuai.setDkTime(new Date());
+        tiankuai.setDel(0);
+        tiankuai.setGeom(record.get("geom"));
+        tiankuai.setDkType(dk_type);
+        tiankuai.setDkDensity(density);
+        tiankuai.setDkIrrigation(irrigation);
+        boolean result=tiankuai.update();
+        if (result) {
+            renderJson(Co.ok("data", Ret.ok()));
+            return;
+        } else {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "修改失败")));
+            return;
+        }
+
+    }
+
+
+
 }
 

@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.soli.server;
+package com.soli.server.model.base;
 
-import com.lambkit.core.config.annotation.PropertieConfig;
+import com.jfinal.plugin.activerecord.IBean;
+
+import com.lambkit.common.model.LambkitModel;
 
 /**
  * @author yangyong 
@@ -25,35 +27,32 @@ import com.lambkit.core.config.annotation.PropertieConfig;
  * @version 1.0
  * @since 1.0
  */
-@PropertieConfig(prefix="lambkit.msch")
-public class MschConfig {
+@SuppressWarnings("serial")
+public abstract class BaseOperationRecordImg<M extends BaseOperationRecordImg<M>> extends LambkitModel<M> implements IBean {
 
-	private String serverType = "server";
-	private String version = "1.0";
-	private String dbconfig;
-
-	public String getServerType() {
-		return serverType;
+	public String getTableName() {
+		return "tr_operation_record_img";
+	}
+    
+	public java.lang.Long getId() {
+		return this.get("id");
 	}
 
-	public void setServerType(String serverType) {
-		this.serverType = serverType;
+	public void setId(java.lang.Long id) {
+		this.set("id", id);
+	}
+	public java.lang.String getUrl() {
+		return this.get("url");
 	}
 
-	public String getVersion() {
-		return version;
+	public void setUrl(java.lang.String url) {
+		this.set("url", url);
+	}
+	public java.lang.Integer getOperationId() {
+		return this.get("operation_id");
 	}
 
-	public void setVersion(String version) {
-		this.version = version;
+	public void setOperationId(java.lang.Integer operationId) {
+		this.set("operation_id", operationId);
 	}
-	
-	public String getDbconfig() {
-		return dbconfig;
-	}
-
-	public void setDbconfig(String dbconfig) {
-		this.dbconfig = dbconfig;
-	}
-	
 }

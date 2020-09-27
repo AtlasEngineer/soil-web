@@ -31,13 +31,13 @@ import com.soli.server.service.DataService;
  * @since 1.0
  */
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
-    @Override
-    public Ret getEach(Integer id) {
+
+ public Ret getEach(Integer id) {
         return null;
     }
 
     @Override
-    public Ret getTkAllCenter() {
+    public Ret getTkAllCenter(String type) {
         return null;
     }
 

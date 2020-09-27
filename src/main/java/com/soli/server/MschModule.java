@@ -31,7 +31,7 @@ import com.soli.server.web.tag.*;
  * @author yangyong 
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
- * @date 2020-09-26
+ * @date 2020-09-27
  * @version 1.0
  * @since 1.0
  */
@@ -69,6 +69,9 @@ public class MschModule extends LambkitModule  {
 	}
 
 	public void mapping(ActiveRecordPluginWrapper arp) {
+		arp.addMapping("tr_tiankuai", "gid", Tiankuai.class);
+		arp.addMapping("tr_operation_record", "id", OperationRecord.class);
+		arp.addMapping("tr_operation_record_img", "id", OperationRecordImg.class);
 		arp.addMapping("hnw_jgpz", "id", HnwJgpz.class);
 		arp.addMapping("tr_data", "id", Data.class);
 		arp.addMapping("tr_directory", "id", Directory.class);
@@ -76,6 +79,9 @@ public class MschModule extends LambkitModule  {
 	}
 
 	public void addTag(LambkitModule lk) {
+		lk.addTag("tiankuai", new TiankuaiMarker());
+		lk.addTag("operationRecord", new OperationRecordMarker());
+		lk.addTag("operationRecordImg", new OperationRecordImgMarker());
 		lk.addTag("hnwJgpz", new HnwJgpzMarker());
 		lk.addTag("data", new DataMarker());
 		lk.addTag("directory", new DirectoryMarker());
@@ -87,6 +93,9 @@ public class MschModule extends LambkitModule  {
 	}
 
 	public void registerLocalService(String group, String version, int port) {
+		ServiceManager.me().mapping(TiankuaiService.class, TiankuaiServiceImpl.class, TiankuaiServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(OperationRecordService.class, OperationRecordServiceImpl.class, OperationRecordServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(OperationRecordImgService.class, OperationRecordImgServiceImpl.class, OperationRecordImgServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(HnwJgpzService.class, HnwJgpzServiceImpl.class, HnwJgpzServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(DataService.class, DataServiceImpl.class, DataServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(DirectoryService.class, DirectoryServiceImpl.class, DirectoryServiceMock.class, group, version, port);
@@ -99,6 +108,9 @@ public class MschModule extends LambkitModule  {
 	}
 
 	public void registerRemoteService(String group, String version, int port) {
+		ServiceManager.me().remote(TiankuaiService.class, TiankuaiServiceMock.class, group, version, port);
+		ServiceManager.me().remote(OperationRecordService.class, OperationRecordServiceMock.class, group, version, port);
+		ServiceManager.me().remote(OperationRecordImgService.class, OperationRecordImgServiceMock.class, group, version, port);
 		ServiceManager.me().remote(HnwJgpzService.class, HnwJgpzServiceMock.class, group, version, port);
 		ServiceManager.me().remote(DataService.class, DataServiceMock.class, group, version, port);
 		ServiceManager.me().remote(DirectoryService.class, DirectoryServiceMock.class, group, version, port);

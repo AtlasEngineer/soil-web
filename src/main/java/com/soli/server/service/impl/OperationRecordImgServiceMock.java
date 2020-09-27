@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.soli.server;
+package com.soli.server.service.impl;
 
-import com.lambkit.core.config.annotation.PropertieConfig;
+import com.lambkit.common.service.BaseServiceMock;
+
+import com.soli.server.model.OperationRecordImg;
+import com.soli.server.service.OperationRecordImgService;
 
 /**
  * @author yangyong 
@@ -25,35 +28,5 @@ import com.lambkit.core.config.annotation.PropertieConfig;
  * @version 1.0
  * @since 1.0
  */
-@PropertieConfig(prefix="lambkit.msch")
-public class MschConfig {
-
-	private String serverType = "server";
-	private String version = "1.0";
-	private String dbconfig;
-
-	public String getServerType() {
-		return serverType;
-	}
-
-	public void setServerType(String serverType) {
-		this.serverType = serverType;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
-	}
-	
-	public String getDbconfig() {
-		return dbconfig;
-	}
-
-	public void setDbconfig(String dbconfig) {
-		this.dbconfig = dbconfig;
-	}
-	
+public class OperationRecordImgServiceMock extends BaseServiceMock<OperationRecordImg> implements OperationRecordImgService {
 }
