@@ -23,6 +23,7 @@ import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
 
+import com.soli.server.model.OperationRecordImg;
 import com.soli.server.service.OperationRecordService;
 import com.soli.server.model.OperationRecord;
 import com.soli.server.utils.Co;
@@ -87,7 +88,10 @@ public class OperationRecordServiceImpl extends LambkitModelServiceImpl<Operatio
         }
         stringBuffer.append(" order by time desc");
         Page<Record> page = Db.paginate(pageNum, pageSize, "select *", stringBuffer.toString());
-
+        for (Record record:page.getList()){
+            List<OperationRecordImg> imgs=OperationRecordImg.service().find(OperationRecordImg.sql().andOperationIdEqualTo(record.getInt("id")).example());
+            record.set("imgs",imgs);
+        }
         return Ret.ok("data", page);
     }
 

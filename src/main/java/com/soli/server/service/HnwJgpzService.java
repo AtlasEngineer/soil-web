@@ -23,6 +23,7 @@ import com.lambkit.core.api.route.ApiMapping;
 import com.lambkit.core.api.route.ApiRenderJFinalJson;
 import com.soli.server.model.HnwJgpz;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public interface HnwJgpzService extends LambkitService<HnwJgpz> {
     //作物价格
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.hnwjByName",useLogin = false)
-    public Ret hnwjByName(String name, Integer pageNum, Integer pageSize, String time,String address,String type) throws ParseException;
+    public Ret hnwjByName(String name, Integer pageNum, Integer pageSize, String time,String address,String type) throws ParseException, UnsupportedEncodingException;
 
     //肥料价格
     @ApiBody(ApiRenderJFinalJson.class)

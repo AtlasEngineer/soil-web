@@ -18,10 +18,7 @@ import com.lambkit.web.controller.LambkitController;
 import com.orbitz.okhttp3.OkHttpClient;
 import com.orbitz.okhttp3.Request;
 import com.orbitz.okhttp3.Response;
-import com.soli.server.model.Directory;
-import com.soli.server.model.OperationRecord;
-import com.soli.server.model.OperationRecordImg;
-import com.soli.server.model.Tiankuai;
+import com.soli.server.model.*;
 import com.soli.server.utils.Co;
 import com.soli.server.utils.IssueShpUtils;
 
@@ -193,20 +190,22 @@ public class WeatherController extends LambkitController {
     public void list() {
         List<Directory> oneLevelLists = Directory.service().find(Directory.sql().andLevelEqualTo(1).andDelEqualTo("0").example());
         for (Directory directory : oneLevelLists) {
+            List<Data> oneLevelData=Data.service().dao().find(Data.sql().andDirectoryidEqualTo(directory.getId()).andDelEqualTo(0).example());
             List<Directory> twoLevelLists = Directory.service().find(Directory.sql().andLevelEqualTo(2).andDelEqualTo("0").andParentIdEqualTo(directory.getId()).example());
             for (Directory dir : twoLevelLists) {
-                if (dir.getName().equals("作物价格")) {
-                    Map<String, Object> map1 = new HashMap<>();
-                    Map<String, Object> map2 = new HashMap<>();
-                    map1.put("name", "粮油米面");
-                    map2.put("name", "种子种苗");
-                    List<Map<String, Object>> mapList = new ArrayList<>();
-                    mapList.add(map1);
-                    mapList.add(map2);
-                    dir.put("twoLevelLists", mapList);
-                }
+                List<Data> twoLevelData=Data.service().dao().find(Data.sql().andDirectoryidEqualTo(dir.getId()).andDelEqualTo(0).example());
+                dir.put("oneLevelData", twoLevelData);
             }
-            directory.put("twoLevelLists", twoLevelLists);
+            List list = new ArrayList() ;
+            Iterator it1 = twoLevelLists.iterator() ;
+            while(it1.hasNext()) {
+                list.add(it1.next()) ;
+            }
+            Iterator it2 = oneLevelData.iterator() ;
+            while(it2.hasNext()) {
+                list.add(it2.next()) ;
+            }
+            directory.put("oneLevelData",list);
         }
         renderJson(Co.ok("data", Ret.ok("oneLevelLists", oneLevelLists)));
 
