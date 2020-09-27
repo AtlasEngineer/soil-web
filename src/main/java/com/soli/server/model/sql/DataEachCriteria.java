@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.soli.server.model.sql;
+package com.atlas.landa.model.sql;
 
 import com.lambkit.db.sql.ConditionMode;
 import com.lambkit.db.sql.column.Column;
@@ -685,6 +685,74 @@ public class DataEachCriteria extends Columns implements Serializable {
 
       public DataEachCriteria andTypeNotIn(List<java.lang.String> values) {
           addCriterion("type", values, ConditionMode.NOT_IN, "type", "java.lang.String", "String");
+          return this;
+      }
+	public DataEachCriteria andDataIdIsNull() {
+		isnull("data_id");
+		return this;
+	}
+	
+	public DataEachCriteria andDataIdIsNotNull() {
+		notNull("data_id");
+		return this;
+	}
+	
+	public DataEachCriteria andDataIdIsEmpty() {
+		empty("data_id");
+		return this;
+	}
+
+	public DataEachCriteria andDataIdIsNotEmpty() {
+		notEmpty("data_id");
+		return this;
+	}
+       public DataEachCriteria andDataIdEqualTo(java.lang.Integer value) {
+          addCriterion("data_id", value, ConditionMode.EQUAL, "dataId", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public DataEachCriteria andDataIdNotEqualTo(java.lang.Integer value) {
+          addCriterion("data_id", value, ConditionMode.NOT_EQUAL, "dataId", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public DataEachCriteria andDataIdGreaterThan(java.lang.Integer value) {
+          addCriterion("data_id", value, ConditionMode.GREATER_THEN, "dataId", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public DataEachCriteria andDataIdGreaterThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("data_id", value, ConditionMode.GREATER_EQUAL, "dataId", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public DataEachCriteria andDataIdLessThan(java.lang.Integer value) {
+          addCriterion("data_id", value, ConditionMode.LESS_THEN, "dataId", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public DataEachCriteria andDataIdLessThanOrEqualTo(java.lang.Integer value) {
+          addCriterion("data_id", value, ConditionMode.LESS_EQUAL, "dataId", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public DataEachCriteria andDataIdBetween(java.lang.Integer value1, java.lang.Integer value2) {
+    	  addCriterion("data_id", value1, value2, ConditionMode.BETWEEN, "dataId", "java.lang.Integer", "Float");
+    	  return this;
+      }
+
+      public DataEachCriteria andDataIdNotBetween(java.lang.Integer value1, java.lang.Integer value2) {
+          addCriterion("data_id", value1, value2, ConditionMode.NOT_BETWEEN, "dataId", "java.lang.Integer", "Float");
+          return this;
+      }
+        
+      public DataEachCriteria andDataIdIn(List<java.lang.Integer> values) {
+          addCriterion("data_id", values, ConditionMode.IN, "dataId", "java.lang.Integer", "Float");
+          return this;
+      }
+
+      public DataEachCriteria andDataIdNotIn(List<java.lang.Integer> values) {
+          addCriterion("data_id", values, ConditionMode.NOT_IN, "dataId", "java.lang.Integer", "Float");
           return this;
       }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.soli.server.model.base;
+package com.atlas.landa.model.base;
 
 import com.jfinal.plugin.activerecord.IBean;
 
@@ -82,5 +82,12 @@ public abstract class BaseDataEach<M extends BaseDataEach<M>> extends LambkitMod
 
 	public void setType(java.lang.String type) {
 		this.set("type", type);
+	}
+	public java.lang.Integer getDataId() {
+		return this.get("data_id");
+	}
+
+	public void setDataId(java.lang.Integer dataId) {
+		this.set("data_id", dataId);
 	}
 }
