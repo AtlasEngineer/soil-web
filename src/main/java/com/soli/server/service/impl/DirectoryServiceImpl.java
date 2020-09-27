@@ -130,25 +130,8 @@ public class DirectoryServiceImpl extends LambkitModelServiceImpl<Directory> imp
         if (id == null) {
             return Ret.fail("errorMsg", "请选择正确的目录");
         }
-        Record tr_directory = Db.findById("tr_directory", id);
-        if (tr_directory != null) {
-            Integer level = tr_directory.getInt("level");
-            String sql = "";
-            if (level == 1) {
-                sql = "DELETE FROM tr_directory WHERE id IN ( " +
-                        " SELECT id FROM tr_directory WHERE parent_id IN ( SELECT ID FROM tr_directory WHERE parent_id = " + id + " ) " +
-                        " UNION " +
-                        " ( SELECT id FROM tr_directory WHERE parent_id = " + id + " ) " +
-                        ")";
-            } else if (level == 2) {
-                sql = "DELETE FROM tr_directory WHERE id IN ( " +
-                        " SELECT id FROM tr_directory WHERE parent_id IN ( SELECT ID FROM tr_directory WHERE parent_id = " + id + " ) " +
-                        ")";
-            } else {
-                sql = "DELETE FROM tr_directory WHERE id = " + id;
-            }
-            int update = Db.update(sql);
-        }
+        Db.delete("DELETE FROM tr_directory WHERE id = " + id);
+        Db.delete("DELETE FROM tr_directory WHERE parent_id = " + id);
         return Ret.ok("data", "success");
     }
 
