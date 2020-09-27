@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atlas.landa.model.sql;
+package com.soli.server.model.sql;
 
 import com.lambkit.db.sql.ConditionMode;
 import com.lambkit.db.sql.column.Column;

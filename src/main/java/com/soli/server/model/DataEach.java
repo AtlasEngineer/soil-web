@@ -20,6 +20,8 @@ import com.lambkit.Lambkit;
 import com.lambkit.common.service.ServiceKit;
 import com.lambkit.db.sql.column.Column;
 import com.soli.server.MschConfig;
+import com.soli.server.model.base.BaseDataEach;
+import com.soli.server.model.sql.DataEachCriteria;
 import com.soli.server.service.DataEachService;
 import com.soli.server.service.impl.DataEachServiceImpl;
 
@@ -31,7 +33,7 @@ import com.soli.server.service.impl.DataEachServiceImpl;
  * @version 1.0
  * @since 1.0
  */
-public class DataEach extends com.atlas.landa.model.base.BaseDataEach<DataEach> {
+public class DataEach extends BaseDataEach<DataEach> {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -39,12 +41,12 @@ public class DataEach extends com.atlas.landa.model.base.BaseDataEach<DataEach> 
 		return ServiceKit.inject(DataEachService.class, DataEachServiceImpl.class);
 	}
 	
-	public static com.atlas.landa.model.sql.DataEachCriteria sql() {
-		return new com.atlas.landa.model.sql.DataEachCriteria();
+	public static DataEachCriteria sql() {
+		return new DataEachCriteria();
 	}
 	
-	public static com.atlas.landa.model.sql.DataEachCriteria sql(Column column) {
-		com.atlas.landa.model.sql.DataEachCriteria that = new com.atlas.landa.model.sql.DataEachCriteria();
+	public static DataEachCriteria sql(Column column) {
+		DataEachCriteria that = new DataEachCriteria();
 		that.add(column);
         return that;
     }
