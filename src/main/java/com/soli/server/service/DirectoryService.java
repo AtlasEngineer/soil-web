@@ -34,6 +34,14 @@ import com.soli.server.model.Directory;
 public interface DirectoryService extends LambkitService<Directory> {
 
     @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "directory.updateDataDirectory",useLogin = false)
+    public Ret updateDataDirectory(Integer directory_id,Integer data_id);
+
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "directory.add",useLogin = false)
+    public Ret add(Integer level,String name,Integer parent_id);
+
+    @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "directory.getDirectoryList",useLogin = false)
     public Ret getDirectoryList(String name, Integer level);
 
