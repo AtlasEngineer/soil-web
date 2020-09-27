@@ -27,6 +27,7 @@ import com.soli.server.model.sql.HnwJgpzCriteria;
 import com.soli.server.service.HnwJgpzService;
 import com.soli.server.model.HnwJgpz;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -58,7 +59,8 @@ public class HnwJgpzServiceImpl extends LambkitModelServiceImpl<HnwJgpz> impleme
 	}
 
 	@Override
-	public Ret hnwjByName(String name, Integer pageNum, Integer pageSize, String time,String address,String type) throws ParseException {
+	public Ret hnwjByName(String name, Integer pageNum, Integer pageSize, String time,String address,String type) throws ParseException, UnsupportedEncodingException {
+
 		HnwJgpzCriteria sql=HnwJgpz.sql();
 		if(StringUtils.isBlank(name)){
 			return  Ret.fail("errorMsg","类别不能为空");
