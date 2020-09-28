@@ -29,6 +29,7 @@ import com.soli.server.utils.ZipUtils;
 
 import java.io.File;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static com.soli.server.utils.CodePageUtils.getUserEntity;
@@ -236,10 +237,11 @@ public class UploadController extends LambkitController {
             }
             boolean save = dataEach.save();
             if (save) {
+                List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(id).example().setOrderBy("data_time desc"));
                 if (kv != null && kv.get("sld") != null) {
-                    renderJson(Co.ok("data", Co.by("state", "ok").set("sld", kv.get("sld"))));
+                    renderJson(Co.ok("data", Co.by("state", "ok").set("sld", kv.get("sld")).set("list",dataEaches)));
                 } else {
-                    renderJson(Co.ok("data", Co.by("state", "ok")));
+                    renderJson(Co.ok("data", Co.by("state", "ok")).set("list",dataEaches));
                 }
             } else {
                 renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "保存失败")));
