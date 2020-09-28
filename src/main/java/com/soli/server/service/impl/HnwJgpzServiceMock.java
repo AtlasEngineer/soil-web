@@ -60,4 +60,9 @@ public class HnwJgpzServiceMock extends BaseServiceMock<HnwJgpz> implements HnwJ
     public Ret hnwnyjgByName(String name, Integer pageNum, Integer pageSize, String time, String address, String type) throws ParseException {
         return null;
     }
+
+    @Override
+    public Ret chemical() {
+        return null;
+    }
 }

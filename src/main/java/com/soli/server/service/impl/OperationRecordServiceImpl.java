@@ -73,17 +73,11 @@ public class OperationRecordServiceImpl extends LambkitModelServiceImpl<Operatio
             stringBuffer.append(" and type like '%" + type + "%'");
         }
 
-        if (time != null && time.size() > 0) {
-            if (StringUtils.isNotBlank(time.get(0)) && StringUtils.isNotBlank(time.get(1)) && !"null".equals(time.get(0)) && !"null".equals(time.get(1))) {
-                if (time.get(0).equals(time.get(1))) {
-                    stringBuffer.append(" and date_format(time,'%Y-%m')=date_format('" + time.get(0) + "','%Y-%m')");
-                } else {
-                    stringBuffer.append(" and time between '" + time.get(0) + "' and '" + time.get(1) + "'");
-                }
-            } else if (StringUtils.isNotBlank(time.get(0)) && !"null".equals(time.get(0))) {
-                stringBuffer.append(" and date_format(time,'%Y-%m')=date_format('" + time.get(0) + "','%Y-%m')");
-            } else if (StringUtils.isNotBlank(time.get(1)) && !"null".equals(time.get(1))) {
-                stringBuffer.append(" and date_format(time,'%Y-%m')=date_format('" + time.get(1) + "','%Y-%m')");
+        if (time != null && time.size() >= 0) {
+            if (time.get(0).equals(time.get(1))) {
+                stringBuffer.append(" and date(time) between '" + time.get(0) + "' and '" + time.get(0) + "'");
+            } else {
+                stringBuffer.append(" and date(time) between '" + time.get(0) + "' and '" + time.get(1) + "'");
             }
         }
         stringBuffer.append(" order by time desc");
@@ -108,9 +102,9 @@ public class OperationRecordServiceImpl extends LambkitModelServiceImpl<Operatio
 
         }
         if (list.size() > 0) {
-            return Co.ok("data", Co.by("state", "ok").set("errorMsg", "刪除成功"));
+            return  Ret.ok("errorMsg", "刪除成功");
         } else {
-            return Co.fail("data", Co.by("state", "fail").set("errorMsg", "刪除失敗"));
+            return Ret.fail("errorMsg", "刪除失败");
         }
     }
 

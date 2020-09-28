@@ -21,6 +21,7 @@ import com.orbitz.okhttp3.Response;
 import com.soli.server.model.*;
 import com.soli.server.utils.Co;
 import com.soli.server.utils.IssueShpUtils;
+import org.opengis.geometry.Geometry;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -370,23 +371,24 @@ public class WeatherController extends LambkitController {
 
         String name = getPara("dk_name");//地块名称
         String type = getPara("type");//作物
-        String address = getPara("address");//地址
-        String url = getPara("url");
-        String time = getPara("time");
-        String farmland = getPara("farmland");//田亩
-        String perimeter = getPara("perimeter");//周长
-        String farm = getPara("farm");//农场
-        String altitude = getPara("altitude");//海拔
-        String slope = getPara("slope");//坡度
-        String growers = getPara("growers");//种植户
-        String phone = getPara("phone");//联系方式
-        String person = getPara("person");//负责人
-        String fertilizer = getPara("fertilizer");//施肥建议
+        String address = getPara("dk_address");//地址
+        String url = getPara("dk_url");//图片
+        String dk_begin_time = getPara("dk_begin_time");//时间
+        String dk_end_time = getPara("dk_end_time");//时间
+        String farmland = getPara("dk_farmland");//田亩
+        String perimeter = getPara("dk_perimeter");//周长
+        String farm = getPara("dk_farm");//农场
+        String altitude = getPara("dk_altitude");//海拔
+        String slope = getPara("dk_slope");//坡度
+        String growers = getPara("dk_growers");//种植户
+        String phone = getPara("dk_phone");//联系方式
+        String person = getPara("dk_person");//负责人
+        String fertilizer = getPara("dk_fertilizer");//施肥建议
         String dk_type = getPara("dk_type");//土地类型
-        String density = getPara("density");//密度
-        String irrigation=getPara("irrigation");//灌溉方式
-        String latlons=getPara("latlons");
-        String geom_type=getPara("geom_type");//面的类型
+        String density = getPara("dk_density");//密度
+        String irrigation=getPara("dk_irrigation");//灌溉方式
+        String latlons=getPara("latlons"); //地块经纬度
+        String geom_type=getPara("name");//面的类型
 
 
         String serverSessionId = this.getRequest().getHeader("Authorization");
@@ -425,40 +427,20 @@ public class WeatherController extends LambkitController {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "url不能为空")));
             return;
         }
-        if (StringUtils.isBlank(time)) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "时间不能为空")));
+
+        if (StringUtils.isBlank(latlons)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "latlons不能为空")));
             return;
         }
-        Record record=Db.findFirst("select st_geometryfromtext('POLYGON(("+latlons+"))',4326) as geom");
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+        Integer record=Db.queryInt("SELECT max(gid) FROM tr_tiankuai");
 
-        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Tiankuai tiankuai=new Tiankuai();
-        tiankuai.setType(type);
-        tiankuai.setDkName(name);
-        tiankuai.setName(geom_type);
-        tiankuai.setDkAddress(address);
-        tiankuai.setDkUrl(url);
-        tiankuai.setDkBeginTime(sdf.parse(time.split(",")[0]));
-        tiankuai.setDkEndTime(sdf.parse(time.split(",")[1]));
-        tiankuai.setDkFarmland(farmland);
-        tiankuai.setDkPerimeter(perimeter);
-        tiankuai.setDkFarm(farm);
-        tiankuai.setDkAltitude(altitude);
-        tiankuai.setDkSlope(slope);
-        tiankuai.setDkGrowers(growers);
-        tiankuai.setDkPhone(phone);
-        tiankuai.setDkPerson(person);
-        tiankuai.setDkFertilizer(fertilizer);
-        tiankuai.setDkUserId(upmsUser.getUserId().intValue());
-        tiankuai.setDkUsername(upmsUser.getRealname());
-        tiankuai.setDkTime(new Date());
-        tiankuai.setDel(0);
-        tiankuai.setGeom(record.get("geom"));
-        tiankuai.setDkType(dk_type);
-        tiankuai.setDkDensity(density);
-        tiankuai.setDkIrrigation(irrigation);
-        boolean result=tiankuai.save();
-        if (result) {
+        Date date=new Date();
+        System.out.println(latlons);
+        int num=Db.update("insert into \"tr_tiankuai\"(id,\"type\", \"dk_name\", \"name\", \"dk_address\", \"dk_url\", \"dk_begin_time\", \"dk_end_time\", " +
+                "\"dk_farmland\", \"dk_perimeter\", \"dk_farm\", \"dk_altitude\", \"dk_slope\", \"dk_growers\", \"dk_phone\", \"dk_person\", \"dk_fertilizer\", \"dk_user_id\", \"dk_username\", \"dk_time\", \"del\", \"dk_type\", \"dk_density\", \"dk_irrigation\", \"geom\") " +
+                "values(?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'SRID=4326;MULTIPOLYGON((("+latlons+")))')",record+1,type,name,geom_type,address,url,sdf.parse(dk_begin_time),sdf.parse(dk_end_time),farmland,perimeter,farm,altitude,slope,growers,phone,person,fertilizer,upmsUser.getUserId(),upmsUser.getRealname(),date,0,dk_type,density,irrigation);
+        if (num>0) {
             renderJson(Co.ok("data", Ret.ok()));
             return;
         } else {
@@ -476,24 +458,25 @@ public class WeatherController extends LambkitController {
 
         String name = getPara("dk_name");//地块名称
         String type = getPara("type");//作物
-        String address = getPara("address");//地址
-        String url = getPara("url");
-        String time = getPara("time");
-        String farmland = getPara("farmland");//田亩
-        String perimeter = getPara("perimeter");//周长
-        String farm = getPara("farm");//农场
-        String altitude = getPara("altitude");//海拔
-        String slope = getPara("slope");//坡度
-        String growers = getPara("growers");//种植户
-        String phone = getPara("phone");//联系方式
-        String person = getPara("person");//负责人
-        String fertilizer = getPara("fertilizer");//施肥建议
+        String address = getPara("dk_address");//地址
+        String url = getPara("dk_url");//图片
+        String dk_begin_time = getPara("dk_begin_time");//时间
+        String dk_end_time = getPara("dk_end_time");//时间
+        String farmland = getPara("dk_farmland");//田亩
+        String perimeter = getPara("dk_perimeter");//周长
+        String farm = getPara("dk_farm");//农场
+        String altitude = getPara("dk_altitude");//海拔
+        String slope = getPara("dk_slope");//坡度
+        String growers = getPara("dk_growers");//种植户
+        String phone = getPara("dk_phone");//联系方式
+        String person = getPara("dk_person");//负责人
+        String fertilizer = getPara("dk_fertilizer");//施肥建议
         String dk_type = getPara("dk_type");//土地类型
-        String density = getPara("density");//密度
-        String irrigation=getPara("irrigation");//灌溉方式
-        String latlons=getPara("latlons");
-        Integer id=getParaToInt("id");
-        String geom_type=getPara("geom_type");//面的类型
+        String density = getPara("dk_density");//密度
+        String irrigation=getPara("dk_irrigation");//灌溉方式
+        String latlons=getPara("latlons"); //地块经纬度
+        Integer id=getParaToInt("id");//地块id
+        String geom_type=getPara("name");//面的类型
 
         if(id==null){
             this.renderJson(Co.ok("data", Ret.fail("errorMsg", "id为空")));
@@ -521,10 +504,6 @@ public class WeatherController extends LambkitController {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "地块名称不能为空")));
             return;
         }
-        if (StringUtils.isBlank(latlons)) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "latlons不能为空")));
-            return;
-        }
         if (StringUtils.isBlank(type)) {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "作物类型不能为空")));
             return;
@@ -537,13 +516,7 @@ public class WeatherController extends LambkitController {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "url不能为空")));
             return;
         }
-        if (StringUtils.isBlank(time)) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "时间不能为空")));
-            return;
-        }
-        Record record=Db.findFirst("select st_geometryfromtext('POLYGON(("+latlons+"))',4326) as geom");
-
-        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
         Tiankuai tiankuai=Tiankuai.service().dao().findById(id);
         if(tiankuai==null){
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "未查到")));
@@ -554,8 +527,8 @@ public class WeatherController extends LambkitController {
         tiankuai.setDkName(name);
         tiankuai.setDkAddress(address);
         tiankuai.setDkUrl(url);
-        tiankuai.setDkBeginTime(sdf.parse(time.split(",")[0]));
-        tiankuai.setDkEndTime(sdf.parse(time.split(",")[1]));
+        tiankuai.setDkBeginTime(sdf.parse(dk_end_time));
+        tiankuai.setDkEndTime(sdf.parse(dk_begin_time));
         tiankuai.setDkFarmland(farmland);
         tiankuai.setDkPerimeter(perimeter);
         tiankuai.setDkFarm(farm);
@@ -569,7 +542,6 @@ public class WeatherController extends LambkitController {
         tiankuai.setDkUsername(upmsUser.getRealname());
         tiankuai.setDkTime(new Date());
         tiankuai.setDel(0);
-        tiankuai.setGeom(record.get("geom"));
         tiankuai.setDkType(dk_type);
         tiankuai.setDkDensity(density);
         tiankuai.setDkIrrigation(irrigation);
