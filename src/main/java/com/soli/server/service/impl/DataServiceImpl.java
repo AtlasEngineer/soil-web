@@ -74,6 +74,20 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择数据");
         }
         List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(id).example().setOrderBy("data_time desc"));
+        String webRootPath = PathKit.getWebRootPath();
+        for (int i = 0; i < dataEaches.size(); i++) {
+            DataEach data = dataEaches.get(i);
+            Integer type1 = data.getType();
+            Kv kv = null;
+            if (type1 == 0) {
+                kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
+            } else if (type1 == 1) {
+                kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
+            }
+            if (kv != null) {
+                data.put(kv);
+            }
+        }
         return Ret.ok("list", dataEaches);
     }
 

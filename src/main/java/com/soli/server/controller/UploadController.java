@@ -14,7 +14,7 @@ import com.lambkit.plugin.jwt.impl.JwtUser;
 import com.lambkit.web.RequestManager;
 import com.soli.server.model.Data;
 import com.soli.server.model.DataEach;
-import com.soli.server.utils.Co;
+import com.soli.server.utils.*;
 import com.jfinal.aop.Clear;
 import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;
@@ -23,9 +23,6 @@ import com.lambkit.common.util.PathUtils;
 import com.lambkit.component.swagger.annotation.ApiOperation;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.controller.LambkitController;
-import com.soli.server.utils.IssueShpUtils;
-import com.soli.server.utils.IssueTiffUtils;
-import com.soli.server.utils.ZipUtils;
 
 import java.io.File;
 import java.util.Date;
@@ -238,6 +235,20 @@ public class UploadController extends LambkitController {
             boolean save = dataEach.save();
             if (save) {
                 List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(id).example().setOrderBy("data_time desc"));
+                String webRootPath = PathKit.getWebRootPath();
+                for (int i = 0; i < dataEaches.size(); i++) {
+                    DataEach dataEach1 = dataEaches.get(i);
+                    Integer type1 = data.getType();
+                    Kv kv1 = null;
+                    if (type1 == 0) {
+                        kv1 = readShp.readShpXY(webRootPath + "/d/" + dataEach1.getUrl().split(":")[1] + "/" + dataEach1.getUrl().split(":")[1] + ".shp");
+                    } else if (type1 == 1) {
+                        kv1 = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + dataEach1.getUrl().split(":")[1] + "/" + dataEach1.getUrl().split(":")[1] + ".tif");
+                    }
+                    if (kv1 != null) {
+                        dataEach1.put(kv1);
+                    }
+                }
                 if (kv != null && kv.get("sld") != null) {
                     renderJson(Co.ok("data", Co.by("state", "ok").set("sld", kv.get("sld")).set("list",dataEaches)));
                 } else {
