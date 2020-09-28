@@ -241,7 +241,7 @@ public class UploadController extends LambkitController {
                 if (kv != null && kv.get("sld") != null) {
                     renderJson(Co.ok("data", Co.by("state", "ok").set("sld", kv.get("sld")).set("list",dataEaches)));
                 } else {
-                    renderJson(Co.ok("data", Co.by("state", "ok")).set("list",dataEaches));
+                    renderJson(Co.ok("data", Co.by("state", "ok").set("list",dataEaches)));
                 }
             } else {
                 renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "保存失败")));
