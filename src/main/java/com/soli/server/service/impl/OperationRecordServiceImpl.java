@@ -108,9 +108,9 @@ public class OperationRecordServiceImpl extends LambkitModelServiceImpl<Operatio
 
         }
         if (list.size() > 0) {
-            return Co.ok("data", Co.by("state", "ok").set("errorMsg", "刪除成功"));
+            return  Ret.ok("errorMsg", "刪除成功");
         } else {
-            return Co.fail("data", Co.by("state", "fail").set("errorMsg", "刪除失敗"));
+            return Ret.fail("errorMsg", "刪除失败");
         }
     }
 

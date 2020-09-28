@@ -58,6 +58,12 @@ public interface HnwJgpzService extends LambkitService<HnwJgpz> {
     public Ret hnwnyjgByName(String name, Integer pageNum, Integer pageSize, String time, String address, String type) throws ParseException;
 
 
+    //化肥施肥量
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "search.chemical",useLogin = false)
+    public Ret chemical();
+
+
 
 
 }

@@ -134,4 +134,10 @@ public class HnwJgpzServiceImpl extends LambkitModelServiceImpl<HnwJgpz> impleme
 		Page<Record> page= Db.paginate(pageNum,pageSize,"select *",stringBuffer.toString());
 		return Ret.ok("data",page);
 	}
+
+	@Override
+	public Ret chemical() {
+		List<Record> records=Db.find("select * from tr_chemical_fertilizer");
+		return Ret.ok("data",records);
+	}
 }
