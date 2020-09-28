@@ -44,15 +44,13 @@ public class UploadController extends LambkitController {
      * @Param [image-file]
      **/
     @Clear
-    @ApiOperation(url = "/upload/uploadData", tag = "/upload", httpMethod = "post", description = "上传科研项目空间数据")
+    @ApiOperation(url = "/upload/uploadData", tag = "/upload", httpMethod = "post", description = "上传数据")
     public void uploadData() {
         //getFile一定放在第一个参数去获取，否则都获取不到参数
         UploadFile uf = getFile();
         File file = uf.getFile();
 
-
         String serverSessionId = this.getRequest().getHeader("Authorization");
-        ;
         String code = UpmsManager.me().getCache().getSession(serverSessionId);
         if (!StringUtils.isNotBlank(code)) {
             System.out.println("无效访问unlogin");
@@ -97,7 +95,7 @@ public class UploadController extends LambkitController {
             file.delete();
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
             return;
-        } else if (!"xlsx".equals(fileext) && !"xls".equals(fileext)) {
+        } else if (!"csv".equals(fileext) && !"xlsx".equals(fileext) && !"xls".equals(fileext)) {
             file.delete();
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
             return;
@@ -213,6 +211,16 @@ public class UploadController extends LambkitController {
                     renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", kv.get("msg"))));
                     return;
                 }
+            }else{
+                //发布表格到数据库
+                if("csv".equals(fileext)){
+                    String s = rootPath + filename;
+
+
+                }else {
+
+                }
+
             }
             DataEach dataEach = new DataEach();
             dataEach.setName(yname);
@@ -226,8 +234,6 @@ public class UploadController extends LambkitController {
             } else {
                 data.setUrl("/upload/datafile/" + filename);
             }
-            data.setTime(new Date());
-            data.setUserid(user.getUserId().intValue());
             boolean save = data.save();
             if (save) {
                 if (kv != null && kv.get("sld") != null) {
