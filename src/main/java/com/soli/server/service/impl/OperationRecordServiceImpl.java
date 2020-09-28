@@ -73,17 +73,11 @@ public class OperationRecordServiceImpl extends LambkitModelServiceImpl<Operatio
             stringBuffer.append(" and type like '%" + type + "%'");
         }
 
-        if (time != null && time.size() > 0) {
-            if (StringUtils.isNotBlank(time.get(0)) && StringUtils.isNotBlank(time.get(1)) && !"null".equals(time.get(0)) && !"null".equals(time.get(1))) {
-                if (time.get(0).equals(time.get(1))) {
-                    stringBuffer.append(" and date_format(time,'%Y-%m')=date_format('" + time.get(0) + "','%Y-%m')");
-                } else {
-                    stringBuffer.append(" and time between '" + time.get(0) + "' and '" + time.get(1) + "'");
-                }
-            } else if (StringUtils.isNotBlank(time.get(0)) && !"null".equals(time.get(0))) {
-                stringBuffer.append(" and date_format(time,'%Y-%m')=date_format('" + time.get(0) + "','%Y-%m')");
-            } else if (StringUtils.isNotBlank(time.get(1)) && !"null".equals(time.get(1))) {
-                stringBuffer.append(" and date_format(time,'%Y-%m')=date_format('" + time.get(1) + "','%Y-%m')");
+        if (time != null && time.size() >= 0) {
+            if (time.get(0).equals(time.get(1))) {
+                stringBuffer.append(" and date(time) between '" + time.get(0) + "' and '" + time.get(0) + "'");
+            } else {
+                stringBuffer.append(" and date(time) between '" + time.get(0) + "' and '" + time.get(1) + "'");
             }
         }
         stringBuffer.append(" order by time desc");

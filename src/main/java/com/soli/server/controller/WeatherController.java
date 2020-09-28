@@ -439,7 +439,7 @@ public class WeatherController extends LambkitController {
         System.out.println(latlons);
         int num=Db.update("insert into \"tr_tiankuai\"(id,\"type\", \"dk_name\", \"name\", \"dk_address\", \"dk_url\", \"dk_begin_time\", \"dk_end_time\", " +
                 "\"dk_farmland\", \"dk_perimeter\", \"dk_farm\", \"dk_altitude\", \"dk_slope\", \"dk_growers\", \"dk_phone\", \"dk_person\", \"dk_fertilizer\", \"dk_user_id\", \"dk_username\", \"dk_time\", \"del\", \"dk_type\", \"dk_density\", \"dk_irrigation\", \"geom\") " +
-                "values(?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'SRID=4326;MULTIPOLYGON((("+latlons+")))')",record,type,name,geom_type,address,url,sdf.parse(dk_begin_time),sdf.parse(dk_end_time),farmland,perimeter,farm,altitude,slope,growers,phone,person,fertilizer,upmsUser.getUserId(),upmsUser.getRealname(),date,0,dk_type,density,irrigation);
+                "values(?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'SRID=4326;MULTIPOLYGON((("+latlons+")))')",record+1,type,name,geom_type,address,url,sdf.parse(dk_begin_time),sdf.parse(dk_end_time),farmland,perimeter,farm,altitude,slope,growers,phone,person,fertilizer,upmsUser.getUserId(),upmsUser.getRealname(),date,0,dk_type,density,irrigation);
         if (num>0) {
             renderJson(Co.ok("data", Ret.ok()));
             return;
