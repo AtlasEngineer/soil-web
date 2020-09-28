@@ -95,7 +95,7 @@ public class UploadController extends LambkitController {
             file.delete();
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
             return;
-        } else if (!"csv".equals(fileext) && !"xlsx".equals(fileext) && !"xls".equals(fileext)) {
+        } else if (!"csv".equals(fileext) && !"xlsx".equals(fileext) && !"xls".equals(fileext) && type == 2) {
             file.delete();
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
             return;
