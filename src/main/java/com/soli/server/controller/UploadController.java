@@ -228,13 +228,13 @@ public class UploadController extends LambkitController {
             dataEach.setDataId(id);
             dataEach.setDataTime(data_time);
             dataEach.setTime(new Date());
-            data.setUserid(user.getUserId().intValue());
+            dataEach.setUserid(user.getUserId().intValue());
             if (type == 0 || type == 1) {
-                data.setUrl("d:" + name);
+                dataEach.setUrl("d:" + name);
             } else {
-                data.setUrl("/upload/datafile/" + filename);
+                dataEach.setUrl("/upload/datafile/" + filename);
             }
-            boolean save = data.save();
+            boolean save = dataEach.save();
             if (save) {
                 if (kv != null && kv.get("sld") != null) {
                     renderJson(Co.ok("data", Co.by("state", "ok").set("sld", kv.get("sld"))));
