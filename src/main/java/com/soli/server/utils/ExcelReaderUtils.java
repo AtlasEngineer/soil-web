@@ -1,68 +1,53 @@
 package com.soli.server.utils;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Record;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class ExcelReaderUtils {
 
-    public static void main(String[] args) {
-        try {
-            excel();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    public static String way(String path, List<Record> records, String table_name) throws IOException, InvalidFormatException {
+        Workbook workbook = WorkbookFactory.create(new File(path));
+        //获取一张表
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row1 = sheet.getRow(0);
+        int lastCellNum1 = row1.getLastCellNum();
 
-    public static void excel() throws Exception {
-        //用流的方式先读取到你想要的excel的文件
-        FileInputStream fis = new FileInputStream(new File("C:\\Users\\xiaoxu\\Desktop\\2020-04-03-苜蓿外业调查数据库设计.xlsx"));
-        //解析excel
-        POIFSFileSystem pSystem = new POIFSFileSystem(fis);
-        //获取整个excel
-        HSSFWorkbook hb = new HSSFWorkbook(pSystem);
-        System.out.println(hb.getNumCellStyles());
-        //获取第一个表单sheet
-        HSSFSheet sheet = hb.getSheetAt(0);
-        //获取第一行
-        int firstrow = sheet.getFirstRowNum();
-        //获取最后一行
-        int lastrow = sheet.getLastRowNum();
-        //循环行数依次获取列数
-        for (int i = firstrow; i < lastrow + 1; i++) {
-            //获取哪一行i
-            Row row = sheet.getRow(i);
-            if (row != null) {
-                //获取这一行的第一列
-                int firstcell = row.getFirstCellNum();
-                //获取这一行的最后一列
-                int lastcell = row.getLastCellNum();
-                //创建一个集合，用处将每一行的每一列数据都存入集合中
-                List<String> list = new ArrayList<>();
-                for (int j = firstcell; j < lastcell; j++) {
-                    //获取第j列
-                    Cell cell = row.getCell(j);
-                    if (cell != null) {
-                        System.out.print(cell.getCellType() + "\t");
-                    }
-                }
-                System.out.println();
-            }
+        StringBuffer sql_ex = new StringBuffer();
+        sql_ex.append(" (");
+        // (列1, 列2,...) VALUES (值1, 值2,....)
+        for (int j = 0; j < lastCellNum1; j++) {
+            Cell cell = row1.getCell(j);//取得第j列数据
+            cell.setCellType(CellType.STRING);
+            String key = cell.getStringCellValue();
+            sql_ex.append(key + ",");
         }
-        fis.close();
+        String substring = sql_ex.substring(0, sql_ex.length() - 1);
+        String s1 = substring + ") VALUES (";
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {//跳过第一行，取得其他行数据
+            StringBuffer sql = new StringBuffer();
+            sql.append(" insert into " + table_name + s1);
+            Row row = sheet.getRow(i);//取得第i行数据
+            for (int j = 0; j < row.getLastCellNum(); j++) {
+                Cell cell = row.getCell(j);//取得第j列数据
+                if(cell.getCellTypeEnum() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)){
+                    Date value = cell.getDateCellValue();
+                    sql.append("'" + value + "',");
+                }else{
+                    cell.setCellType(CellType.STRING);
+                    String value = cell.getStringCellValue();
+                    sql.append("'" + value + "',");
+                }
+            }
+            String substring1 = sql.substring(0, sql.length() - 1);
+            int update = Db.update(substring1 + ")");
+        }
+        return sql_ex.toString();
     }
 }
