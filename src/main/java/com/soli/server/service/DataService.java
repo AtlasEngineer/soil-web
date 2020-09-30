@@ -37,6 +37,10 @@ import java.util.Date;
 public interface DataService extends LambkitService<Data> {
 
     @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.getExcelDate",useLogin = false)
+    public Ret getExcelDate(Integer id,Integer pageNum,Integer pageSize);
+
+    @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.getEach",useLogin = false)
     public Ret getEach(Integer id);
 

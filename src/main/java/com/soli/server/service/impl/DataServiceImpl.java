@@ -69,9 +69,46 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         return DAO;
     }
 
+    @Override
+    public Ret getExcelDate(Integer id, Integer pageNum, Integer pageSize) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择数据");
+        }
+        if (pageNum == null) {
+            pageNum = 1;
+        }
+        if (pageSize == null) {
+            pageSize = 10;
+        }
+        Data data = Data.service().dao().findById(id);
+        if (data != null && data.getType() != 2) {
+            return Ret.fail("errorMsg", "该数据不是表格数据");
+        }
+        String table_name = data.getUrl();
+        String sql = "select * from " + table_name;
+        if ("hnw_jgpz".equals(table_name)) {
+            sql += " where category = '" + data.getStr("name") + "' ";
+            List<Record> records = Db.find(sql);
+            Record table = Db.findFirst("select * from sys_tableconfig where tbname = ? ", table_name);
+            Record fields = Db.findFirst("select fldname,fldcnn from sys_fieldconfig where fldtbid = ? ", table.getInt("tbid"));
+            return Ret.ok("list", records).set("fields", fields);
+        }else{
+            StringBuffer stringBuffer=new StringBuffer();
+            stringBuffer.append("from hnw_fljg where 1=1 ");
+            stringBuffer.append(" order by up_time desc ");
+            Page<Record> page= Db.paginate(pageNum,pageSize,"select * ",stringBuffer.toString());
+            return Ret.ok("data",page);
+        }
+
+    }
+
     public Ret getEach(Integer id) {
         if (id == null) {
             return Ret.fail("errorMsg", "请选择数据");
+        }
+        Data data1 = Data.service().dao().findById(id);
+        if (data1.getType() != 0 && data1.getType() != 1) {
+            return Ret.fail("errorMsg", "该数据没有期数列表");
         }
         List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(id).example().setOrderBy("data_time desc"));
         String webRootPath = PathKit.getWebRootPath();

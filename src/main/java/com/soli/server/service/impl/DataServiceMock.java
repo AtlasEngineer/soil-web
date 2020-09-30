@@ -32,7 +32,12 @@ import com.soli.server.service.DataService;
  */
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
 
- public Ret getEach(Integer id) {
+    @Override
+    public Ret getExcelDate(Integer id) {
+        return null;
+    }
+
+    public Ret getEach(Integer id) {
         return null;
     }
 
