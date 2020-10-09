@@ -130,7 +130,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "该数据不是表格数据");
         }
         String table_name = data.getUrl();
-        StringBuffer sql = new StringBuffer("select * from " + table_name + " where 1=1 ");
+        StringBuffer sql = new StringBuffer(" from " + table_name + " where 1=1 ");
         if(StringUtils.isBlank(name)){
             sql.append(" and product = '"+name+"' ");
         }
