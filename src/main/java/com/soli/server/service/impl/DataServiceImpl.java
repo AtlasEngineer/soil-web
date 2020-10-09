@@ -70,7 +70,52 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
-    public Ret getExcelDate(Integer id, Integer pageNum, Integer pageSize) {
+    public Ret deleteExcelDate(Integer id, Integer[] ids) {
+        Data data = Data.service().dao().findById(id);
+        if (data != null && data.getType() != 2) {
+            return Ret.fail("errorMsg", "该数据不是表格数据");
+        }
+        String table_name = data.getUrl();
+        for (int i = 0; i < ids.length; i++) {
+            Db.delete("delete from "+table_name+" where id = ? ",ids[i]);
+        }
+        return Ret.ok("msg", "删除成功");
+    }
+
+    @Override
+    public Ret deleteEachDate(Integer[] ids) {
+        if (ids == null) {
+            return Ret.fail("errorMsg", "请选择要删除的数据");
+        }
+        //删除geoserver服务
+        GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
+        String RESTURL = config.getGeourl();
+        String RESTUSER = config.getGeouser();
+        String RESTPW = config.getGeopsw();
+        GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
+        for (int i = 0; i < ids.length; i++) {
+            DataEach dataEach = DataEach.service().dao().findById(ids[i]);
+            if (dataEach != null) {
+                dataEach.delete();
+                //删除文件
+                String webRootPath = PathKit.getWebRootPath();
+                File file;
+                if (dataEach.getType() == 2) {
+                    file = new File(webRootPath + dataEach.getUrl());
+                } else {
+                    publisher.removeLayer("d", dataEach.getUrl().split(":")[1]);
+                    file = new File(webRootPath + "/d/" + dataEach.getUrl().split(":")[1]);
+                }
+                if (file.exists()) {
+                    file.delete();
+                }
+            }
+        }
+        return Ret.ok("msg", "删除成功");
+    }
+
+    @Override
+    public Ret getExcelDate(Integer id, Integer pageNum, Integer pageSize, String name, String address, String[] times) {
         if (id == null) {
             return Ret.fail("errorMsg", "请选择数据");
         }
@@ -85,21 +130,24 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "该数据不是表格数据");
         }
         String table_name = data.getUrl();
-        String sql = "select * from " + table_name;
-        if ("hnw_jgpz".equals(table_name)) {
-            sql += " where category = '" + data.getStr("name") + "' ";
-            List<Record> records = Db.find(sql);
-            Record table = Db.findFirst("select * from sys_tableconfig where tbname = ? ", table_name);
-            Record fields = Db.findFirst("select fldname,fldcnn from sys_fieldconfig where fldtbid = ? ", table.getInt("tbid"));
-            return Ret.ok("list", records).set("fields", fields);
-        }else{
-            StringBuffer stringBuffer=new StringBuffer();
-            stringBuffer.append("from hnw_fljg where 1=1 ");
-            stringBuffer.append(" order by up_time desc ");
-            Page<Record> page= Db.paginate(pageNum,pageSize,"select * ",stringBuffer.toString());
-            return Ret.ok("data",page);
+        StringBuffer sql = new StringBuffer("select * from " + table_name + " where 1=1 ");
+        if(StringUtils.isBlank(name)){
+            sql.append(" and product = '"+name+"' ");
         }
-
+        if(StringUtils.isBlank(address)){
+            sql.append(" and place like '%" + address + "%' ");
+        }
+        if (times != null && times.length > 1) {
+            sql.append(" and time between '" + times[0] + "' and '" + times[1] + "' ");
+        }
+        if ("hnw_jgpz".equals(table_name)) {
+            sql.append(" and category = '" + data.getStr("name") + "' ");
+        }
+        sql.append(" order by up_time desc ");
+        Page<Record> page = Db.paginate(pageNum, pageSize, "select * ", sql.toString());
+        Record table = Db.findFirst("select * from sys_tableconfig where tbname = ? ", table_name);
+        Record fields = Db.findFirst("select fldname,fldcnn from sys_fieldconfig where fldtbid = ? ", table.getInt("tbid"));
+        return Ret.ok("page", page).set("fields", fields);
     }
 
     public Ret getEach(Integer id) {

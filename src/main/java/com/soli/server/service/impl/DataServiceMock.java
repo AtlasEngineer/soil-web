@@ -33,7 +33,17 @@ import com.soli.server.service.DataService;
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
 
     @Override
-    public Ret getExcelDate(Integer id) {
+    public Ret deleteExcelDate(Integer id, Integer[] ids) {
+        return null;
+    }
+
+    @Override
+    public Ret deleteEachDate(Integer[] ids) {
+        return null;
+    }
+
+    @Override
+    public Ret getExcelDate(Integer id, Integer pageNum, Integer pageSize, String name, String address, String[] times) {
         return null;
     }
 
