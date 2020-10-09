@@ -68,7 +68,7 @@ public class DownloadController extends LambkitController {
             return;
         } else {
             //空间数据
-            List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andTimeEqualTo(time).example());
+            List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andTimeEqualTo(time).andDataIdEqualTo(id).example());
             if (dataEaches.size() == 0) {
                 renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "没有当前当前时间的数据")));
                 return;
