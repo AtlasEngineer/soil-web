@@ -233,7 +233,11 @@ public class UploadController extends LambkitController {
                 }
             }
             DataEach dataEach = new DataEach();
-            dataEach.setName(yname);
+            if(dataName==null){
+                dataEach.setName(yname);
+            }else{
+                dataEach.setName(dataName);
+            }
             dataEach.setType(type);
             dataEach.setDataId(id);
             dataEach.setDataTime(data_time);
