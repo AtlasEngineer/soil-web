@@ -70,6 +70,21 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
+    public Ret getExcelDateNames(Integer id) {
+        Data data = Data.service().dao().findById(id);
+        if (data != null && data.getType() != 2) {
+            return Ret.fail("errorMsg", "该数据不是表格数据");
+        }
+        String table_name = data.getUrl();
+        List<Record> records = Db.find("SELECT DISTINCT(product) FROM " + table_name);
+        List<String> strings = new ArrayList<>();
+        for (Record record : records) {
+            strings.add(record.get("product"));
+        }
+        return Ret.ok("list", strings);
+    }
+
+    @Override
     public Ret deleteExcelDate(Integer id, Integer[] ids) {
         Data data = Data.service().dao().findById(id);
         if (data != null && data.getType() != 2) {
@@ -77,7 +92,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         String table_name = data.getUrl();
         for (int i = 0; i < ids.length; i++) {
-            Db.delete("delete from "+table_name+" where id = ? ",ids[i]);
+            Db.delete("delete from " + table_name + " where id = ? ", ids[i]);
         }
         return Ret.ok("msg", "删除成功");
     }
@@ -131,10 +146,10 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         String table_name = data.getUrl();
         StringBuffer sql = new StringBuffer(" from " + table_name + " where 1=1 ");
-        if(StringUtils.isNotBlank(name)){
-            sql.append(" and product = '"+name+"' ");
+        if (StringUtils.isNotBlank(name)) {
+            sql.append(" and product = '" + name + "' ");
         }
-        if(StringUtils.isNotBlank(address)){
+        if (StringUtils.isNotBlank(address)) {
             sql.append(" and place like '%" + address + "%' ");
         }
         if (times != null && times.length > 1) {
