@@ -131,10 +131,10 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         String table_name = data.getUrl();
         StringBuffer sql = new StringBuffer(" from " + table_name + " where 1=1 ");
-        if(StringUtils.isBlank(name)){
+        if(StringUtils.isNotBlank(name)){
             sql.append(" and product = '"+name+"' ");
         }
-        if(StringUtils.isBlank(address)){
+        if(StringUtils.isNotBlank(address)){
             sql.append(" and place like '%" + address + "%' ");
         }
         if (times != null && times.length > 1) {
