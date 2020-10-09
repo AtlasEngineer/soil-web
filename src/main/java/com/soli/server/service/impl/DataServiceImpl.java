@@ -153,7 +153,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             sql.append(" and place like '%" + address + "%' ");
         }
         if (times != null && times.length > 1) {
-            sql.append(" and time between '" + times[0] + "' and '" + times[1] + "' ");
+            sql.append(" and up_time between '" + times[0] + "' and '" + times[1] + "' ");
         }
         if ("hnw_jgpz".equals(table_name)) {
             sql.append(" and category = '" + data.getStr("name") + "' ");

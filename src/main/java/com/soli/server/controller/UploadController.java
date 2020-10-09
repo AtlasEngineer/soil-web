@@ -72,17 +72,18 @@ public class UploadController extends LambkitController {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择要查看的数据")));
             return;
         }
-        if (StringUtils.isBlank(dataName)) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请输入数据名称")));
-            return;
-        }
-        if (data_time == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择数据时间")));
-            return;
-        }
         Data data = Data.service().dao().findById(id);
         Integer type = data.getType();
-
+        if (type != 2) {
+            if (StringUtils.isBlank(dataName)) {
+                renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请输入数据名称")));
+                return;
+            }
+            if (data_time == null) {
+                renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择数据时间")));
+                return;
+            }
+        }
         String yname = file.getName();
         System.out.println("上传时文件名：" + file.getName());
         String rootPath = PathKit.getWebRootPath() + "/upload/datafile/";
@@ -220,7 +221,7 @@ public class UploadController extends LambkitController {
                     List<Record> records = Db.find("SELECT COLUMN_NAME as name,ordinal_position as no,is_nullable as isnull,character_maximum_length as length,udt_name as type " +
                             " FROM information_schema.COLUMNS AS C  WHERE TABLE_NAME = '" + data.getUrl() + "'");
                     try {
-                        ExcelReaderUtils.way(s, records,data.getUrl());
+                        ExcelReaderUtils.way(s, records, data.getUrl());
                     } catch (Exception e) {
                         e.printStackTrace();
                         renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "写入数据失败")));

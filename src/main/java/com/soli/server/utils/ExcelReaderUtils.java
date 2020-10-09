@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -36,10 +37,14 @@ public class ExcelReaderUtils {
             Row row = sheet.getRow(i);//取得第i行数据
             for (int j = 0; j < row.getLastCellNum(); j++) {
                 Cell cell = row.getCell(j);//取得第j列数据
-                if(cell.getCellTypeEnum() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)){
+                if (cell == null) {
+                    continue;
+                }
+                if (cell.getCellTypeEnum() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
                     Date value = cell.getDateCellValue();
-                    sql.append("'" + value + "',");
-                }else{
+                    SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
+                    sql.append("'" + ft.format(value) + "',");
+                } else {
                     cell.setCellType(CellType.STRING);
                     String value = cell.getStringCellValue();
                     sql.append("'" + value + "',");

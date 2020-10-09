@@ -26,6 +26,48 @@ import java.util.zip.ZipOutputStream;
 public class DownloadController extends LambkitController {
 
     /**
+     * excel列表中数据提取
+     */
+    public void DataExcelDownload() {
+        Integer id = getParaToInt("id");
+        String ids = getPara("ids");
+        if (id == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择要提取的数据类型")));
+            return;
+        }
+        if (ids == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择要提取的数据")));
+            return;
+        }
+        Data data = Data.service().dao().findById(id);
+        if (data == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "该数据不存在")));
+            return;
+        }
+        //表格
+        String tableName = data.getUrl();
+        String substring = ids.substring(1, ids.length() - 1);
+        StringBuffer sql = new StringBuffer("select product,place,price,status,up_time from " + tableName + " where id in (" + substring + ") ");
+        if ("hnw_jgpz".equals(tableName)) {
+            sql.append(" and category = '" + data.getName() + "' ");
+        }
+        List<Record> records = Db.find(sql.toString());
+        if (records.size() == 0) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "没有当前当前时间的数据")));
+            return;
+        }
+        Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
+        titleData.put("product", "产品/品种");
+        titleData.put("place", "所在产地");
+        titleData.put("price", "价格");
+        titleData.put("status", "升/降");
+        titleData.put("up_time", "时间");
+        File file = new File(ExcelExportUtil.getTitle());
+        file = ExcelExportUtil.saveFile(titleData, records, file);
+        renderFile(file);
+    }
+
+    /**
      * 数据提取
      */
     public void DataEachDownload() {
