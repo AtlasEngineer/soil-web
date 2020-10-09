@@ -24,7 +24,7 @@ public class ExcelExportUtil {
     public static String getTitle(){
         Date date = new Date();
         SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");
-        String title=FILEPATH+dateFormat.format(date)+"_项目文档.xls";
+        String title=FILEPATH+dateFormat.format(date)+"_数据提取.xls";
         return title;
     }
 
