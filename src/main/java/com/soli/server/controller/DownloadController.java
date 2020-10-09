@@ -11,6 +11,7 @@ import com.soli.server.model.Data;
 import com.soli.server.model.DataEach;
 import com.soli.server.utils.Co;
 import com.soli.server.utils.ExcelExportUtil;
+import com.soli.server.utils.ZipCompressor;
 import org.apache.commons.math3.util.ArithmeticUtils;
 
 import java.io.File;
@@ -81,11 +82,8 @@ public class DownloadController extends LambkitController {
             //指定打包到哪个zip（绝对路径）如果压缩包创建出来了，但是里面没有文件，是因为数据库有数据，但是没有该数据的文件file
             String zipTempFilePath = webRootPath + "/d/数据提取记录/" + System.currentTimeMillis() + ".zip";
             //调用压缩
-            try {
-                int s = compress(sourceFilePaths, zipTempFilePath, false);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            ZipCompressor zc = new ZipCompressor(zipTempFilePath);
+            zc.compress(sourceFilePaths);
             renderFile(new File(zipTempFilePath));
             return;
         }
