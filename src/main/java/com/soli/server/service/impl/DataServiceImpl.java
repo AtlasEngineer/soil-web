@@ -160,22 +160,24 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         String table_name = data.getUrl();
         StringBuffer sql = new StringBuffer(" from " + table_name + " where 1=1 ");
-        if (StringUtils.isNotBlank(name)) {
-            sql.append(" and product = '" + name + "' ");
+        if(table_name.contains("hnw_")){
+            if (StringUtils.isNotBlank(name)) {
+                sql.append(" and product = '" + name + "' ");
+            }
+            if (StringUtils.isNotBlank(address)) {
+                sql.append(" and place like '%" + address + "%' ");
+            }
+            if (times != null && times.length > 1) {
+                sql.append(" and up_time between '" + times[0] + "' and '" + times[1] + "' ");
+            }
+            if ("hnw_jgpz".equals(table_name)) {
+                sql.append(" and category = '" + data.getStr("name") + "' ");
+            }
+            sql.append(" order by up_time desc ");
         }
-        if (StringUtils.isNotBlank(address)) {
-            sql.append(" and place like '%" + address + "%' ");
-        }
-        if (times != null && times.length > 1) {
-            sql.append(" and up_time between '" + times[0] + "' and '" + times[1] + "' ");
-        }
-        if ("hnw_jgpz".equals(table_name)) {
-            sql.append(" and category = '" + data.getStr("name") + "' ");
-        }
-        sql.append(" order by up_time desc ");
         Page<Record> page = Db.paginate(pageNum, pageSize, "select * ", sql.toString());
         Record table = Db.findFirst("select * from sys_tableconfig where tbname = ? ", table_name);
-        Record fields = Db.findFirst("select fldname,fldcnn from sys_fieldconfig where fldtbid = ? ", table.getInt("tbid"));
+        List<Record> fields = Db.find("select fldname,fldcnn from sys_fieldconfig where fldtbid = ? ", table.getInt("tbid"));
         return Ret.ok("page", page).set("fields", fields);
     }
 
