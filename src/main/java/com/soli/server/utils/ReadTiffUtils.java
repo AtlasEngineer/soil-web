@@ -96,6 +96,7 @@ public class ReadTiffUtils {
                 double lat = tmpPos.getCoordinate()[1];
                 boolean iscontains = GeometryRelated.withinGeo(lon, lat, wkt);
                 if (iscontains) {
+                    System.out.println("tmpPos:"+tmpPos);
                     Double pix = getObjectClass(coverage.evaluate(tmpPos));
                     if (nodData != pix) {
                         //加入计算平均值

@@ -257,11 +257,11 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     @Override
     public Ret searchTkByType() {
         List<Record> typesNum = Db.find("select type,count(type) from tr_tiankuai GROUP BY type");
-        Record numCount = Db.findFirst("select count(1) as count from tr_tiankuai");
+        Record numCount = Db.findFirst("select count(1) as count from tr_tiankuai where del=0");
         Record areaCount = Db.findFirst("SELECT sum(st_area(ST_Transform(geom,4527)))*0.0015 as count from tr_tiankuai");
         List<Record> typesArea = Db.find("SELECT type,sum(st_area(ST_Transform(geom,4527)))*0.0015 as area from tr_tiankuai GROUP BY type");
         return Ret.ok("typesNum", typesNum).set("typesArea", typesArea)
-                .set("numCount", numCount.getDouble("count")*0.0015)
+                .set("numCount", numCount.getDouble("count"))
                 .set("areaCount", areaCount.getDouble("count")*0.0015);
     }
 
