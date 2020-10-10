@@ -65,7 +65,7 @@ public class ReadTiffUtils {
         // 获取坐标系
         CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
         WKTReader reader = new WKTReader(new GeometryFactory(new PrecisionModel(), 4326));
-        MultiPolygon polygon = (MultiPolygon) reader.read(wkt);
+        Polygon polygon = (Polygon) reader.read(wkt);
 
 
         Double min_lon = polygon.getEnvelopeInternal().getMinX();
