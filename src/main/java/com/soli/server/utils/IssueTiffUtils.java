@@ -240,7 +240,8 @@ public class IssueTiffUtils {
                         .addAttribute("quantity", String.valueOf(aa[i])).addAttribute("label", "values");
             }
             //生成style文件
-            String path = PathKit.getWebRootPath().replace("\\", "/") + "/sld/" + storename + ".sld";
+            String rootPath = PathKit.getWebRootPath().replace("\\", "/");
+            String path = rootPath + "/sld/" + storename + ".sld";
             saveDocument(document, path, "UTF-8");
             return Kv.by("msg", "生成sld成功:"+path).set("code", "200").set("path", path);
         } catch (Exception e) {
