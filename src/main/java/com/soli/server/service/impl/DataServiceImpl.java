@@ -76,7 +76,11 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         Data data = Data.service().dao().findById(id);
         DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
-        return Ret.ok("data",data_time_desc);
+        if (data_time_desc == null) {
+            return Ret.fail("errorMsg", "暂无数据");
+        }else{
+            return Ret.ok("data", data_time_desc);
+        }
     }
 
     @Override
@@ -239,7 +243,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/砂粒/砂粒含量.tif");
                 double yjt = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/有机碳/有机碳.tif");
                 double ph = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/PH.tif");
-                double bctrhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath+ "/土壤/表层土砾石含量.tif");
+                double bctrhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/表层土砾石含量.tif");
 
                 return Ret.ok("data", Ret.by("黏粒含量", zlhl).set("砂粒含量", slhl).set("CEC", cec).set("有机碳", yjt)
                         .set("PH", ph).set("表层土砾石含量", bctrhl)
@@ -262,7 +266,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         List<Record> typesArea = Db.find("SELECT type,sum(st_area(ST_Transform(geom,4527)))*0.0015 as area from tr_tiankuai GROUP BY type");
         return Ret.ok("typesNum", typesNum).set("typesArea", typesArea)
                 .set("numCount", numCount.getDouble("count"))
-                .set("areaCount", areaCount.getDouble("count")*0.0015);
+                .set("areaCount", areaCount.getDouble("count") * 0.0015);
     }
 
     @Override
