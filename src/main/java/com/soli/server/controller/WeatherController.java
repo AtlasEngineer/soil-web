@@ -557,6 +557,31 @@ public class WeatherController extends LambkitController {
     }
 
 
+    /**
+     * 删除地块
+     */
+    public void delDK() throws ParseException {
+        Integer id=getParaToInt("id");
+        if (id == null) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "id不能为空")));
+            return;
+        }
+        Tiankuai tiankuai=Tiankuai.service().dao().findById(id);
+        if (tiankuai == null) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "未查到")));
+            return;
+        }
+        tiankuai.setDel(1);
+        boolean result=tiankuai.update();
+        if (result) {
+            renderJson(Co.ok("data", Ret.ok()));
+            return;
+        } else {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "删除失败")));
+            return;
+        }
+    }
+
 
 }
 
