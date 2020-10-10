@@ -70,6 +70,16 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
+    public Ret getLastData(Integer id) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择数据");
+        }
+        Data data = Data.service().dao().findById(id);
+        DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
+        return Ret.ok("data",data_time_desc);
+    }
+
+    @Override
     public Ret getExcelDateNames(Integer id) {
         Data data = Data.service().dao().findById(id);
         if (data != null && data.getType() != 2) {
