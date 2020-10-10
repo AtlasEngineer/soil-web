@@ -5,6 +5,7 @@ import com.jfinal.kit.Kv;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.Record;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.ParseException;
@@ -64,7 +65,8 @@ public class ReadTiffUtils {
         // 获取坐标系
         CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
         WKTReader reader = new WKTReader(new GeometryFactory(new PrecisionModel(), 4326));
-        Polygon polygon = (Polygon) reader.read(wkt);
+        MultiPolygon polygon = (MultiPolygon) reader.read(wkt);
+
 
         Double min_lon = polygon.getEnvelopeInternal().getMinX();
         Double max_lon = polygon.getEnvelopeInternal().getMaxX();
