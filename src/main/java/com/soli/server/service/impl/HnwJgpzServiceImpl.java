@@ -77,9 +77,15 @@ public class HnwJgpzServiceImpl extends LambkitModelServiceImpl<HnwJgpz> impleme
 		if(StringUtils.isNotBlank(type)){
 			sql.andTagLike("%"+type+"%");
 		}
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
 		if(time!=null&&time.length()!=0){
-			SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
 			sql.andUpTimeEqualTo(sdf.parse(time));
+		}
+
+		if("经济作物".equals(name)){
+			Record new_time=Db.findFirst("SELECT up_time from hnw_jgpz where category='经济作物' ORDER BY up_time desc LIMIT 1");
+			Page<HnwJgpz> page=HnwJgpz.service().dao().paginate(pageNum,pageSize,sql.andCategoryEqualTo(name).andUpTimeEqualTo(sdf.parse(new_time.getStr("up_time"))).example().setOrderBy("up_time desc"));
+			return Ret.ok("data",page);
 		}
 		Page<HnwJgpz> page=HnwJgpz.service().dao().paginate(pageNum,pageSize,sql.andCategoryEqualTo(name).example().setOrderBy("up_time desc"));
 		return Ret.ok("data",page);
