@@ -72,7 +72,7 @@ public class UploadController extends LambkitController {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择要查看的数据")));
             return;
         }
-        Data data = Data.service().dao().findById(id);
+        DataEach data = DataEach.service().dao().findById(id);
         Integer type = data.getType();
         if (type != 2) {
             if (StringUtils.isBlank(dataName)) {
