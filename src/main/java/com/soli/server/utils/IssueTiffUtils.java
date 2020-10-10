@@ -74,7 +74,7 @@ public class IssueTiffUtils {
         GeoServerRESTReader geoServerRESTReader = new GeoServerRESTReader(geoserverUrl, geoserverUsername, geoserverPassword);
 
         String workspace = "d";
-        String path = PathKit.getWebRootPath() + filepath;
+        String path = PathKit.getWebRootPath().replace("\\", "/") + filepath;
         System.out.println("path:" + path);
         File geotiff = new File(path);
 
@@ -84,7 +84,7 @@ public class IssueTiffUtils {
         String name = geotiff.getName().split("\\.")[0];
 
         //解压后文件夹
-        String s = PathKit.getWebRootPath() + "/d/" + name;
+        String s = PathKit.getWebRootPath().replace("\\", "/") + "/d/" + name;
         try {
             ZipUtils.decompress(geotiff.getPath(), s);
         } catch (Exception e) {
@@ -240,7 +240,7 @@ public class IssueTiffUtils {
                         .addAttribute("quantity", String.valueOf(aa[i])).addAttribute("label", "values");
             }
             //生成style文件
-            String path = PathKit.getWebRootPath() + "/sld/" + storename + ".sld";
+            String path = PathKit.getWebRootPath().replace("\\", "/") + "/sld/" + storename + ".sld";
             saveDocument(document, path, "UTF-8");
             return Kv.by("msg", "生成sld成功:"+path).set("code", "200").set("path", path);
         } catch (Exception e) {
