@@ -236,6 +236,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                         //没有数据部分
                         .set("粉粒", zlhl).set("有效钾", yjt).set("有效磷", yjt).set("总氮", yjt));
             } catch (Exception e) {
+                e.printStackTrace();
                 return Ret.fail("errorMsg", "读取像素值错误，请联系管理员");
             }
         } else {

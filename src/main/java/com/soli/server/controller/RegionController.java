@@ -134,4 +134,26 @@ public class RegionController extends LambkitController {
     }
 
 
+    /**
+     * @return void
+     * @Author queer
+     * @Description //TODO 计算多边形的面积
+     * @Date 15:49 2019/12/20
+     * @Param []
+     **/
+    public void CalculationArea(){
+
+        String latlons=getPara("latlons");
+
+        if (StringUtils.isBlank(latlons)) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "请输入经纬度的集合")));
+        }
+        Record record=Db.findFirst("select st_area(st_geometryfromtext('POLYGON(("+latlons+" ))',4326)) as num");
+
+        renderJson(Co.ok("data",Ret.ok("data",record)));
+
+    }
+
+
+
 }
