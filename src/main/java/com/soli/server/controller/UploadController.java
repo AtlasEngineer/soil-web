@@ -215,8 +215,8 @@ public class UploadController extends LambkitController {
                 }
             } else {
                 //发布表格到数据库
+                String s = rootPath + filename;
                 if ("xlsx".equals(fileext) || "xls".equals(fileext)) {
-                    String s = rootPath + filename;
                     //获取数据库表字段属性
                     List<Record> records = Db.find("SELECT COLUMN_NAME as name,ordinal_position as no,is_nullable as isnull,character_maximum_length as length,udt_name as type " +
                             " FROM information_schema.COLUMNS AS C  WHERE TABLE_NAME = '" + data.getUrl() + "'");
@@ -224,12 +224,18 @@ public class UploadController extends LambkitController {
                         ExcelReaderUtils.way(s, records, data.getUrl());
                     } catch (Exception e) {
                         e.printStackTrace();
-                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "写入数据失败")));
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "写入"+fileext+"数据失败")));
                         return;
                     }
                 } else {
                     //csv数据直接sql导入
-
+                    try {
+                        Db.update("COPY " + data.getUrl() + "(category,tag,product,place,price,status,up_time,url) from '"+s+"' WITH CSV  HEADER");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "写入csv数据失败")));
+                        return;
+                    }
                 }
             }
             DataEach dataEach = new DataEach();
