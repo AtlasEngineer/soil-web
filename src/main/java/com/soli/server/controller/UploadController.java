@@ -89,10 +89,10 @@ public class UploadController extends LambkitController {
         String rootPath = PathKit.getWebRootPath() + "/upload/datafile/";
         String fileext = PathUtils.getExtensionName(file.getName());
         String filename = UUID.randomUUID().toString() + "." + fileext;
-        if (file.length() > 52428800) {
+        if (file.length() > 104857600) {
             file.delete();
-            setAttr("msg", "文件大小不能大于50MB");
-            setAttr("error", "true");
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件大小不能大于100MB")));
+            return;
         } else if (!"zip".equals(fileext) && (type == 1 || type == 0)) {
             file.delete();
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
