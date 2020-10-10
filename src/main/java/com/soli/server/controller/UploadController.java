@@ -89,7 +89,7 @@ public class UploadController extends LambkitController {
         String rootPath = PathKit.getWebRootPath() + "/upload/datafile/";
         String fileext = PathUtils.getExtensionName(file.getName());
         String filename = UUID.randomUUID().toString() + "." + fileext;
-        if (file.length() > 10485760) {
+        if (file.length() > 104857600) {
             file.delete();
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件大小不能大于100MB")));
             return;
