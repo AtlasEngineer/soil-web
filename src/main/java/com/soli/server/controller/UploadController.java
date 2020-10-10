@@ -3,6 +3,7 @@ package com.soli.server.controller;
 
 import com.jfinal.kit.Kv;
 import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.Lambkit;
 import com.lambkit.common.util.DateTimeUtils;
 import com.lambkit.common.util.StringUtils;
@@ -14,7 +15,7 @@ import com.lambkit.plugin.jwt.impl.JwtUser;
 import com.lambkit.web.RequestManager;
 import com.soli.server.model.Data;
 import com.soli.server.model.DataEach;
-import com.soli.server.utils.Co;
+import com.soli.server.utils.*;
 import com.jfinal.aop.Clear;
 import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;
@@ -23,11 +24,10 @@ import com.lambkit.common.util.PathUtils;
 import com.lambkit.component.swagger.annotation.ApiOperation;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.controller.LambkitController;
-import com.soli.server.utils.IssueShpUtils;
-import com.soli.server.utils.IssueTiffUtils;
-import com.soli.server.utils.ZipUtils;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -72,17 +72,18 @@ public class UploadController extends LambkitController {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择要查看的数据")));
             return;
         }
-        if (StringUtils.isBlank(dataName)) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请输入数据名称")));
-            return;
-        }
-        if (data_time == null) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择数据时间")));
-            return;
-        }
         Data data = Data.service().dao().findById(id);
         Integer type = data.getType();
-
+        if (type != 2) {
+            if (StringUtils.isBlank(dataName)) {
+                renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请输入数据名称")));
+                return;
+            }
+            if (data_time == null) {
+                renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请选择数据时间")));
+                return;
+            }
+        }
         String yname = file.getName();
         System.out.println("上传时文件名：" + file.getName());
         String rootPath = PathKit.getWebRootPath() + "/upload/datafile/";
@@ -212,19 +213,31 @@ public class UploadController extends LambkitController {
                     renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", kv.get("msg"))));
                     return;
                 }
-            }else{
+            } else {
                 //发布表格到数据库
-                if("csv".equals(fileext)){
+                if ("xlsx".equals(fileext) || "xls".equals(fileext)) {
                     String s = rootPath + filename;
-
-
-                }else {
+                    //获取数据库表字段属性
+                    List<Record> records = Db.find("SELECT COLUMN_NAME as name,ordinal_position as no,is_nullable as isnull,character_maximum_length as length,udt_name as type " +
+                            " FROM information_schema.COLUMNS AS C  WHERE TABLE_NAME = '" + data.getUrl() + "'");
+                    try {
+                        ExcelReaderUtils.way(s, records, data.getUrl());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "写入数据失败")));
+                        return;
+                    }
+                } else {
+                    //csv数据直接sql导入
 
                 }
-
             }
             DataEach dataEach = new DataEach();
-            dataEach.setName(yname);
+            if(dataName==null){
+                dataEach.setName(yname);
+            }else{
+                dataEach.setName(dataName);
+            }
             dataEach.setType(type);
             dataEach.setDataId(id);
             dataEach.setDataTime(data_time);
@@ -238,10 +251,24 @@ public class UploadController extends LambkitController {
             boolean save = dataEach.save();
             if (save) {
                 List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(id).example().setOrderBy("data_time desc"));
+                String webRootPath = PathKit.getWebRootPath();
+                for (int i = 0; i < dataEaches.size(); i++) {
+                    DataEach dataEach1 = dataEaches.get(i);
+                    Integer type1 = data.getType();
+                    Kv kv1 = null;
+                    if (type1 == 0) {
+                        kv1 = readShp.readShpXY(webRootPath + "/d/" + dataEach1.getUrl().split(":")[1] + "/" + dataEach1.getUrl().split(":")[1] + ".shp");
+                    } else if (type1 == 1) {
+                        kv1 = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + dataEach1.getUrl().split(":")[1] + "/" + dataEach1.getUrl().split(":")[1] + ".tif");
+                    }
+                    if (kv1 != null) {
+                        dataEach1.put(kv1);
+                    }
+                }
                 if (kv != null && kv.get("sld") != null) {
-                    renderJson(Co.ok("data", Co.by("state", "ok").set("sld", kv.get("sld")).set("list",dataEaches)));
+                    renderJson(Co.ok("data", Co.by("state", "ok").set("sld", kv.get("sld")).set("list", dataEaches)));
                 } else {
-                    renderJson(Co.ok("data", Co.by("state", "ok").set("list",dataEaches)));
+                    renderJson(Co.ok("data", Co.by("state", "ok").set("list", dataEaches)));
                 }
             } else {
                 renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "保存失败")));
