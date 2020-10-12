@@ -128,7 +128,7 @@ public class ReadTiffUtils {
                 boolean iscontains = GeometryRelated.withinGeo(lon, lat, wkt);
                 if (iscontains) {
                     System.out.println("tmpPos:"+tmpPos);
-                    Double pix = getObjectClass(coverage.evaluate(tmpPos));
+                    Double pix = getObjectClass(coverage.evaluate(tmpPos).toString());
                     if (nodData != pix) {
                         //加入计算平均值
                         sum = sum + pix;
@@ -266,6 +266,7 @@ public class ReadTiffUtils {
             String[] b = (String[]) param;
             d = Double.valueOf(b[0]);
         } else if (param instanceof Double[] || param instanceof double[]) {
+            System.out.println("param:"+param);
             Double[] b = (Double[]) param;
             d = Double.valueOf(b[0]);
         } else if (param instanceof Float[] || param instanceof float[]) {
