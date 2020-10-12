@@ -25,6 +25,9 @@ public class ExcelReaderUtils {
         // (列1, 列2,...) VALUES (值1, 值2,....)
         for (int j = 0; j < lastCellNum1; j++) {
             Cell cell = row1.getCell(j);//取得第j列数据
+            if (cell == null) {
+                continue;
+            }
             cell.setCellType(CellType.STRING);
             String key = cell.getStringCellValue();
             sql_ex.append(key + ",");
@@ -42,7 +45,7 @@ public class ExcelReaderUtils {
                 }
                 if (cell.getCellTypeEnum() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
                     Date value = cell.getDateCellValue();
-                    SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
+                    SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
                     sql.append("'" + ft.format(value) + "',");
                 } else {
                     cell.setCellType(CellType.STRING);

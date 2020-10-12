@@ -70,6 +70,20 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
+    public Ret getLastData(Integer id) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择数据");
+        }
+        Data data = Data.service().dao().findById(id);
+        DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
+        if (data_time_desc == null) {
+            return Ret.fail("errorMsg", "暂无数据");
+        }else{
+            return Ret.ok("data", data_time_desc);
+        }
+    }
+
+    @Override
     public Ret getExcelDateNames(Integer id) {
         Data data = Data.service().dao().findById(id);
         if (data != null && data.getType() != 2) {
@@ -146,22 +160,24 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         String table_name = data.getUrl();
         StringBuffer sql = new StringBuffer(" from " + table_name + " where 1=1 ");
-        if (StringUtils.isNotBlank(name)) {
-            sql.append(" and product = '" + name + "' ");
+        if(table_name.contains("hnw_")){
+            if (StringUtils.isNotBlank(name)) {
+                sql.append(" and product = '" + name + "' ");
+            }
+            if (StringUtils.isNotBlank(address)) {
+                sql.append(" and place like '%" + address + "%' ");
+            }
+            if (times != null && times.length > 1) {
+                sql.append(" and up_time between '" + times[0] + "' and '" + times[1] + "' ");
+            }
+            if ("hnw_jgpz".equals(table_name)) {
+                sql.append(" and category = '" + data.getStr("name") + "' ");
+            }
+            sql.append(" order by up_time desc ");
         }
-        if (StringUtils.isNotBlank(address)) {
-            sql.append(" and place like '%" + address + "%' ");
-        }
-        if (times != null && times.length > 1) {
-            sql.append(" and up_time between '" + times[0] + "' and '" + times[1] + "' ");
-        }
-        if ("hnw_jgpz".equals(table_name)) {
-            sql.append(" and category = '" + data.getStr("name") + "' ");
-        }
-        sql.append(" order by up_time desc ");
         Page<Record> page = Db.paginate(pageNum, pageSize, "select * ", sql.toString());
         Record table = Db.findFirst("select * from sys_tableconfig where tbname = ? ", table_name);
-        Record fields = Db.findFirst("select fldname,fldcnn from sys_fieldconfig where fldtbid = ? ", table.getInt("tbid"));
+        List<Record> fields = Db.find("select fldname,fldcnn from sys_fieldconfig where fldtbid = ? ", table.getInt("tbid"));
         return Ret.ok("page", page).set("fields", fields);
     }
 
@@ -229,7 +245,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/砂粒/砂粒含量.tif");
                 double yjt = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/有机碳/有机碳.tif");
                 double ph = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/PH.tif");
-                double bctrhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath+ "/土壤/表层土砾石含量.tif");
+                double bctrhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/表层土砾石含量.tif");
 
                 return Ret.ok("data", Ret.by("黏粒含量", zlhl).set("砂粒含量", slhl).set("CEC", cec).set("有机碳", yjt)
                         .set("PH", ph).set("表层土砾石含量", bctrhl)
@@ -252,7 +268,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         List<Record> typesArea = Db.find("SELECT type,sum(st_area(ST_Transform(geom,4527)))*0.0015 as area from tr_tiankuai GROUP BY type");
         return Ret.ok("typesNum", typesNum).set("typesArea", typesArea)
                 .set("numCount", numCount.getDouble("count"))
-                .set("areaCount", areaCount.getDouble("count")*0.0015);
+                .set("areaCount", areaCount.getDouble("count") * 0.0015);
     }
 
     @Override

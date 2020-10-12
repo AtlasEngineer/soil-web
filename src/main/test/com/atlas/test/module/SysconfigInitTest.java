@@ -19,7 +19,7 @@ public class SysconfigInitTest {
 		//不包含如下数据表
 		options.put("excludedTables", "sys_fieldconfig, sys_tableconfig");
 		//仅包含如下数据表
-		options.put("includedTables", "hnw_fljg,hnw_jgpz,hnw_nyjg,hnw_produce_info");
+		options.put("includedTables", "tr_chemical_fertilizer");
 		MgrdbManager.me().run(options, MgrdbConfig.SYSCONFIG);
 		System.exit(0);
 	}
