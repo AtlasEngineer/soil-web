@@ -39,10 +39,15 @@ import com.soli.server.utils.*;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.WKTReader;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -190,7 +195,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "该数据没有期数列表");
         }
         List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(id).example().setOrderBy("data_time desc"));
-        String webRootPath = PathKit.getWebRootPath();
+        String webRootPath = PathKit.getWebRootPath().replace("\\","/");
         for (int i = 0; i < dataEaches.size(); i++) {
             DataEach data = dataEaches.get(i);
             Integer type1 = data.getType();
@@ -199,6 +204,26 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
             } else if (type1 == 1) {
                 kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
+            }
+            else if (type1 == 3) {
+
+                kv = ReadTiffUtils.getXmlLatlons(webRootPath + data.getUrl().replace("jpg","xml"));
+            } else if (type1 == 4) {
+                SAXReader reader = new SAXReader();
+                Document doc = null;
+                try {
+                    doc = reader.read(new File(webRootPath + data.getUrl()));
+                } catch (DocumentException e) {
+                    e.printStackTrace();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                // 读取指定标签
+                Element identificationInfo = doc.getRootElement().element("identificationInfo");
+                Element MD_DataIdentification = identificationInfo.element("MD_DataIdentification");
+                Element abstractElement = MD_DataIdentification.element("abstract");
+                String latlons = abstractElement.elementText("CharacterString");
+                kv.set("latlons", latlons);
             }
             if (kv != null) {
                 data.put(kv);
