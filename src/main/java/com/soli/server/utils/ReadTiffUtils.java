@@ -10,6 +10,9 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.io.SAXReader;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoordinates2D;
 import org.geotools.coverage.grid.GridCoverage2D;
@@ -27,6 +30,7 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 
 import static java.lang.Math.pow;
@@ -50,6 +54,33 @@ public class ReadTiffUtils {
         Object results = coverage.evaluate(position);
         Double objectClass = getObjectClass(results);
         return objectClass;
+    }
+
+    public static Kv getXmlLatlons (String path){
+        SAXReader reader = new SAXReader();
+        Document doc = null;
+        try {
+            doc = reader.read(new File(path));
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        // 读取指定标签
+        String topLeftLatitude = doc.getRootElement().elementText("TopLeftLatitude");
+        String topLeftLongitude = doc.getRootElement().elementText("TopLeftLongitude");
+        String topRightLatitude = doc.getRootElement().elementText("TopRightLatitude");
+        String topRightLongitude = doc.getRootElement().elementText("TopRightLongitude");
+
+        String bottomRightLatitude = doc.getRootElement().elementText("BottomRightLatitude");
+        String bottomRightLongitude = doc.getRootElement().elementText("BottomRightLongitude");
+        String bottomLeftLatitude = doc.getRootElement().elementText("BottomLeftLatitude");
+        String bottomLeftLongitude = doc.getRootElement().elementText("BottomLeftLongitude");
+        return Kv.by("topLeftLatitude", topLeftLatitude).set("topLeftLongitude", topLeftLongitude)
+                .set("topRightLatitude", topRightLatitude).set("topRightLongitude", topRightLongitude)
+                .set("bottomRightLatitude", bottomRightLatitude).set("bottomRightLongitude", bottomRightLongitude)
+                .set("bottomLeftLatitude", bottomLeftLatitude).set("bottomLeftLongitude", bottomLeftLongitude)
+                .set("code", 200);
     }
 
     /**
