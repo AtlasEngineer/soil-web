@@ -1,34 +1,25 @@
 package com.soli.server.controller;
 
 
-import com.alibaba.druid.support.json.JSONUtils;
+import com.jfinal.aop.Clear;
 import com.jfinal.kit.Kv;
+import com.jfinal.kit.PathKit;
+import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
-import com.lambkit.Lambkit;
-import com.lambkit.common.util.DateTimeUtils;
+import com.jfinal.upload.UploadFile;
+import com.lambkit.common.util.PathUtils;
 import com.lambkit.common.util.StringUtils;
+import com.lambkit.component.swagger.annotation.ApiOperation;
 import com.lambkit.module.upms.UpmsManager;
 import com.lambkit.module.upms.rpc.model.UpmsUser;
-import com.lambkit.plugin.jwt.JwtConfig;
-import com.lambkit.plugin.jwt.JwtKit;
-import com.lambkit.plugin.jwt.impl.JwtUser;
-import com.lambkit.web.RequestManager;
+import com.lambkit.plugin.jwt.JwtTokenInterceptor;
+import com.lambkit.web.controller.LambkitController;
 import com.soli.server.model.Data;
 import com.soli.server.model.DataEach;
 import com.soli.server.utils.*;
-import com.jfinal.aop.Clear;
-import com.jfinal.kit.PathKit;
-import com.jfinal.kit.Ret;
-import com.jfinal.upload.UploadFile;
-import com.lambkit.common.util.PathUtils;
-import com.lambkit.component.swagger.annotation.ApiOperation;
-import com.lambkit.plugin.jwt.JwtTokenInterceptor;
-import com.lambkit.web.controller.LambkitController;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -91,17 +82,22 @@ public class UploadController extends LambkitController {
         String rootPath = PathKit.getWebRootPath() + "/upload/datafile/";
         String fileext = PathUtils.getExtensionName(file.getName());
         String filename = UUID.randomUUID().toString() + "." + fileext;
-        if (file.length() > 104857600) {
+//        if (file.length() > 104857600) {
+//            file.delete();
+//            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件大小不能大于100MB")));
+//            return;
+//        } else
+        if (!"zip".equals(fileext) && (type == 1 || type == 0 || type == 4)) {
             file.delete();
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件大小不能大于100MB")));
-            return;
-        } else if (!"zip".equals(fileext) && (type == 1 || type == 0)) {
-            file.delete();
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确,支持zip文件上传")));
             return;
         } else if (!"csv".equals(fileext) && !"xlsx".equals(fileext) && !"xls".equals(fileext) && type == 2) {
             file.delete();
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确")));
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确,支持xlsx、xls、csv文件上传")));
+            return;
+        } else if (!"gz".equals(fileext) && type == 3) {
+            file.delete();
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件格式不正确,支持tar.gz文件")));
             return;
         } else {
             //重命名
@@ -109,6 +105,10 @@ public class UploadController extends LambkitController {
                 filename = "shp-" + filename;
             } else if (type == 1) {
                 filename = "tif-" + filename;
+            } else if (type == 3) {
+                filename = "GF-" + UUID.randomUUID().toString() + ".tar.gz";
+            } else if (type == 4) {
+                filename = "SB-" + filename;
             }
             boolean b = file.renameTo(new File(rootPath + filename));
             if (!b) {
@@ -117,7 +117,7 @@ public class UploadController extends LambkitController {
             }
             String root = PathKit.getWebRootPath().replace("\\", "/");
             File file1 = new File(rootPath + filename);
-            if (file == null) {
+            if (file1 == null) {
                 renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "找不到该文件")));
                 return;
             }
@@ -215,7 +215,7 @@ public class UploadController extends LambkitController {
                     renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", kv.get("msg"))));
                     return;
                 }
-            } else {
+            } else if (type == 2) {
                 //发布表格到数据库
                 String s = rootPath + filename;
                 if ("xlsx".equals(fileext) || "xls".equals(fileext)) {
@@ -226,24 +226,31 @@ public class UploadController extends LambkitController {
                         ExcelReaderUtils.way(s, records, data.getUrl());
                     } catch (Exception e) {
                         e.printStackTrace();
-                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "写入"+fileext+"数据失败")));
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "写入" + fileext + "数据失败")));
                         return;
                     }
                 } else {
                     //csv数据直接sql导入
                     try {
-                        Db.update("COPY " + data.getUrl() + "(category,tag,product,place,price,status,up_time,url) from '"+s+"' WITH CSV  HEADER");
+                        Db.update("COPY " + data.getUrl() + "(category,tag,product,place,price,status,up_time,url) from '" + s + "' WITH CSV  HEADER");
                     } catch (Exception e) {
                         e.printStackTrace();
                         renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "写入csv数据失败")));
                         return;
                     }
                 }
+            } else if (type == 3) {
+                //高分数据
+                GzUtils.readTarFile(file);
+                name = file.getName().substring(0, file.getName().indexOf(".tar.gz"));
+            } else if (type == 4) {
+                //哨兵数据
+
             }
             DataEach dataEach = new DataEach();
-            if(dataName==null){
+            if (dataName == null) {
                 dataEach.setName(yname);
-            }else{
+            } else {
                 dataEach.setName(dataName);
             }
             dataEach.setType(type);
@@ -253,8 +260,10 @@ public class UploadController extends LambkitController {
             dataEach.setUserid(user.getUserId().intValue());
             if (type == 0 || type == 1) {
                 dataEach.setUrl("d:" + name);
-            } else {
+            } else if (type == 2) {
                 dataEach.setUrl("/upload/datafile/" + filename);
+            } else if (type == 3) {
+                dataEach.setUrl("/d/" + name + "/" + name + ".jpg");
             }
             boolean save = dataEach.save();
             if (save) {
@@ -268,6 +277,8 @@ public class UploadController extends LambkitController {
                         kv1 = readShp.readShpXY(webRootPath + "/d/" + dataEach1.getUrl().split(":")[1] + "/" + dataEach1.getUrl().split(":")[1] + ".shp");
                     } else if (type1 == 1) {
                         kv1 = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + dataEach1.getUrl().split(":")[1] + "/" + dataEach1.getUrl().split(":")[1] + ".tif");
+                    }else if (type1 == 3){
+                        kv1= ReadTiffUtils.getXmlLatlons(root + "/d/" + name + "/" + name + ".xml");
                     }
                     if (kv1 != null) {
                         dataEach1.put(kv1);
