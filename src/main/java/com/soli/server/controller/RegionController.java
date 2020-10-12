@@ -23,7 +23,16 @@ public class RegionController extends LambkitController {
      * @Param []
      **/
     public void getProvince() {
-        List<Record> list = Db.find("select pname from tr_ch_province");
+        List<Record> list = Db.find("select st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom),pname as label,sdm as value  from tr_ch_province");
+        for(Record record:list){
+            List<Record> city_list = Db.find("select st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom),cname as label,ssdm as value from tr_ch_city where pname = ? order by pyname ", record.getStr("label"));
+            record.set("children",city_list);
+            for (Record city:city_list){
+                List<Record> country_list = Db.find("select st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom),name as label,ssdm as value from tr_ch_county where pname = ? and cname = ? order by pyname ", record.getStr("label"), city.getStr("label"));
+                city.set("children",country_list);
+            }
+        }
+
         renderJson(Co.ok("data", Ret.ok("data",list)));
     }
 
