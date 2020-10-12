@@ -206,7 +206,6 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
             }
             else if (type1 == 3) {
-
                 kv = ReadTiffUtils.getXmlLatlons(webRootPath + data.getUrl().replace("jpg","xml"));
             } else if (type1 == 4) {
                 SAXReader reader = new SAXReader();

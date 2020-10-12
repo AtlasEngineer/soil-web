@@ -47,24 +47,55 @@ public class DownloadController extends LambkitController {
         //表格
         String tableName = data.getUrl();
         String substring = ids.substring(1, ids.length() - 1);
-        StringBuffer sql = new StringBuffer("select product,place,price,status,up_time from " + tableName + " where id in (" + substring + ") ");
-        if ("hnw_jgpz".equals(tableName)) {
-            sql.append(" and category = '" + data.getName() + "' ");
+        if (tableName.contains("hnw_")) {
+            StringBuffer sql = new StringBuffer("select product,place,price,status,up_time from " + tableName + " where id in (" + substring + ") ");
+            if ("hnw_jgpz".equals(tableName)) {
+                sql.append(" and category = '" + data.getName() + "' ");
+            }
+            List<Record> records = Db.find(sql.toString());
+            if (records.size() == 0) {
+                renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "没有当前当前时间的数据")));
+                return;
+            }
+            Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
+            titleData.put("product", "产品/品种");
+            titleData.put("place", "所在产地");
+            titleData.put("price", "价格");
+            titleData.put("status", "升/降");
+            titleData.put("up_time", "时间");
+            File file = new File(ExcelExportUtil.getTitle());
+            file = ExcelExportUtil.saveFile(titleData, records, file);
+            renderFile(file);
+        } else {
+            //动态表格
+            Record table = Db.findFirst("select * from sys_tableconfig where tbname = ? ", tableName);
+            List<Record> fields = Db.find("select fldname,fldcnn from sys_fieldconfig where fldtbid = ? ", table.getInt("tbid"));
+            StringBuffer sql = new StringBuffer("select ");
+            for (int i = 0; i < fields.size(); i++) {
+                Record field = fields.get(i);
+                if ("id".equals(field.get("fldname"))) {
+                    continue;
+                }
+                if (i == 0) {
+                    sql.append(field.getStr("fldname"));
+                } else {
+                    sql.append("," + field.getStr("fldname"));
+                }
+            }
+            sql.append(" from " + tableName + " where id in (" + substring + ") ");
+            List<Record> records = Db.find(sql.toString());
+
+            Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
+            for (Record field : fields) {
+                if ("id".equals(field.getStr("fldname"))) {
+                    continue;
+                }
+                titleData.put(field.getStr("fldname"), field.getStr("fldcnn"));
+            }
+            File file = new File(ExcelExportUtil.getTitle());
+            file = ExcelExportUtil.saveFile(titleData, records, file);
+            renderFile(file);
         }
-        List<Record> records = Db.find(sql.toString());
-        if (records.size() == 0) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "没有当前当前时间的数据")));
-            return;
-        }
-        Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
-        titleData.put("product", "产品/品种");
-        titleData.put("place", "所在产地");
-        titleData.put("price", "价格");
-        titleData.put("status", "升/降");
-        titleData.put("up_time", "时间");
-        File file = new File(ExcelExportUtil.getTitle());
-        file = ExcelExportUtil.saveFile(titleData, records, file);
-        renderFile(file);
     }
 
     /**
@@ -89,25 +120,57 @@ public class DownloadController extends LambkitController {
         if (data.getType() == 2) {
             //表格
             String tableName = data.getUrl();
-            StringBuffer sql = new StringBuffer("select product,place,price,status,up_time from " + tableName + " where up_time = '" + time + "' ");
-            if ("hnw_jgpz".equals(tableName)) {
-                sql.append(" and category = '" + data.getName() + "' ");
-            }
-            List<Record> records = Db.find(sql.toString());
-            if (records.size() == 0) {
-                renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "没有当前当前时间的数据")));
+            if (tableName.contains("hnw_")) {
+                StringBuffer sql = new StringBuffer("select product,place,price,status,up_time from " + tableName + " where up_time = '" + time + "' ");
+                if ("hnw_jgpz".equals(tableName)) {
+                    sql.append(" and category = '" + data.getName() + "' ");
+                }
+                List<Record> records = Db.find(sql.toString());
+                if (records.size() == 0) {
+                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "没有当前当前时间的数据")));
+                    return;
+                }
+                Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
+                titleData.put("product", "产品/品种");
+                titleData.put("place", "所在产地");
+                titleData.put("price", "价格");
+                titleData.put("status", "升/降");
+                titleData.put("up_time", "时间");
+                File file = new File(ExcelExportUtil.getTitle());
+                file = ExcelExportUtil.saveFile(titleData, records, file);
+                renderFile(file);
+                return;
+            }else{
+                //动态表格
+                Record table = Db.findFirst("select * from sys_tableconfig where tbname = ? ", tableName);
+                List<Record> fields = Db.find("select fldname,fldcnn from sys_fieldconfig where fldtbid = ? ", table.getInt("tbid"));
+                StringBuffer sql = new StringBuffer("select ");
+                for (int i = 0; i < fields.size(); i++) {
+                    Record field = fields.get(i);
+                    if ("id".equals(field.get("fldname"))) {
+                        continue;
+                    }
+                    if (i == 0) {
+                        sql.append(field.getStr("fldname"));
+                    } else {
+                        sql.append("," + field.getStr("fldname"));
+                    }
+                }
+                sql.append(" from " + tableName);
+                List<Record> records = Db.find(sql.toString());
+
+                Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
+                for (Record field : fields) {
+                    if ("id".equals(field.getStr("fldname"))) {
+                        continue;
+                    }
+                    titleData.put(field.getStr("fldname"), field.getStr("fldcnn"));
+                }
+                File file = new File(ExcelExportUtil.getTitle());
+                file = ExcelExportUtil.saveFile(titleData, records, file);
+                renderFile(file);
                 return;
             }
-            Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
-            titleData.put("product", "产品/品种");
-            titleData.put("place", "所在产地");
-            titleData.put("price", "价格");
-            titleData.put("status", "升/降");
-            titleData.put("up_time", "时间");
-            File file = new File(ExcelExportUtil.getTitle());
-            file = ExcelExportUtil.saveFile(titleData, records, file);
-            renderFile(file);
-            return;
         } else {
             //空间数据
             List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andTimeEqualTo(time).andDataIdEqualTo(id).example());

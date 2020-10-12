@@ -584,7 +584,6 @@ public class UploadController extends LambkitController {
             renderJson(Co.ok("data", Ret.ok("data",kv)));
         } else {
             renderJson(Co.ok("data", Ret.fail("errorMsg", "重命名失败")));
-
         }
     }
 
