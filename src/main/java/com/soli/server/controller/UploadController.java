@@ -489,7 +489,7 @@ public class UploadController extends LambkitController {
         UploadFile uf = getFile("file", "image");
         File file = uf.getFile();
 
-        String rootPath = PathKit.getWebRootPath() + "/upload/shp/";
+        String rootPath = PathKit.getWebRootPath().replace("\\", "/") + "/upload/data/";
         String fileext = PathUtils.getExtensionName(file.getName());
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         String filename = uuid + "." + fileext;
@@ -528,7 +528,7 @@ public class UploadController extends LambkitController {
                         sb.append(split[i]).append(".");
                     }
                     String s1 = sb.toString().substring(0, sb.length() - 1);
-                    File file01 = new File(PathKit.getWebRootPath() + "/upload/shp/" + uuid + "/" + uuid + "." + s1);
+                    File file01 = new File(PathKit.getWebRootPath().replace("\\", "/") + "/upload/data/" + uuid + "/" + uuid + "." + s1);
                     System.out.println("file01:" + file01.getName());
                     file1.renameTo(file01);
                     String path = file01.getPath();
@@ -579,7 +579,7 @@ public class UploadController extends LambkitController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Kv kv = readShp.readShpXY(rootPath + uuid + ".shp");
+            Kv kv = readShp.readShpXY(rootPath + uuid + "/"+uuid + ".shp");
             kv.put("url","d:"+uuid);
             renderJson(Co.ok("data", Ret.ok("data",kv)));
         } else {
