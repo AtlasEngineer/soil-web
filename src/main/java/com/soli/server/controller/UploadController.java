@@ -572,10 +572,6 @@ public class UploadController extends LambkitController {
                 this.renderJson(Co.ok("data", Ret.fail("errorMsg", "上传压缩文件没有prj")));
                 return;
             }
-<<<<<<< HEAD
-            Kv kv = readShp.readShpXY(rootPath + uuid + "/" + uuid + ".shp");
-            renderJson(Co.ok("data", Ret.ok("data", kv)));
-=======
             //发布shp
             try {
               Kv  kv = IssueShpUtils.uploadShp(rootPath + uuid, uuid);
@@ -586,7 +582,6 @@ public class UploadController extends LambkitController {
             Kv kv = readShp.readShpXY(rootPath + uuid + ".shp");
             kv.put("url","d:"+uuid);
             renderJson(Co.ok("data", Ret.ok("data",kv)));
->>>>>>> 85f9751ee0d74da311c31b471ebff6943af67f83
         } else {
             renderJson(Co.ok("data", Ret.fail("errorMsg", "重命名失败")));
 
