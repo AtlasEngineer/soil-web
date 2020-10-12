@@ -18,8 +18,13 @@ import com.lambkit.web.controller.LambkitController;
 import com.soli.server.model.Data;
 import com.soli.server.model.DataEach;
 import com.soli.server.utils.*;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -245,6 +250,15 @@ public class UploadController extends LambkitController {
                 name = file.getName().substring(0, file.getName().indexOf(".tar.gz"));
             } else if (type == 4) {
                 //哨兵数据
+                //解压后文件夹
+                String s = root + "/d/" + name;
+                try {
+                    ZipUtils.decompress(file1.getPath(), s);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "解压错误")));
+                    return;
+                }
 
             }
             DataEach dataEach = new DataEach();
@@ -264,6 +278,8 @@ public class UploadController extends LambkitController {
                 dataEach.setUrl("/upload/datafile/" + filename);
             } else if (type == 3) {
                 dataEach.setUrl("/d/" + name + "/" + name + ".jpg");
+            } else if (type == 4) {
+                dataEach.setUrl("/d/" + name + "/INSPIRE.xml");
             }
             boolean save = dataEach.save();
             if (save) {
@@ -277,8 +293,24 @@ public class UploadController extends LambkitController {
                         kv1 = readShp.readShpXY(webRootPath + "/d/" + dataEach1.getUrl().split(":")[1] + "/" + dataEach1.getUrl().split(":")[1] + ".shp");
                     } else if (type1 == 1) {
                         kv1 = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + dataEach1.getUrl().split(":")[1] + "/" + dataEach1.getUrl().split(":")[1] + ".tif");
-                    }else if (type1 == 3){
-                        kv1= ReadTiffUtils.getXmlLatlons(root + "/d/" + name + "/" + name + ".xml");
+                    } else if (type1 == 3) {
+                        kv1 = ReadTiffUtils.getXmlLatlons(root + "/d/" + name + "/" + name + ".xml");
+                    } else if (type1 == 4) {
+                        SAXReader reader = new SAXReader();
+                        Document doc = null;
+                        try {
+                            doc = reader.read(new File(root + "/d/" + name + "/INSPIRE.xml"));
+                        } catch (DocumentException e) {
+                            e.printStackTrace();
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        }
+                        // 读取指定标签
+                        Element identificationInfo = doc.getRootElement().element("identificationInfo");
+                        Element MD_DataIdentification = identificationInfo.element("MD_DataIdentification");
+                        Element abstractElement = MD_DataIdentification.element("abstract");
+                        String latlons = abstractElement.elementText("CharacterString");
+                        kv1.set("latlons", latlons);
                     }
                     if (kv1 != null) {
                         dataEach1.put(kv1);
@@ -475,11 +507,11 @@ public class UploadController extends LambkitController {
             String dbfPath = null;
             String prjPath = null;
             String[] fileList = files.list();
-            if(fileList==null||fileList.length==0){
+            if (fileList == null || fileList.length == 0) {
                 renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确,压缩包必须为一级目录")));
                 return;
             }
-            if(fileList.length>7){
+            if (fileList.length > 7) {
                 renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确,文件数量不对")));
                 return;
             }
