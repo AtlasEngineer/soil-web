@@ -23,12 +23,12 @@ public class RegionController extends LambkitController {
      * @Param []
      **/
     public void getProvince() {
-        List<Record> list = Db.find("select pname as label,sdm as value  from tr_ch_province");
+        List<Record> list = Db.find("select gid,pname as label,sdm as value  from tr_ch_province");
         for(Record record:list){
-            List<Record> city_list = Db.find("select cname as label,ssdm as value from tr_ch_city where pname = ? order by pyname ", record.getStr("label"));
+            List<Record> city_list = Db.find("select gid,cname as label,ssdm as value from tr_ch_city where pname = ? order by pyname ", record.getStr("label"));
             record.set("children",city_list);
             for (Record city:city_list){
-                List<Record> country_list = Db.find("select name as label,ssdm as value from tr_ch_county where pname = ? and cname = ? order by pyname ", record.getStr("label"), city.getStr("label"));
+                List<Record> country_list = Db.find("select gid,name as label,ssdm as value from tr_ch_county where pname = ? and cname = ? order by pyname ", record.getStr("label"), city.getStr("label"));
                 city.set("children",country_list);
             }
         }
