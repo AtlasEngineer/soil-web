@@ -23,7 +23,7 @@ public class RegionController extends LambkitController {
      * @Param []
      **/
     public void getProvince() {
-        List<Record> list = Db.find("select pname from ld_ch_province");
+        List<Record> list = Db.find("select pname from tr_ch_province");
         renderJson(Co.ok("data", Ret.ok("data",list)));
     }
 
@@ -39,7 +39,7 @@ public class RegionController extends LambkitController {
         if (StringUtils.isBlank(pname)) {
             renderJson(Co.fail("msg", "请选择省份"));
         }
-        List<Record> list = Db.find("select cname from ld_ch_city where pname = ? order by pyname ", pname);
+        List<Record> list = Db.find("select cname from tr_ch_city where pname = ? order by pyname ", pname);
         renderJson(Co.ok("data", Ret.ok("data",list)));
     }
 
@@ -59,7 +59,7 @@ public class RegionController extends LambkitController {
         if (StringUtils.isBlank(cname)) {
             renderJson(Co.fail("msg", "请选择市区"));
         }
-        List<Record> list = Db.find("select name from ld_ch_county where pname = ? and cname = ? order by pyname ", pname, cname);
+        List<Record> list = Db.find("select name from tr_ch_county where pname = ? and cname = ? order by pyname ", pname, cname);
         renderJson(Co.ok("data", list));
     }
 
@@ -79,9 +79,9 @@ public class RegionController extends LambkitController {
             renderJson(Co.ok("data", Ret.ok("errorMsg", "请输入名称")));
         }
 
-        List<Record> provinceList = Db.find("select gid, pname as name  , 0 as type from ld_ch_province where pname like '%" + name + "%' ");
-        List<Record> cityList = Db.find("select gid, cname as name  , 1 as type from ld_ch_city where cname like '%" + name + "%'");
-        List<Record> countyList = Db.find("select gid, name , 2 as type from ld_ch_county where name like '%" + name + "%'");
+        List<Record> provinceList = Db.find("select gid, pname as name  , 0 as type from tr_ch_province where pname like '%" + name + "%' ");
+        List<Record> cityList = Db.find("select gid, cname as name  , 1 as type from tr_ch_city where cname like '%" + name + "%'");
+        List<Record> countyList = Db.find("select gid, name , 2 as type from tr_ch_county where name like '%" + name + "%'");
 
         List<Record> recordList = new ArrayList<>();
         recordList.addAll(provinceList);
@@ -121,13 +121,13 @@ public class RegionController extends LambkitController {
         }
         Record list =null;
         if(type==0){
-             list = Db.findFirst("SELECT st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom) FROM ld_ch_province  where \"gid\"=?", id);
+             list = Db.findFirst("SELECT st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom) FROM tr_ch_province  where \"gid\"=?", id);
         }
         if(type==1){
-            list = Db.findFirst("SELECT st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom) FROM ld_ch_city  where \"gid\"=?", id);
+            list = Db.findFirst("SELECT st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom) FROM tr_ch_city  where \"gid\"=?", id);
         }
         if(type==2){
-            list = Db.findFirst("SELECT st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom) FROM ld_ch_county  where \"gid\"=?", id);
+            list = Db.findFirst("SELECT st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom) FROM tr_ch_county  where \"gid\"=?", id);
         }
 
         renderJson(Co.ok("data",Ret.ok("data",list)));

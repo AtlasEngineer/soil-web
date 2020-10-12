@@ -1,6 +1,7 @@
 package com.soli.server.controller;
 
 
+import com.alibaba.druid.support.json.JSONUtils;
 import com.jfinal.kit.Kv;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
@@ -28,6 +29,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -427,6 +429,111 @@ public class UploadController extends LambkitController {
             } else {
                 renderJson(Co.ok("data", Ret.ok("url", "/upload/operation/" + filename).set("yname", file.getName())));
             }
+        }
+    }
+
+    /**
+     * @return void
+     * @Author queer
+     * @Description //TODO
+     * @Date 9:30 2019/11/21
+     * @Param [image-file]
+     **/
+    @Clear
+    @ApiOperation(url = "/upload/uploadShp", tag = "/upload", httpMethod = "post", description = "上传shp文件")
+    public void uploadShp() throws Exception {
+        //getFile一定放在第一个参数去获取，否则都获取不到参数
+        UploadFile uf = getFile("file", "image");
+        File file = uf.getFile();
+
+        String rootPath = PathKit.getWebRootPath() + "/upload/shp/";
+        String fileext = PathUtils.getExtensionName(file.getName());
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        String filename = uuid + "." + fileext;
+        if (!"zip".equals(fileext)) {
+            file.delete();
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确")));
+        }
+        File fileZip = new File(rootPath + filename);
+        boolean b = file.renameTo(fileZip);
+        if (b) {
+            ZipUtils.decompress(rootPath + filename, rootPath + uuid);
+            File files = new File(rootPath + uuid);
+            String shpPath = null;
+            String shxPath = null;
+            String dbfPath = null;
+            String prjPath = null;
+            String[] fileList = files.list();
+            if(fileList==null||fileList.length==0){
+                renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确,压缩包必须为一级目录")));
+                return;
+            }
+            if(fileList.length>7){
+                renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确,文件数量不对")));
+                return;
+            }
+            List<String> list = new ArrayList<>();
+            for (String y : fileList) {
+                File file1 = new File(rootPath + uuid + "/" + y);
+                System.out.println("file1:" + file1.getName());
+                if (file1.isFile()) {
+//                String s1 = file1.getName().split("\\.")[1];
+                    String[] split = file1.getName().split("\\.");
+                    StringBuffer sb = new StringBuffer();
+                    for (int i = 1; i < split.length; i++) {
+                        System.out.println("saaa:" + split[i]);
+                        sb.append(split[i]).append(".");
+                    }
+                    String s1 = sb.toString().substring(0, sb.length() - 1);
+                    File file01 = new File(PathKit.getWebRootPath() + "/upload/shp/" + uuid + "/" + uuid + "." + s1);
+                    System.out.println("file01:" + file01.getName());
+                    file1.renameTo(file01);
+                    String path = file01.getPath();
+                    System.out.println("path" + path);
+                    list.add(file01.getPath());
+                    if ("shp".equals(s1)) {
+                        shpPath = file01.getPath();
+                    }
+                    if ("shx".equals(s1)) {
+                        shxPath = file01.getPath();
+                    }
+                    if ("dbf".equals(s1)) {
+                        dbfPath = file01.getPath();
+                    }
+                    if ("prj".equals(s1)) {
+                        prjPath = file01.getPath();
+                    }
+                }
+            }
+            if (shpPath == null) {
+                files.delete();
+                fileZip.delete();
+                this.renderJson(Co.ok("data", Ret.fail("errorMsg", "上传压缩文件没有shp")));
+                return;
+            }
+            if (shxPath == null) {
+                files.delete();
+                fileZip.delete();
+                this.renderJson(Co.ok("data", Ret.fail("errorMsg", "上传压缩文件没有shx")));
+                return;
+            }
+            if (dbfPath == null) {
+                files.delete();
+                fileZip.delete();
+                this.renderJson(Co.ok("data", Ret.fail("errorMsg", "上传压缩文件没有dbf")));
+                return;
+            }
+            if (prjPath == null) {
+                files.delete();
+                fileZip.delete();
+                this.renderJson(Co.ok("data", Ret.fail("errorMsg", "上传压缩文件没有prj")));
+                return;
+            }
+            Kv kv = readShp.readShpXY(rootPath + uuid + "/" + uuid + ".shp");
+            renderJson(Co.ok("data", Ret.ok("data",kv)));
+        } else {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "重命名失败")));
+
         }
     }
 
