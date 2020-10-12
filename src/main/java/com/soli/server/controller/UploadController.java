@@ -542,12 +542,12 @@ public class UploadController extends LambkitController {
             }
             //发布shp
             try {
-              Kv  kv = IssueShpUtils.uploadShp(rootPath + uuid + "/" + uuid, uuid);
+              Kv  kv = IssueShpUtils.uploadShp(rootPath + uuid, uuid);
               System.out.println(kv);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Kv kv = readShp.readShpXY(rootPath + uuid + "/" + uuid + ".shp");
+            Kv kv = readShp.readShpXY(rootPath + uuid + ".shp");
             kv.put("url","d:"+uuid);
             renderJson(Co.ok("data", Ret.ok("data",kv)));
         } else {
