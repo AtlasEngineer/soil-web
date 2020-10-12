@@ -76,14 +76,11 @@ public class DownloadController extends LambkitController {
                 if ("id".equals(field.get("fldname"))) {
                     continue;
                 }
-                if (i == 0) {
-                    sql.append(field.getStr("fldname"));
-                } else {
-                    sql.append("," + field.getStr("fldname"));
-                }
+                sql.append(field.getStr("fldname") + ",");
             }
-            sql.append(" from " + tableName + " where id in (" + substring + ") ");
-            List<Record> records = Db.find(sql.toString());
+            String s = sql.toString();
+            String sqlStr = s.substring(0, s.length() - 1);
+            List<Record> records = Db.find(sqlStr+" from " + tableName + " where id in (" + substring + ") ");
 
             Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
             for (Record field : fields) {
@@ -140,7 +137,7 @@ public class DownloadController extends LambkitController {
                 file = ExcelExportUtil.saveFile(titleData, records, file);
                 renderFile(file);
                 return;
-            }else{
+            } else {
                 //动态表格
                 Record table = Db.findFirst("select * from sys_tableconfig where tbname = ? ", tableName);
                 List<Record> fields = Db.find("select fldname,fldcnn from sys_fieldconfig where fldtbid = ? ", table.getInt("tbid"));
@@ -150,14 +147,12 @@ public class DownloadController extends LambkitController {
                     if ("id".equals(field.get("fldname"))) {
                         continue;
                     }
-                    if (i == 0) {
-                        sql.append(field.getStr("fldname"));
-                    } else {
-                        sql.append("," + field.getStr("fldname"));
-                    }
+                    sql.append(field.getStr("fldname") + ",");
                 }
-                sql.append(" from " + tableName);
-                List<Record> records = Db.find(sql.toString());
+                String s = sql.toString();
+                String sqlStr = s.substring(0, s.length() - 1);
+                List<Record> records = Db.find(sqlStr+" from " + tableName);
+
 
                 Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
                 for (Record field : fields) {
