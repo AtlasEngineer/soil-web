@@ -476,7 +476,12 @@ public class UserController extends LambkitController {
         String code = UpmsManager.me().getCache().getSession(serverSessionId);
         Integer id = getParaToInt("id");
         Integer status = getParaToInt("status");//0审核通过，1待审核，2审核未通过
-        Integer locked = getParaToInt("locked");
+        Integer locked;
+        if(status == 1 || status == 0){
+            locked = status;
+        }else {
+            locked = getParaToInt("locked");
+        }
         String username = null ;
         if (!StringUtils.isNotBlank(code)) {
             System.out.println("无效访问unlogin");
