@@ -83,7 +83,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
         if (data_time_desc == null) {
             return Ret.fail("errorMsg", "暂无数据");
-        }else{
+        } else {
             return Ret.ok("data", data_time_desc);
         }
     }
@@ -165,7 +165,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         String table_name = data.getUrl();
         StringBuffer sql = new StringBuffer(" from " + table_name + " where 1=1 ");
-        if(table_name.contains("hnw_")){
+        if (table_name.contains("hnw_")) {
             if (StringUtils.isNotBlank(name)) {
                 sql.append(" and product = '" + name + "' ");
             }
@@ -191,11 +191,11 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择数据");
         }
         Data data1 = Data.service().dao().findById(id);
-        if (data1.getType() != 0 && data1.getType() != 1) {
+        if (data1.getType() != 0 && data1.getType() != 1 && data1.getType() != 3 && data1.getType() != 4) {
             return Ret.fail("errorMsg", "该数据没有期数列表");
         }
         List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(id).example().setOrderBy("data_time desc"));
-        String webRootPath = PathKit.getWebRootPath().replace("\\","/");
+        String webRootPath = PathKit.getWebRootPath().replace("\\", "/");
         for (int i = 0; i < dataEaches.size(); i++) {
             DataEach data = dataEaches.get(i);
             Integer type1 = data.getType();
@@ -204,9 +204,8 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
             } else if (type1 == 1) {
                 kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
-            }
-            else if (type1 == 3) {
-                kv = ReadTiffUtils.getXmlLatlons(webRootPath + data.getUrl().replace("jpg","xml"));
+            } else if (type1 == 3) {
+                kv = ReadTiffUtils.getXmlLatlons(webRootPath + data.getUrl().replace("jpg", "xml"));
             } else if (type1 == 4) {
                 SAXReader reader = new SAXReader();
                 Document doc = null;
