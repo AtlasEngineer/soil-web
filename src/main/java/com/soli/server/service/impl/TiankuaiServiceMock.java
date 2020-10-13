@@ -22,20 +22,16 @@ import com.soli.server.model.Tiankuai;
 import com.soli.server.service.TiankuaiService;
 
 /**
- * @author yangyong 
+ * @author yangyong
+ * @version 1.0
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
  * @date 2020-09-27
- * @version 1.0
  * @since 1.0
  */
 public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements TiankuaiService {
     @Override
-<<<<<<< HEAD
-    public Ret getCamera(Integer id) {
-=======
     public Ret all(Integer id) {
->>>>>>> 7720cf1528ad709053b1dfbcbc1f5397c8302220
         return null;
     }
 }

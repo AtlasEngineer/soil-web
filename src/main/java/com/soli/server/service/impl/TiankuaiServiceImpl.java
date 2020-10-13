@@ -16,11 +16,8 @@
 package com.soli.server.service.impl;
 
 import com.jfinal.kit.Ret;
-<<<<<<< HEAD
-=======
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
->>>>>>> 7720cf1528ad709053b1dfbcbc1f5397c8302220
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.core.aop.AopKit;
 
@@ -52,11 +49,6 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 	}
 
 	@Override
-<<<<<<< HEAD
-	public Ret getCamera(Integer id) {
-
-		return null;
-=======
 	public Ret all(Integer id) {
 		if(id==null){
 			return  Ret.fail("errorMsg","id不能为空");
@@ -80,8 +72,6 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 				mapList.add(map);
 			}
 		}
-
 		return Ret.ok("data",mapList);
->>>>>>> 7720cf1528ad709053b1dfbcbc1f5397c8302220
 	}
 }

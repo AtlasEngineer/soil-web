@@ -36,12 +36,7 @@ import java.util.List;
 public interface TiankuaiService extends LambkitService<Tiankuai> {
 
     @ApiBody(ApiRenderJFinalJson.class)
-<<<<<<< HEAD
-    @ApiMapping(value = "tk.getCamera",useLogin = false)
-    public Ret getCamera(Integer id);
-=======
     @ApiMapping(value = "search.camera",useLogin = false)
     public Ret all(Integer id);
->>>>>>> 7720cf1528ad709053b1dfbcbc1f5397c8302220
 
 }
