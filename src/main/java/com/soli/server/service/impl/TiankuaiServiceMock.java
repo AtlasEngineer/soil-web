@@ -31,7 +31,11 @@ import com.soli.server.service.TiankuaiService;
  */
 public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements TiankuaiService {
     @Override
+<<<<<<< HEAD
     public Ret getCamera(Integer id) {
+=======
+    public Ret all(Integer id) {
+>>>>>>> 7720cf1528ad709053b1dfbcbc1f5397c8302220
         return null;
     }
 }
