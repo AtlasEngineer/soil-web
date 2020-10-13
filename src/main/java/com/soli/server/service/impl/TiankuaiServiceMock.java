@@ -15,6 +15,7 @@
  */
 package com.soli.server.service.impl;
 
+import com.jfinal.kit.Ret;
 import com.lambkit.common.service.BaseServiceMock;
 
 import com.soli.server.model.Tiankuai;
@@ -29,4 +30,8 @@ import com.soli.server.service.TiankuaiService;
  * @since 1.0
  */
 public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements TiankuaiService {
+    @Override
+    public Ret all(Integer id) {
+        return null;
+    }
 }

@@ -15,11 +15,19 @@
  */
 package com.soli.server.service.impl;
 
+import com.jfinal.kit.Ret;
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.core.aop.AopKit;
 
 import com.soli.server.service.TiankuaiService;
 import com.soli.server.model.Tiankuai;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author yangyong 
@@ -38,5 +46,33 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 			DAO = AopKit.singleton(Tiankuai.class);
 		}
 		return DAO;
+	}
+
+	@Override
+	public Ret all(Integer id) {
+		if(id==null){
+			return  Ret.fail("errorMsg","id不能为空");
+		}
+		Record tiankuai = Db.findFirst("select geom  from tr_tiankuai where id = ?", id);
+
+		if(tiankuai==null){
+			return  Ret.fail("errorMsg","未查到地块");
+		}
+
+		List<Map<String,Object>> mapList=new ArrayList<>();
+
+		List<Record> list=Db.find("select * from tr_camera");
+		for (Record record:list){
+            Record result=Db.findFirst("SELECT st_x('"+record.getStr("geom")+"') as lon,st_y('"+record.getStr("geom")+"') as lat ,ST_Contains((SELECT geom FROM tr_tiankuai WHERE id = "+id+"), (SELECT geom FROM tr_camera WHERE gid = "+record.getInt("gid")+"));");
+			System.out.println(result.getStr("st_contains"));
+            if("t".equals(result.getStr("st_contains"))){
+				Map<String,Object> map=new HashMap<>();
+				map.put("lon",result.getStr("lon"));
+				map.put("lat",result.getStr("lat"));
+				mapList.add(map);
+			}
+		}
+
+		return Ret.ok("data",mapList);
 	}
 }
