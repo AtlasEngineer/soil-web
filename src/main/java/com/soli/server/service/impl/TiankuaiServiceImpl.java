@@ -59,19 +59,8 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 			return  Ret.fail("errorMsg","未查到地块");
 		}
 
-		List<Map<String,Object>> mapList=new ArrayList<>();
+		List<Record> list=Db.find("select *,st_x(geom) as lon,st_y(geom) as lat from tr_camera WHERE ST_Contains((SELECT geom FROM tr_tiankuai WHERE id = "+id+"),geom)");
 
-		List<Record> list=Db.find("select * from tr_camera");
-		for (Record record:list){
-            Record result=Db.findFirst("SELECT st_x('"+record.getStr("geom")+"') as lon,st_y('"+record.getStr("geom")+"') as lat ,ST_Contains((SELECT geom FROM tr_tiankuai WHERE id = "+id+"), (SELECT geom FROM tr_camera WHERE gid = "+record.getInt("gid")+"));");
-			System.out.println(result.getStr("st_contains"));
-            if("t".equals(result.getStr("st_contains"))){
-				Map<String,Object> map=new HashMap<>();
-				map.put("lon",result.getStr("lon"));
-				map.put("lat",result.getStr("lat"));
-				mapList.add(map);
-			}
-		}
-		return Ret.ok("data",mapList);
+		return Ret.ok("data",list);
 	}
 }
