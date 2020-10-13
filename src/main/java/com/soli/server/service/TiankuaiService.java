@@ -35,5 +35,8 @@ import java.util.List;
  */
 public interface TiankuaiService extends LambkitService<Tiankuai> {
 
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "tk.getCamera",useLogin = false)
+    public Ret getCamera(Integer id);
 
 }

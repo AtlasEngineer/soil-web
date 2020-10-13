@@ -9,7 +9,7 @@ public class GeoServerConfig {
     private String geouser = "admin";
     private String geopsw = "geoserver";//Q7P0XFU$2YRQaq08,geoserver
     private String workspace = "jsus";
-    private String respath = "D:/ftp/tomcat/tomcat-turang/webapps/geoserver/data/data/indexdata";
+    private String respath = "C:/Users/xiaoxu/Desktop/trwd";
     private String locurl = "192.168.1.130:8032/geoserver";
     private String uploadmethod = "external";
     public String getGeourl() {

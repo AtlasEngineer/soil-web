@@ -15,6 +15,7 @@
  */
 package com.soli.server.service.impl;
 
+import com.jfinal.kit.Ret;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.core.aop.AopKit;
 
@@ -38,5 +39,11 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 			DAO = AopKit.singleton(Tiankuai.class);
 		}
 		return DAO;
+	}
+
+	@Override
+	public Ret getCamera(Integer id) {
+
+		return null;
 	}
 }

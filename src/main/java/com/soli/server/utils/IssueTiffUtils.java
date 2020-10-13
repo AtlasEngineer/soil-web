@@ -233,7 +233,7 @@ public class IssueTiffUtils {
             // <Opacity>1.0</Opacity>
             row_nl_us_r_p.addElement("Opacity").addText("1.0");
             Element row_nl_us_r_c_p = row_nl_us_r_p.addElement("ColorMap");
-            String color = "#AAFFAA,#00FF00,#FFFF00,#FF7F00,#BF7F3F,#000000";
+            String color = "#AAFFAA,#00FF00,#FFFF00,#FF7F00,#BF7F3F,#000000,#AAFFAA,#00FF00,#FFFF00,#FF7F00,#BF7F3F,#000000";
             String[] colors = color.split(",");
             for (int i = 0; i < aa.length; i++) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", colors[i])

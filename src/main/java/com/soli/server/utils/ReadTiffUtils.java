@@ -4,10 +4,7 @@ package com.soli.server.utils;
 import com.jfinal.kit.Kv;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.Record;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import org.dom4j.Document;
@@ -56,7 +53,7 @@ public class ReadTiffUtils {
         return objectClass;
     }
 
-    public static Kv getXmlLatlons (String path){
+    public static Kv getXmlLatlons(String path) {
         SAXReader reader = new SAXReader();
         Document doc = null;
         try {
@@ -87,6 +84,7 @@ public class ReadTiffUtils {
      * 面查询指定URl 的 tif
      */
     public static double getAltitudeByWkt(String wkt, String url) throws TransformException, IOException, ParseException {
+        wkt = wkt.replace(" ZM", "");
         File file = new File(url);
         Hints tiffHints = new Hints();
         tiffHints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE));
@@ -95,9 +93,19 @@ public class ReadTiffUtils {
         GridCoverage2D coverage = tifReader.read(null);
         // 获取坐标系
         CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
-        WKTReader reader = new WKTReader(new GeometryFactory(new PrecisionModel(), 4326));
-        Polygon polygon = (Polygon) reader.read(wkt);
+//        WKTReader reader = new WKTReader(new GeometryFactory(new PrecisionModel(), 4326));
+//        Geometry polygon = reader.read(wkt);
 
+        WKTReader wktReader = new WKTReader();
+        Geometry polygon = null;
+        try {
+            polygon = wktReader.read(wkt);
+            polygon.setSRID(4326);
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+            Kv.by("code", 400).set("msg", e.getMessage());
+        }
 
         Double min_lon = polygon.getEnvelopeInternal().getMinX();
         Double max_lon = polygon.getEnvelopeInternal().getMaxX();
@@ -117,27 +125,40 @@ public class ReadTiffUtils {
         int count = 0;
         GridSampleDimension sampleDimension = coverage.getSampleDimension(0);
         double nodData = sampleDimension.getMinimumValue();
-        System.out.println(min_x+"至"+max_x);
-        System.out.println(max_y+"至"+min_y);
-        for (int i = min_x; i < max_x; i++) {
-            for (int j = max_y; j < min_y; j++) {
-                GridCoordinates2D coord = new GridCoordinates2D(i, j);
-                DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
-                double lon = tmpPos.getCoordinate()[0];
-                double lat = tmpPos.getCoordinate()[1];
-                boolean iscontains = GeometryRelated.withinGeo(lon, lat, wkt);
-                if (iscontains) {
-                    System.out.println("tmpPos:"+tmpPos);
-                    Double pix = getObjectClass(coverage.evaluate(tmpPos).toString());
-                    if (nodData != pix) {
-                        //加入计算平均值
-                        sum = sum + pix;
-                        count++;
+        System.out.println(min_x + "至" + max_x);
+        System.out.println(max_y + "至" + min_y);
+        RenderedImage sourceImage = coverage.getRenderedImage();
+        Raster sourceRaster = sourceImage.getData();
+        float[] adsaf = {0};
+        if (min_x == max_x && max_y == min_y) {
+//            GridCoordinates2D coord = new GridCoordinates2D(min_x,max_y);
+//            DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
+//            System.out.println("tmpPos:" + tmpPos);
+            float pix = sourceRaster.getPixel(min_x, max_y, adsaf)[0];
+            if (nodData != pix) {
+                //加入计算平均值
+                sum = sum + pix;
+                count++;
+            }
+        } else {
+            for (int i = min_x; i < max_x; i++) {
+                for (int j = max_y; j < min_y; j++) {
+                    GridCoordinates2D coord = new GridCoordinates2D(i, j);
+                    DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
+                    double lon = tmpPos.getCoordinate()[0];
+                    double lat = tmpPos.getCoordinate()[1];
+                    boolean iscontains = GeometryRelated.withinGeo(lon, lat, wkt);
+                    if (iscontains) {
+                        float pix = sourceRaster.getPixel(min_x, max_y, adsaf)[0];
+                        if (nodData != pix) {
+                            //加入计算平均值
+                            sum = sum + pix;
+                            count++;
+                        }
                     }
                 }
             }
         }
-
         if (count == 0) {
             return 0;
         } else {
@@ -266,7 +287,7 @@ public class ReadTiffUtils {
             String[] b = (String[]) param;
             d = Double.valueOf(b[0]);
         } else if (param instanceof Double[] || param instanceof double[]) {
-            System.out.println("param:"+param);
+            System.out.println("param:" + param);
             Double[] b = (Double[]) param;
             d = Double.valueOf(b[0]);
         } else if (param instanceof Float[] || param instanceof float[]) {
