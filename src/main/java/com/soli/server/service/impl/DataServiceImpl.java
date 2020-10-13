@@ -48,10 +48,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static com.soli.server.utils.CodePageUtils.getUserEntity;
 
@@ -80,11 +78,24 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择数据");
         }
         Data data = Data.service().dao().findById(id);
-        DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
-        if (data_time_desc == null) {
-            return Ret.fail("errorMsg", "暂无数据");
-        } else {
-            return Ret.ok("data", data_time_desc);
+        if(data.getType()==3||data.getType()==4){
+            //获取当前系统时间最近15天的数据
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 15);
+            Date today = calendar.getTime();
+            List<DataEach> data_time_desc = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(data.getId()).andDataTimeBetween(today,new Date()).example().setOrderBy("data_time desc"));
+            if (data_time_desc == null) {
+                return Ret.fail("errorMsg", "暂无数据");
+            } else {
+                return Ret.ok("data", data_time_desc);
+            }
+        }else{
+            DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
+            if (data_time_desc == null) {
+                return Ret.fail("errorMsg", "暂无数据");
+            } else {
+                return Ret.ok("data", data_time_desc);
+            }
         }
     }
 
@@ -136,9 +147,12 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 File file;
                 if (dataEach.getType() == 2) {
                     file = new File(webRootPath + dataEach.getUrl());
-                } else {
+                } else if (dataEach.getType() == 0 || dataEach.getType() == 1) {
                     publisher.removeLayer("d", dataEach.getUrl().split(":")[1]);
                     file = new File(webRootPath + "/d/" + dataEach.getUrl().split(":")[1]);
+                } else{
+                    File file1 = new File(webRootPath + dataEach.getUrl());
+                    file = file1.getParentFile();
                 }
                 if (file.exists()) {
                     file.delete();
