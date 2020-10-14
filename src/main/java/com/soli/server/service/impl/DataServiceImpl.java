@@ -283,17 +283,16 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         if (tiankuai != null) {
             try {
                 String wkt = tiankuai.getStr("wkt");
-                double cec = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/CEC.tif");
-                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/黏粒/黏粒含量.tif");
-                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/砂粒/砂粒含量.tif");
+//                double cec = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/CEC.tif");
+//                double zlhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/黏粒/黏粒含量.tif");
+//                double slhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/砂粒/砂粒含量.tif");
                 double yjt = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/有机碳/有机碳.tif");
                 double ph = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/PH.tif");
-                double bctrhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/表层土砾石含量.tif");
+//                double bctrhl = ReadTiffUtils.getAltitudeByWkt(wkt, respath + "/土壤/表层土砾石含量.tif");
 
-                return Ret.ok("data", Ret.by("黏粒含量", zlhl).set("砂粒含量", slhl).set("CEC", cec).set("有机碳", yjt)
-                        .set("PH", ph).set("表层土砾石含量", bctrhl)
+                return Ret.ok("data", Ret.by("有机质", yjt).set("PH", ph)
                         //没有数据部分
-                        .set("粉粒", zlhl).set("有效钾", yjt).set("有效磷", yjt).set("总氮", yjt));
+                        .set("速效氮", yjt).set("速效钾", yjt).set("速效磷", yjt).set("全氮", yjt));
             } catch (Exception e) {
                 e.printStackTrace();
                 return Ret.fail("errorMsg", "读取像素值错误，请联系管理员");
