@@ -225,23 +225,24 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
             } else if (type1 == 3) {
                 kv = ReadTiffUtils.getXmlLatlons(webRootPath + data.getUrl().replace("jpg", "xml"));
-            } else if (type1 == 4) {
-                SAXReader reader = new SAXReader();
-                Document doc = null;
-                try {
-                    doc = reader.read(new File(webRootPath + data.getUrl()));
-                } catch (DocumentException e) {
-                    e.printStackTrace();
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-                // 读取指定标签
-                Element identificationInfo = doc.getRootElement().element("identificationInfo");
-                Element MD_DataIdentification = identificationInfo.element("MD_DataIdentification");
-                Element abstractElement = MD_DataIdentification.element("abstract");
-                String latlons = abstractElement.elementText("CharacterString");
-                kv.set("latlons", latlons);
             }
+//            else if (type1 == 4) {
+//                SAXReader reader = new SAXReader();
+//                Document doc = null;
+//                try {
+//                    doc = reader.read(new File(webRootPath + data.getUrl()));
+//                } catch (DocumentException e) {
+//                    e.printStackTrace();
+//                } catch (MalformedURLException e) {
+//                    e.printStackTrace();
+//                }
+//                // 读取指定标签
+//                Element identificationInfo = doc.getRootElement().element("identificationInfo");
+//                Element MD_DataIdentification = identificationInfo.element("MD_DataIdentification");
+//                Element abstractElement = MD_DataIdentification.element("abstract");
+//                String latlons = abstractElement.elementText("CharacterString");
+//                kv.set("latlons", latlons);
+//            }
             if (kv != null) {
                 data.put(kv);
             }
