@@ -147,7 +147,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             if (data_time_desc == null) {
                 return Ret.fail("errorMsg", "暂无数据");
             } else {
-                List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataTimeEqualTo(data_time_desc.getDataTime()).example());
+                List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(data.getId()).andDataTimeEqualTo(data_time_desc.getDataTime()).example());
                 List<Double> lon = new ArrayList<>();
                 List<Double> lat = new ArrayList<>();
                 String webRootPath = PathKit.getWebRootPath().replace("\\","/");
