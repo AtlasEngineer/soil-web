@@ -36,6 +36,29 @@ import java.util.Date;
  */
 public interface DataService extends LambkitService<Data> {
 
+    /**
+     * 获取田块相关的遥感数据
+     * @param id
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.getTkRemoteData",useLogin = false)
+    public Ret getTkRemoteData(Integer id);
+
+    /**
+     * 获取表格数据模板
+     * @param id
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.getExcelTemplates",useLogin = false)
+    public Ret getExcelTemplates(Integer id);
+
+    /**
+     * 首页目录获取最新期数数据
+     * @param id
+     * @return
+     */
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.getLastData",useLogin = false)
     public Ret getLastData(Integer id);

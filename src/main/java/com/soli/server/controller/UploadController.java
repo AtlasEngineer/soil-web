@@ -267,7 +267,12 @@ public class UploadController extends LambkitController {
             } else {
                 dataEach.setName(dataName);
             }
-            dataEach.setType(type);
+            if (type == 1 && kv.getStr("sld").contains("波段数量")) {
+                //多波段tiff没有配色sld
+                dataEach.setType(5);
+            } else {
+                dataEach.setType(type);
+            }
             dataEach.setDataId(id);
             dataEach.setDataTime(data_time);
             dataEach.setTime(new Date());
@@ -574,14 +579,14 @@ public class UploadController extends LambkitController {
             }
             //发布shp
             try {
-              Kv  kv = IssueShpUtils.uploadShp(rootPath + uuid, uuid);
-              System.out.println(kv);
+                Kv kv = IssueShpUtils.uploadShp(rootPath + uuid, uuid);
+                System.out.println(kv);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Kv kv = readShp.readShpXY(rootPath + uuid + "/"+uuid + ".shp");
-            kv.put("url","d:"+uuid);
-            renderJson(Co.ok("data", Ret.ok("data",kv)));
+            Kv kv = readShp.readShpXY(rootPath + uuid + "/" + uuid + ".shp");
+            kv.put("url", "d:" + uuid);
+            renderJson(Co.ok("data", Ret.ok("data", kv)));
         } else {
             renderJson(Co.ok("data", Ret.fail("errorMsg", "重命名失败")));
         }
