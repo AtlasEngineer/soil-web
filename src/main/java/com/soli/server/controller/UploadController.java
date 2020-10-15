@@ -129,7 +129,7 @@ public class UploadController extends LambkitController {
             String name = filename.split("\\.")[0];
             //发布
             Kv kv = null;
-            if (type == 1 || type == 0) {
+            if (type == 1 || type == 0 || type == 5) {
                 //解压后文件夹
                 String s = root + "/d/" + name;
                 try {
@@ -139,7 +139,6 @@ public class UploadController extends LambkitController {
                     renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "解压错误")));
                     return;
                 }
-
                 //判断数据type
                 File files = new File(s);
                 String[] fileList = files.list();
@@ -204,7 +203,7 @@ public class UploadController extends LambkitController {
                         e.printStackTrace();
                     }
                 }
-                if (type == 1) {
+                if (type == 1 || type == 5) {
                     if (tifPath == null) {
                         renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "上传压缩文件没有tif")));
                         return;
@@ -212,7 +211,7 @@ public class UploadController extends LambkitController {
                     //发布tiff
                     try {
                         kv = IssueTiffUtils.uploadTiff(tifPath, name);
-                        if("无人机数据".equals(data.getName())){
+                        if ("无人机数据".equals(data.getName())) {
                             //添加最大最小坐标
                             Kv tiffXY = ReadTiffUtils.getTiffXY(tifPath);
                             kv.set(tiffXY);
@@ -278,15 +277,15 @@ public class UploadController extends LambkitController {
             } else {
                 dataEach.setType(type);
             }
-            if("无人机数据".equals(data.getName())){
-                dataEach.set("topLeftLongitude",kv.get("maxY"));
-                dataEach.set("topLeftLatitude",kv.get("maxX"));
-                dataEach.set("topRightLongitude",kv.get("maxY"));
-                dataEach.set("topRightLatitude",kv.get("minX"));
-                dataEach.set("bottomRightLongitude",kv.get("minY"));
-                dataEach.set("bottomRightLatitude",kv.get("minX"));
-                dataEach.set("bottomLeftLongitude",kv.get("minY"));
-                dataEach.set("bottomLeftLatitude",kv.get("maxX"));
+            if ("无人机数据".equals(data.getName())) {
+                dataEach.set("topLeftLongitude", kv.get("maxY"));
+                dataEach.set("topLeftLatitude", kv.get("maxX"));
+                dataEach.set("topRightLongitude", kv.get("maxY"));
+                dataEach.set("topRightLatitude", kv.get("minX"));
+                dataEach.set("bottomRightLongitude", kv.get("minY"));
+                dataEach.set("bottomRightLatitude", kv.get("minX"));
+                dataEach.set("bottomLeftLongitude", kv.get("minY"));
+                dataEach.set("bottomLeftLatitude", kv.get("maxX"));
             }
             dataEach.setDataId(id);
             dataEach.setDataTime(data_time);
