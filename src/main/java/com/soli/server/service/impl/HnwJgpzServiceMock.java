@@ -24,6 +24,7 @@ import com.soli.server.model.HnwJgpz;
 import com.soli.server.model.sql.HnwJgpzCriteria;
 import com.soli.server.service.HnwJgpzService;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.List;
 
@@ -63,6 +64,16 @@ public class HnwJgpzServiceMock extends BaseServiceMock<HnwJgpz> implements HnwJ
 
     @Override
     public Ret chemical() {
+        return null;
+    }
+
+    @Override
+    public Ret hnwj(String name, Integer pageNum, Integer pageSize,Integer type,Integer id) throws ParseException, UnsupportedEncodingException {
+        return null;
+    }
+
+    @Override
+    public Ret hnwj(String name) throws ParseException, UnsupportedEncodingException {
         return null;
     }
 }
