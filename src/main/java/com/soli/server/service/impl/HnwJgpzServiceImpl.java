@@ -146,4 +146,70 @@ public class HnwJgpzServiceImpl extends LambkitModelServiceImpl<HnwJgpz> impleme
 		List<Record> records=Db.find("select * from tr_chemical_fertilizer");
 		return Ret.ok("data",records);
 	}
+
+	@Override
+	public Ret hnwj(String name, Integer pageNum, Integer pageSize,Integer type,Integer id) throws ParseException, UnsupportedEncodingException {
+		if (pageNum == null) {
+			pageNum = 1;
+		}
+		if (pageSize == null) {
+			pageSize = 10;
+		}
+
+		if(id==null){
+			return  Ret.fail("errorMsg","地块id不能为空");
+		}
+
+		Record record=Db.findFirst("select * from tr_ch_county WHERE ST_Contains(geom,(SELECT geom FROM tr_tiankuai WHERE id = "+id+")) ");
+
+		StringBuffer stringBuffer=new StringBuffer();
+
+		stringBuffer.append("from hnw_jgpz where 1=1 ");
+
+		if(StringUtils.isBlank(name)){
+			return  Ret.fail("errorMsg","类别不能为空");
+		}else {
+			stringBuffer.append(" and product = '"+name+"'");
+		}
+
+		if(type==null){
+			return  Ret.fail("errorMsg","时间不能为空");
+		}else {
+			if(type==0){
+				//七天
+				stringBuffer.append("  and up_time BETWEEN (SELECT now() - INTERVAL '7 day') AND (SELECT now())");
+			}else {
+				//一个月
+				stringBuffer.append(" and \"up_time\" BETWEEN (select now() - interval '1 MONTH')  and (select NOW() THISMONTH)");
+			}
+		}
+		stringBuffer.append(" and place like '%"+record.getStr("cname")+record.getStr("name")+"%'");
+
+		stringBuffer.append(" GROUP BY  up_time,price,place");
+		stringBuffer.append(" order BY  up_time ");
+		Page<HnwJgpz> page=HnwJgpz.service().dao().paginate(pageNum,pageSize,"select place,price,up_time",stringBuffer.toString());
+
+        Record avg=Db.findFirst("select avg(to_number((substr(price,0,(char_length(price)-2))), '999.99')) as num from  hnw_jgpz n where  product = '"+name+"' and place like '%"+record.getStr("cname")+record.getStr("name")+"%' and up_time >= CURRENT_DATE - 1");
+
+		Record max=Db.findFirst("select max(to_number((substr(price,0,(char_length(price)-2))), '999.99')) as num from  hnw_jgpz n where  product = '"+name+"' and place like '%"+record.getStr("cname")+record.getStr("name")+"%' and up_time >= CURRENT_DATE - 1");
+
+		Record min=Db.findFirst("select min(to_number((substr(price,0,(char_length(price)-2))), '999.99')) as num from  hnw_jgpz n where  product = '"+name+"' and place like '%"+record.getStr("cname")+record.getStr("name")+"%' and up_time >= CURRENT_DATE - 1");
+
+		if(StringUtils.isBlank(avg.getStr("num"))){
+			return Ret.ok("data",page).set("avg","").set("max","").set("min","");
+		}else {
+			return Ret.ok("data",page).set("avg",avg.getStr("num").substring(0,4)).set("max",max.getStr("num")).set("min",min.getStr("num"));
+
+		}
+
+	}
+
+	@Override
+	public Ret hnwj(String name) throws ParseException, UnsupportedEncodingException {
+		if(StringUtils.isBlank(name)){
+			return  Ret.fail("errorMsg","name不能为空");
+		}
+		List<Record> records=Db.find("select product from hnw_jgpz where  product like '%"+name+"%' GROUP BY product");
+		return Ret.ok("data",records);
+	}
 }

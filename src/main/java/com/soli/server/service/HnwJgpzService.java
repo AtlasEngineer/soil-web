@@ -64,6 +64,18 @@ public interface HnwJgpzService extends LambkitService<HnwJgpz> {
     public Ret chemical();
 
 
+    //详情中的作物价格
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "search.hnwj",useLogin = false)
+    public Ret hnwj(String name, Integer pageNum, Integer pageSize,Integer type,Integer id) throws ParseException, UnsupportedEncodingException;
+
+
+    //详情中的作物种类
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "search.hnwj",useLogin = false)
+    public Ret hnwj(String name) throws ParseException, UnsupportedEncodingException;
+
+
 
 
 }
