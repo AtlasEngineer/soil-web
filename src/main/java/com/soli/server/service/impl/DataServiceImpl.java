@@ -91,7 +91,6 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )),'))'), 4326 ))" +
                 " where e.TYPE IN ( 3, 4 ) AND t.id = ?", id);
         //无人机(目前就当无人机数据是正四边形的-刘阳)
-        String webRootPath = PathKit.getWebRootPath().replace("\\","/");
 
 
 
