@@ -212,6 +212,11 @@ public class UploadController extends LambkitController {
                     //发布tiff
                     try {
                         kv = IssueTiffUtils.uploadTiff(tifPath, name);
+                        if("无人机数据".equals(data.getName())){
+                            //添加最大最小坐标
+                            Kv tiffXY = ReadTiffUtils.getTiffXY(tifPath);
+                            kv.set(tiffXY);
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -272,6 +277,16 @@ public class UploadController extends LambkitController {
                 dataEach.setType(5);
             } else {
                 dataEach.setType(type);
+            }
+            if("无人机数据".equals(data.getName())){
+                dataEach.set("topLeftLongitude",kv.get("coverageMaxY"));
+                dataEach.set("topLeftLatitude",kv.get("coverageMaxX"));
+                dataEach.set("topRightLongitude",kv.get("coverageMaxY"));
+                dataEach.set("topRightLatitude",kv.get("coverageMinX"));
+                dataEach.set("bottomRightLongitude",kv.get("coverageMinY"));
+                dataEach.set("bottomRightLatitude",kv.get("coverageMinX"));
+                dataEach.set("bottomLeftLongitude",kv.get("coverageMinY"));
+                dataEach.set("bottomLeftLatitude",kv.get("coverageMaxY"));
             }
             dataEach.setDataId(id);
             dataEach.setDataTime(data_time);
