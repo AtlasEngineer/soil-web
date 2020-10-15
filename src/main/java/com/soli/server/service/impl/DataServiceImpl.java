@@ -117,15 +117,15 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             List<Double> lon = new ArrayList<>();
             List<Double> lat = new ArrayList<>();
             for (DataEach dataEach : data_time_desc) {
-                lon.add(dataEach.getDouble("topLeftLongitude"));
-                lon.add(dataEach.getDouble("topRightLongitude"));
-                lon.add(dataEach.getDouble("bottomRightLongitude"));
-                lon.add(dataEach.getDouble("bottomLeftLongitude"));
+                lon.add(Double.valueOf(dataEach.getStr("topLeftLongitude")));
+                lon.add(Double.valueOf(dataEach.getStr("topRightLongitude")));
+                lon.add(Double.valueOf(dataEach.getStr("bottomRightLongitude")));
+                lon.add(Double.valueOf(dataEach.getStr("bottomLeftLongitude")));
 
-                lat.add(dataEach.getDouble("topLeftLatitude"));
-                lat.add(dataEach.getDouble("topRightLatitude"));
-                lat.add(dataEach.getDouble("bottomRightLatitude"));
-                lat.add(dataEach.getDouble("bottomLeftLatitude"));
+                lat.add(Double.valueOf(dataEach.getStr("topLeftLatitude")));
+                lat.add(Double.valueOf(dataEach.getStr("topRightLatitude")));
+                lat.add(Double.valueOf(dataEach.getStr("bottomRightLatitude")));
+                lat.add(Double.valueOf(dataEach.getStr("bottomLeftLatitude")));
             }
             Double min_lon = Collections.min(lon);
             Double max_lon = Collections.max(lon);
