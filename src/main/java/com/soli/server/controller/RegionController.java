@@ -157,7 +157,7 @@ public class RegionController extends LambkitController {
         if (StringUtils.isBlank(latlons)) {
             renderJson(Co.ok("data", Ret.fail("errorMsg", "请输入经纬度的集合")));
         }
-        Record first = Db.findFirst("SELECT st_area(ST_Transform(ST_SetSRID(st_geometryfromtext('polygon (( " + latlons + " )) ',4326) ,4326),4527)) as area");
+        Record first = Db.findFirst("SELECT st_area(st_geometryfromtext('POLYGON(("+latlons+"))',4326)) as num");
 
         renderJson(Co.ok("data",Ret.ok("data",first)));
 
