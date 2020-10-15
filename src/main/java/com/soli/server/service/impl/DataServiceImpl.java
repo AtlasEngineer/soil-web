@@ -239,9 +239,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     File file1 = new File(webRootPath + dataEach.getUrl());
                     file = file1.getParentFile();
                 }
-                if (file.exists()) {
-                    file.delete();
-                }
+                file.delete();
             }
         }
         return Ret.ok("msg", "删除成功");

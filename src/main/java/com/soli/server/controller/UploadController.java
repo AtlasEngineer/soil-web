@@ -279,14 +279,14 @@ public class UploadController extends LambkitController {
                 dataEach.setType(type);
             }
             if("无人机数据".equals(data.getName())){
-                dataEach.set("topLeftLongitude",kv.get("coverageMaxY"));
-                dataEach.set("topLeftLatitude",kv.get("coverageMaxX"));
-                dataEach.set("topRightLongitude",kv.get("coverageMaxY"));
-                dataEach.set("topRightLatitude",kv.get("coverageMinX"));
-                dataEach.set("bottomRightLongitude",kv.get("coverageMinY"));
-                dataEach.set("bottomRightLatitude",kv.get("coverageMinX"));
-                dataEach.set("bottomLeftLongitude",kv.get("coverageMinY"));
-                dataEach.set("bottomLeftLatitude",kv.get("coverageMaxY"));
+                dataEach.set("topLeftLongitude",kv.get("maxY"));
+                dataEach.set("topLeftLatitude",kv.get("maxX"));
+                dataEach.set("topRightLongitude",kv.get("maxY"));
+                dataEach.set("topRightLatitude",kv.get("minX"));
+                dataEach.set("bottomRightLongitude",kv.get("minY"));
+                dataEach.set("bottomRightLatitude",kv.get("minX"));
+                dataEach.set("bottomLeftLongitude",kv.get("minY"));
+                dataEach.set("bottomLeftLatitude",kv.get("maxX"));
             }
             dataEach.setDataId(id);
             dataEach.setDataTime(data_time);
