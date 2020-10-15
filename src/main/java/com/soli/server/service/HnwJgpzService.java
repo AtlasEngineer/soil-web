@@ -72,7 +72,7 @@ public interface HnwJgpzService extends LambkitService<HnwJgpz> {
 
     //详情中的作物种类
     @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "search.hnwj",useLogin = false)
+    @ApiMapping(value = "search.name",useLogin = false)
     public Ret hnwj(String name) throws ParseException, UnsupportedEncodingException;
 
 
