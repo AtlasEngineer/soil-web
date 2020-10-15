@@ -89,8 +89,8 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 " and t.id = ?", id);
         //无人机
 
-        //哨兵2待确认
 
+        //哨兵2待确认
         //landset待添加
 
         return null;
@@ -114,10 +114,27 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 15);
             Date today = calendar.getTime();
             List<DataEach> data_time_desc = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(data.getId()).andDataTimeBetween(today, new Date()).example().setOrderBy("data_time desc"));
+            List<Double> lon = new ArrayList<>();
+            List<Double> lat = new ArrayList<>();
+            for (DataEach dataEach : data_time_desc) {
+                lon.add(dataEach.getDouble("topLeftLongitude"));
+                lon.add(dataEach.getDouble("topRightLongitude"));
+                lon.add(dataEach.getDouble("bottomRightLongitude"));
+                lon.add(dataEach.getDouble("bottomLeftLongitude"));
+
+                lat.add(dataEach.getDouble("topLeftLatitude"));
+                lat.add(dataEach.getDouble("topRightLatitude"));
+                lat.add(dataEach.getDouble("bottomRightLatitude"));
+                lat.add(dataEach.getDouble("bottomLeftLatitude"));
+            }
+            Double min_lon = Collections.min(lon);
+            Double max_lon = Collections.max(lon);
+            Double min_lat = Collections.min(lat);
+            Double max_lat = Collections.min(lat);
             if (data_time_desc == null) {
                 return Ret.fail("errorMsg", "暂无数据");
             } else {
-                return Ret.ok("data", data_time_desc);
+                return Ret.ok("data", data_time_desc).set("min_lon",min_lon).set("max_lon",max_lon).set("min_lat",min_lat).set("max_lat",max_lat);
             }
         } else {
             DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
@@ -177,7 +194,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 File file;
                 if (dataEach.getType() == 2) {
                     file = new File(webRootPath + dataEach.getUrl());
-                } else if (dataEach.getType() == 0 || dataEach.getType() == 1|| dataEach.getType() == 5) {
+                } else if (dataEach.getType() == 0 || dataEach.getType() == 1 || dataEach.getType() == 5) {
                     publisher.removeLayer("d", dataEach.getUrl().split(":")[1]);
                     file = new File(webRootPath + "/d/" + dataEach.getUrl().split(":")[1]);
                 } else {
@@ -246,7 +263,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             Kv kv = null;
             if (type1 == 0) {
                 kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
-            } else if (type1 == 1||type1 == 5) {
+            } else if (type1 == 1 || type1 == 5) {
                 kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
             } else if (type1 == 3) {
                 kv = ReadTiffUtils.getXmlLatlons(webRootPath + data.getUrl().replace("jpg", "xml"));
