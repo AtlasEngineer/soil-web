@@ -79,15 +79,20 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择数据");
         }
         //高分和哨兵数据
-        Record gf_sb = Db.findFirst("SELECT e.* FROM ttr_data_each e,tr_tiankuai T " +
-                " where e.TYPE IN ( 3, 4 ) AND ST_Intersects ( T.geom, st_geometryfromtext (concat_ws ( '','POLYGON(('," +
-                " concat_ws ( ',',concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )," +
-                " concat_ws ( ' ', e.\"topRightLongitude\", e.\"topRightLatitude\" )," +
-                " concat_ws ( ' ', e.\"bottomRightLongitude\", e.\"bottomRightLatitude\" )," +
-                " concat_ws ( ' ', e.\"bottomLeftLongitude\", e.\"bottomLeftLatitude\" )," +
+        Record gf_sb = Db.findFirst("SELECT e.* FROM " +
+                " ((select data_id,max(data_time) from tr_data_each GROUP BY data_id) b " +
+                " LEFT JOIN tr_data_each e ON e.data_time = b.max and b.data_id =  e.data_id) " +
+                " LEFT JOIN tr_tiankuai T ON ST_Intersects ( T.geom, st_geometryfromtext (concat_ws ( '','POLYGON((', " +
+                "  concat_ws ( ',', " +
+                " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" ), " +
+                " concat_ws ( ' ', e.\"topRightLongitude\", e.\"topRightLatitude\" ), " +
+                " concat_ws ( ' ', e.\"bottomRightLongitude\", e.\"bottomRightLatitude\" ), " +
+                " concat_ws ( ' ', e.\"bottomLeftLongitude\", e.\"bottomLeftLatitude\" ), " +
                 " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )),'))'), 4326 ))" +
-                " and t.id = ?", id);
-        //无人机
+                " where e.TYPE IN ( 3, 4 ) AND t.id = ?", id);
+        //无人机(目前就当无人机数据是正四边形的-刘阳)
+        String webRootPath = PathKit.getWebRootPath().replace("\\","/");
+        
 
 
         //哨兵2待确认
@@ -135,6 +140,39 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 return Ret.fail("errorMsg", "暂无数据");
             } else {
                 return Ret.ok("data", data_time_desc).set("min_lon",min_lon).set("max_lon",max_lon).set("min_lat",min_lat).set("max_lat",max_lat);
+            }
+        } else if("无人机数据".equals(data.getName())){
+                //最新一天的所有数据
+            DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
+            if (data_time_desc == null) {
+                return Ret.fail("errorMsg", "暂无数据");
+            } else {
+                List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataTimeEqualTo(data_time_desc.getDataTime()).example());
+                List<Double> lon = new ArrayList<>();
+                List<Double> lat = new ArrayList<>();
+                String webRootPath = PathKit.getWebRootPath().replace("\\","/");
+                for (DataEach dataEach : dataEaches) {
+//                    Kv tiffXY = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + dataEach.getUrl().split(":")[1] + "/" + dataEach.getUrl().split(":")[1] + ".tif");
+//                    lon.add(tiffXY.getNumber("minY").doubleValue());
+//                    lon.add(tiffXY.getNumber("maxY").doubleValue());
+//
+//                    lat.add(tiffXY.getNumber("minX").doubleValue());
+//                    lat.add(tiffXY.getNumber("maxX").doubleValue());
+                    lon.add(Double.valueOf(dataEach.getStr("topLeftLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("topRightLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("bottomRightLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("bottomLeftLongitude")));
+
+                    lat.add(Double.valueOf(dataEach.getStr("topLeftLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("topRightLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("bottomRightLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("bottomLeftLatitude")));
+                }
+                Double min_lon = Collections.min(lon);
+                Double max_lon = Collections.max(lon);
+                Double min_lat = Collections.min(lat);
+                Double max_lat = Collections.min(lat);
+                return Ret.ok("data", dataEaches).set("min_lon",min_lon).set("max_lon",max_lon).set("min_lat",min_lat).set("max_lat",max_lat);
             }
         } else {
             DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
