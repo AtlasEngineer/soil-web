@@ -37,6 +37,15 @@ import java.util.Date;
 public interface DataService extends LambkitService<Data> {
 
     /**
+     * 获取田块相关的遥感数据
+     * @param id
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.getTkRemoteData",useLogin = false)
+    public Ret getTkRemoteData(Integer id);
+
+    /**
      * 获取表格数据模板
      * @param id
      * @return

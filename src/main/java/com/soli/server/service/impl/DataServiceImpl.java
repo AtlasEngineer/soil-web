@@ -39,6 +39,7 @@ import com.soli.server.utils.*;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.WKTReader;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import org.apache.poi.ss.formula.functions.T;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -73,7 +74,31 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
+    public Ret getTkRemoteData(Integer id) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择数据");
+        }
+        //高分和哨兵数据
+        Record gf_sb = Db.findFirst("SELECT e.* FROM ttr_data_each e,tr_tiankuai T " +
+                " where e.TYPE IN ( 3, 4 ) AND ST_Intersects ( T.geom, st_geometryfromtext (concat_ws ( '','POLYGON(('," +
+                " concat_ws ( ',',concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )," +
+                " concat_ws ( ' ', e.\"topRightLongitude\", e.\"topRightLatitude\" )," +
+                " concat_ws ( ' ', e.\"bottomRightLongitude\", e.\"bottomRightLatitude\" )," +
+                " concat_ws ( ' ', e.\"bottomLeftLongitude\", e.\"bottomLeftLatitude\" )," +
+                " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )),'))'), 4326 ))" +
+                " and t.id = ?", id);
+        //无人机
+
+        //哨兵2待确认
+
+        //landset待添加
+
+        return null;
+    }
+
+    @Override
     public Ret getExcelTemplates(Integer id) {
+
         return null;
     }
 
@@ -83,18 +108,18 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择数据");
         }
         Data data = Data.service().dao().findById(id);
-        if(data.getType()==3||data.getType()==4){
+        if (data.getType() == 3 || data.getType() == 4) {
             //获取当前系统时间最近15天的数据
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 15);
             Date today = calendar.getTime();
-            List<DataEach> data_time_desc = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(data.getId()).andDataTimeBetween(today,new Date()).example().setOrderBy("data_time desc"));
+            List<DataEach> data_time_desc = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(data.getId()).andDataTimeBetween(today, new Date()).example().setOrderBy("data_time desc"));
             if (data_time_desc == null) {
                 return Ret.fail("errorMsg", "暂无数据");
             } else {
                 return Ret.ok("data", data_time_desc);
             }
-        }else{
+        } else {
             DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
             if (data_time_desc == null) {
                 return Ret.fail("errorMsg", "暂无数据");
@@ -107,7 +132,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     @Override
     public Ret getExcelDateNames(Integer id) {
         Data data = Data.service().dao().findById(id);
-        if (data != null && data.getType() != 2) {
+        if (data != null && data.getType() != 2 && data.getInt("isedit") != 1) {
             return Ret.fail("errorMsg", "该数据不是表格数据");
         }
         String table_name = data.getUrl();
@@ -152,10 +177,10 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 File file;
                 if (dataEach.getType() == 2) {
                     file = new File(webRootPath + dataEach.getUrl());
-                } else if (dataEach.getType() == 0 || dataEach.getType() == 1) {
+                } else if (dataEach.getType() == 0 || dataEach.getType() == 1|| dataEach.getType() == 5) {
                     publisher.removeLayer("d", dataEach.getUrl().split(":")[1]);
                     file = new File(webRootPath + "/d/" + dataEach.getUrl().split(":")[1]);
-                } else{
+                } else {
                     File file1 = new File(webRootPath + dataEach.getUrl());
                     file = file1.getParentFile();
                 }
@@ -210,7 +235,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择数据");
         }
         Data data1 = Data.service().dao().findById(id);
-        if (data1.getType() != 0 && data1.getType() != 1 && data1.getType() != 3 && data1.getType() != 4) {
+        if (data1.getType() != 0 && data1.getType() != 1 && data1.getType() != 5 && data1.getType() != 3 && data1.getType() != 4) {
             return Ret.fail("errorMsg", "该数据没有期数列表");
         }
         List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(id).example().setOrderBy("data_time desc"));
@@ -221,7 +246,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             Kv kv = null;
             if (type1 == 0) {
                 kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
-            } else if (type1 == 1) {
+            } else if (type1 == 1||type1 == 5) {
                 kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
             } else if (type1 == 3) {
                 kv = ReadTiffUtils.getXmlLatlons(webRootPath + data.getUrl().replace("jpg", "xml"));
