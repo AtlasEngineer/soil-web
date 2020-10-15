@@ -92,7 +92,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 " where e.TYPE IN ( 3, 4 ) AND t.id = ?", id);
         //无人机(目前就当无人机数据是正四边形的-刘阳)
         String webRootPath = PathKit.getWebRootPath().replace("\\","/");
-        
+
 
 
         //哨兵2待确认
