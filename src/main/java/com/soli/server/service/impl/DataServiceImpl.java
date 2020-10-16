@@ -79,9 +79,10 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择数据");
         }
         //高分和哨兵数据,无人机(目前就当无人机数据是正四边形的-刘阳)
-        Record gf_sb = Db.findFirst("SELECT e.* FROM " +
-                " ((select data_id,max(data_time) from tr_data_each GROUP BY data_id) b " +
+        List<Record> gf_sb = Db.find("SELECT e.*,d.name as dir_name FROM " +
+                " (((select data_id,max(data_time) from tr_data_each GROUP BY data_id) b " +
                 " LEFT JOIN tr_data_each e ON e.data_time = b.max and b.data_id =  e.data_id) " +
+                " LEFT JOIN tr_data d ON d.id = e.data_id)" +
                 " LEFT JOIN tr_tiankuai T ON ST_Intersects ( T.geom, st_geometryfromtext (concat_ws ( '','POLYGON((', " +
                 "  concat_ws ( ',', " +
                 " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" ), " +
@@ -93,7 +94,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         //哨兵2待确认
         //landset待添加
 
-        return null;
+        return Ret.ok("list",gf_sb);
     }
 
     @Override
