@@ -26,6 +26,22 @@ import java.util.zip.ZipOutputStream;
 public class DownloadController extends LambkitController {
 
     /**
+     * excel数据上传模板
+     */
+    public void getTemplate(){
+        Integer id = getParaToInt("id");
+        if (id == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "id不能为空")));
+            return;
+        }
+        Data data = Data.service().dao().findById(id);
+        Record first = Db.findFirst("select * from tr_data_templates where dataid = ?", data.getId());
+        String root = PathKit.getWebRootPath().replace("\\", "/");
+        File file = new File(root+first.get("url"));
+        renderFile(file);
+    }
+
+    /**
      * excel列表中数据提取
      */
     public void DataExcelDownload() {

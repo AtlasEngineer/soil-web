@@ -46,15 +46,6 @@ public interface DataService extends LambkitService<Data> {
     public Ret getTkRemoteData(Integer id);
 
     /**
-     * 获取表格数据模板
-     * @param id
-     * @return
-     */
-    @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "data.getExcelTemplates",useLogin = false)
-    public Ret getExcelTemplates(Integer id);
-
-    /**
      * 首页目录获取最新期数数据
      * @param id
      * @return

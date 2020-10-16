@@ -98,12 +98,6 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
-    public Ret getExcelTemplates(Integer id) {
-
-        return null;
-    }
-
-    @Override
     public Ret getLastData(Integer id) {
         if (id == null) {
             return Ret.fail("errorMsg", "请选择数据");
