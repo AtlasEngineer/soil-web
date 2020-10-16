@@ -28,7 +28,7 @@ public class DownloadController extends LambkitController {
     /**
      * excel数据上传模板
      */
-    public void getTemplate(){
+    public void getTemplate() {
         Integer id = getParaToInt("id");
         if (id == null) {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "id不能为空")));
@@ -36,8 +36,12 @@ public class DownloadController extends LambkitController {
         }
         Data data = Data.service().dao().findById(id);
         Record first = Db.findFirst("select * from tr_data_templates where dataid = ?", data.getId());
+        if (first == null) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "该数据没有模板")));
+            return;
+        }
         String root = PathKit.getWebRootPath().replace("\\", "/");
-        File file = new File(root+first.get("url"));
+        File file = new File(root + first.get("url"));
         renderFile(file);
     }
 
@@ -96,7 +100,7 @@ public class DownloadController extends LambkitController {
             }
             String s = sql.toString();
             String sqlStr = s.substring(0, s.length() - 1);
-            List<Record> records = Db.find(sqlStr+" from " + tableName + " where id in (" + substring + ") ");
+            List<Record> records = Db.find(sqlStr + " from " + tableName + " where id in (" + substring + ") ");
 
             Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
             for (Record field : fields) {
@@ -167,7 +171,7 @@ public class DownloadController extends LambkitController {
                 }
                 String s = sql.toString();
                 String sqlStr = s.substring(0, s.length() - 1);
-                List<Record> records = Db.find(sqlStr+" from " + tableName);
+                List<Record> records = Db.find(sqlStr + " from " + tableName);
 
 
                 Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
