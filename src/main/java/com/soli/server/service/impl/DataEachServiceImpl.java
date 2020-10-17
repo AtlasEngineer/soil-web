@@ -15,6 +15,8 @@
  */
 package com.soli.server.service.impl;
 
+import com.jfinal.kit.Kv;
+import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
@@ -23,35 +25,96 @@ import com.lambkit.core.aop.AopKit;
 
 import com.soli.server.service.DataEachService;
 import com.soli.server.model.DataEach;
+import com.soli.server.utils.ReadTiffUtils;
+import com.vividsolutions.jts.io.ParseException;
+import org.opengis.referencing.operation.TransformException;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
- * @author yangyong 
+ * @author yangyong
+ * @version 1.0
  * @website: www.lambkit.com
  * @email: gismail@foxmail.com
  * @date 2020-09-27
- * @version 1.0
  * @since 1.0
  */
 public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> implements DataEachService {
-	
-	private DataEach DAO = null;
-	
-	public DataEach dao() {
-		if(DAO==null) {
-			DAO = AopKit.singleton(DataEach.class);
-		}
-		return DAO;
-	}
 
-	@Override
-	public Ret updateTkTiff(Integer id) {
-		if (id == null) {
-			return Ret.fail("errorMsg", "请选择地块");
-		}
-		//1、获取地块wkt
-		Record wktRec = Db.findFirst("select st_astext(geom) as wkt from tr_tiankuai where id = ?", id);
-		//2、分获取积温、积雨日期列表，遍历读取像素值保存
+    private DataEach DAO = null;
 
-		return null;
-	}
+    public DataEach dao() {
+        if (DAO == null) {
+            DAO = AopKit.singleton(DataEach.class);
+        }
+        return DAO;
+    }
+
+    @Override
+    public Ret updateTkTiff(Integer id) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择地块");
+        }
+        //1、获取地块wkt
+        Record wktRec = Db.findFirst("select st_astext(geom) as wkt from tr_tiankuai where id = ?", id);
+        String wkt = wktRec.getStr("wkt");
+        //2、分获取积温、积雨日期列表，遍历读取像素值保存
+        String root = PathKit.getWebRootPath().replace("\\", "/");
+        //温度
+        File file1 = new File(root + "/python/土壤温度/");
+		Kv tr_tk_temperature = updateTkTif(file1, wkt, "tr_tk_temperature", id);
+		//湿度
+        File file2 = new File(root + "/python/土壤湿度/");
+		Kv tr_tk_humidity = updateTkTif(file2, wkt, "tr_tk_humidity", id);
+		return Ret.ok("温度",tr_tk_temperature).set("湿度",tr_tk_humidity);
+    }
+
+    public static Kv updateTkTif(File file, String wkt, String tableName, Integer id) {
+        Kv kv = new Kv();
+        File[] files = file.listFiles();
+        //3、遍历时间文件夹
+        for (File timeFile : files) {
+            //读取10和40的数据
+            String path10 = null;
+            String path40 = null;
+            File[] fileList = timeFile.listFiles();
+            for (File file1 : fileList) {
+                System.out.println("file1:" + file1.getName());
+                if (file1.isFile()) {
+                    String[] split = file1.getName().split("\\.");
+                    StringBuffer sb = new StringBuffer();
+                    for (int i = 1; i < split.length; i++) {
+                        sb.append(split[i]).append(".");
+                    }
+                    String s1 = sb.toString().substring(0, sb.length() - 1);
+                    if ("tif".equals(s1)) {
+                        String name = file1.getName();
+                        if (name.contains("10")) {
+                            path10 = file1.getAbsolutePath();
+                        } else if (name.contains("40")) {
+                            path40 = file1.getAbsolutePath();
+                        }
+                    }
+                }
+            }
+            //读取当前日期文件两个数据像素值
+            try {
+                if (path10 != null) {
+                    double v10 = ReadTiffUtils.getAltitudeByWkt(wkt, path10);
+                    Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + timeFile.getName() + "',10)");
+                    kv.set(timeFile.getName()+",10", v10);
+                }
+                if (path40 != null) {
+                    double v40 = ReadTiffUtils.getAltitudeByWkt(wkt, path40);
+                    Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v40 + "','" + timeFile.getName() + "',40)");
+					kv.set(timeFile.getName()+",40", v40);
+                }
+            } catch (Exception e) {
+            	e.printStackTrace();
+				kv.set(timeFile.getName(), e.getMessage());
+            }
+        }
+		return kv;
+    }
 }

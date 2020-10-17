@@ -15,6 +15,7 @@
  */
 package com.soli.server.service.impl;
 
+import com.jfinal.kit.Ret;
 import com.lambkit.common.service.BaseServiceMock;
 
 import com.soli.server.model.DataEach;
@@ -29,4 +30,8 @@ import com.soli.server.service.DataEachService;
  * @since 1.0
  */
 public class DataEachServiceMock extends BaseServiceMock<DataEach> implements DataEachService {
+    @Override
+    public Ret updateTkTiff(Integer id) {
+        return null;
+    }
 }
