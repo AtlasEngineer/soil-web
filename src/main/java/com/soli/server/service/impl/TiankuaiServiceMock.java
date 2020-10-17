@@ -36,7 +36,8 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
     }
 
     @Override
-    public Ret searchLanlats(String lanlats,Integer id) {
+    public Ret searchDiseases(String type,String period,Integer pageNum, Integer pageSize) {
         return null;
     }
+
 }

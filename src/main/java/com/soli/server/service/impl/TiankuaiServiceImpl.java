@@ -17,6 +17,7 @@ package com.soli.server.service.impl;
 
 import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.common.util.StringUtils;
@@ -68,24 +69,28 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 	}
 
 	@Override
-	public Ret searchLanlats(String lanlats,Integer id) {
-		if(StringUtils.isBlank(lanlats)){
-			return  Ret.fail("errorMsg","lanlats为空");
-		}
-		if(id==null){
-			return  Ret.fail("errorMsg","id为空");
-		}
-		Data data=Data.service().dao().findFirst(Data.sql().andIdEqualTo(id).andDelEqualTo(0).example());
-		if(data==null){
-			return  Ret.fail("errorMsg","未查到");
-		}
-		if(data.getType()!=0){
-			return  Ret.fail("errorMsg","数据类型只能查询空间数据");
-		}
-		DataEach dataEach=DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example());
+	public Ret searchDiseases(String type,String period,Integer pageNum, Integer pageSize) {
 
+		if(StringUtils.isBlank(type)){
+			return  Ret.fail("errorMsg","类型不能为空");
+		}
+		if(StringUtils.isBlank(period)){
+			return  Ret.fail("errorMsg","时期不能为空");
+		}
+		String select="";
+		if("病害".equals(type)){
+			select="SELECT diseases_name,diseases_condition,diseases_methon,type,period,id,del,diseases_symptom";
+		}
+		if("虫害".equals(type)){
+			select="SELECT pests_name,pests_features,pests_grow,type,period,id,del,pests_harm,pests_methon";
+		}
+		if("草害".equals(type)){
+			select="SELECT grass_name,grass_about,grass_methon,type,period,id,del";
+		}
 
+		Page<Record> page=Db.paginate(pageNum,pageSize,select,"from where del=0 and type='"+type+"'");
 
 		return null;
 	}
+
 }
