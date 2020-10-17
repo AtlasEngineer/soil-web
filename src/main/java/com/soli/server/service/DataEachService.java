@@ -41,4 +41,13 @@ public interface DataEachService extends LambkitService<DataEach> {
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.updateTkTiff",useLogin = false)
     public Ret updateTkTiff(Integer id);
+
+    /**
+     * 新的温度湿度tif添加时获取每个地块的新时间的tif
+     * @param id
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.updateQwAndSd",useLogin = false)
+    public Ret updateQwAndSd(Integer id);
 }

@@ -63,11 +63,16 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         String root = PathKit.getWebRootPath().replace("\\", "/");
         //温度
         File file1 = new File(root + "/python/土壤温度/");
-		Kv tr_tk_temperature = updateTkTif(file1, wkt, "tr_tk_temperature", id);
-		//湿度
+        Kv tr_tk_temperature = updateTkTif(file1, wkt, "tr_tk_temperature", id);
+        //湿度
         File file2 = new File(root + "/python/土壤湿度/");
-		Kv tr_tk_humidity = updateTkTif(file2, wkt, "tr_tk_humidity", id);
-		return Ret.ok("温度",tr_tk_temperature).set("湿度",tr_tk_humidity);
+        Kv tr_tk_humidity = updateTkTif(file2, wkt, "tr_tk_humidity", id);
+        return Ret.ok("温度", tr_tk_temperature).set("湿度", tr_tk_humidity);
+    }
+
+    @Override
+    public Ret updateQwAndSd(Integer id) {
+        return null;
     }
 
     public static Kv updateTkTif(File file, String wkt, String tableName, Integer id) {
@@ -102,19 +107,29 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
             try {
                 if (path10 != null) {
                     double v10 = ReadTiffUtils.getAltitudeByWkt(wkt, path10);
-                    Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + timeFile.getName() + "',10)");
-                    kv.set(timeFile.getName()+",10", v10);
+                    Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + timeFile.getName() + "' and type = 10");
+                    if (first == null) {
+                        Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + timeFile.getName() + "',10)");
+                        kv.set(timeFile.getName() + ",10", v10);
+                    }else{
+                        kv.set(timeFile.getName() + ",10", "数据已存在");
+                    }
                 }
                 if (path40 != null) {
                     double v40 = ReadTiffUtils.getAltitudeByWkt(wkt, path40);
-                    Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v40 + "','" + timeFile.getName() + "',40)");
-					kv.set(timeFile.getName()+",40", v40);
+                    Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + timeFile.getName() + "' and type = 40");
+                    if (first == null) {
+                        Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v40 + "','" + timeFile.getName() + "',40)");
+                        kv.set(timeFile.getName() + ",40", v40);
+                    }else{
+                        kv.set(timeFile.getName() + ",40", "数据已存在");
+                    }
                 }
             } catch (Exception e) {
-            	e.printStackTrace();
-				kv.set(timeFile.getName(), e.getMessage());
+                e.printStackTrace();
+                kv.set(timeFile.getName(), e.getMessage());
             }
         }
-		return kv;
+        return kv;
     }
 }
