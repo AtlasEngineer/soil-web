@@ -15,6 +15,9 @@
  */
 package com.soli.server.service.impl;
 
+import com.jfinal.kit.Ret;
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.core.aop.AopKit;
 
@@ -38,5 +41,17 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
 			DAO = AopKit.singleton(DataEach.class);
 		}
 		return DAO;
+	}
+
+	@Override
+	public Ret updateTkTiff(Integer id) {
+		if (id == null) {
+			return Ret.fail("errorMsg", "请选择地块");
+		}
+		//1、获取地块wkt
+		Record wktRec = Db.findFirst("select st_astext(geom) as wkt from tr_tiankuai where id = ?", id);
+		//2、分获取积温、积雨日期列表，遍历读取像素值保存
+
+		return null;
 	}
 }
