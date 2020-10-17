@@ -15,8 +15,12 @@
  */
 package com.soli.server.service;
 
+import com.jfinal.kit.Ret;
 import com.lambkit.common.service.LambkitService;
 
+import com.lambkit.core.api.route.ApiBody;
+import com.lambkit.core.api.route.ApiMapping;
+import com.lambkit.core.api.route.ApiRenderJFinalJson;
 import com.soli.server.model.DataEach;
 
 /**
@@ -28,4 +32,22 @@ import com.soli.server.model.DataEach;
  * @since 1.0
  */
 public interface DataEachService extends LambkitService<DataEach> {
+
+    /**
+     * 存取新添地块的
+     * @param id
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.updateTkTiff",useLogin = false)
+    public Ret updateTkTiff(Integer id);
+
+    /**
+     * 新的温度湿度tif添加时获取每个地块的新时间的tif
+     * @param id
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.updateQwAndSd",useLogin = false)
+    public Ret updateQwAndSd(Integer id);
 }

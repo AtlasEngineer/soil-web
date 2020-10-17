@@ -1,8 +1,10 @@
 package com.atlas.test;
 
+import com.jfinal.kit.Kv;
 import com.jfinal.kit.PropKit;
 import com.lambkit.plugin.mail.MailKit;
 import com.lambkit.plugin.mail.MailPlugin;
+import com.soli.server.utils.ReadTiffUtils;
 import org.junit.Test;
 
 ;
@@ -20,8 +22,9 @@ public class EmailTest {
 
 	@Test
 	public void test() {
-		new MailPlugin(PropKit.use("mail.properties").getProperties()).start();
-		MailKit.send("1825714477@qq.com", null, "Jfinal 邮件发送插件使用说明",
-				"Jfinal 邮件发送插件使用说明如下：<br/>1、配置插件");
+//		new MailPlugin(PropKit.use("mail.properties").getProperties()).start();
+//		MailKit.send("1825714477@qq.com", null, "Jfinal 邮件发送插件使用说明",
+//				"Jfinal 邮件发送插件使用说明如下：<br/>1、配置插件");
+		Kv tiffXY = ReadTiffUtils.getTiffXY("C:\\Users\\xiaoxu\\Desktop\\田\\田1\\田1_Level_19.tif");
 	}
 }

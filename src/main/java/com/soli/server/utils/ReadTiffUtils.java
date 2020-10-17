@@ -389,10 +389,10 @@ public class ReadTiffUtils {
             GridCoverage2D coverage = reader.read(null);
             Envelope2D coverageEnvelope = coverage.getEnvelope2D();
 
-            coverageMinX = coverageEnvelope.getBounds().getMinX();
-            coverageMaxX = coverageEnvelope.getBounds().getMaxX();
-            coverageMinY = coverageEnvelope.getBounds().getMinY();
-            coverageMaxY = coverageEnvelope.getBounds().getMaxY();
+            coverageMinX = coverageEnvelope.getMinX();
+            coverageMaxX = coverageEnvelope.getMaxX();
+            coverageMinY = coverageEnvelope.getMinY();
+            coverageMaxY = coverageEnvelope.getMaxY();
             System.out.println("coverageMinX：" + coverageMinX);
             System.out.println("coverageMaxX：" + coverageMaxX);
             System.out.println("coverageMinY：" + coverageMinY);

@@ -36,12 +36,6 @@ public class DataServiceMock extends BaseServiceMock<Data> implements DataServic
     public Ret getTkRemoteData(Integer id) {
         return null;
     }
-
-    @Override
-    public Ret getExcelTemplates(Integer id) {
-        return null;
-    }
-
     @Override
     public Ret getLastData(Integer id) {
         return null;

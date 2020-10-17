@@ -78,10 +78,11 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         if (id == null) {
             return Ret.fail("errorMsg", "请选择数据");
         }
-        //高分和哨兵数据
-        Record gf_sb = Db.findFirst("SELECT e.* FROM " +
-                " ((select data_id,max(data_time) from tr_data_each GROUP BY data_id) b " +
+        //高分和哨兵数据,无人机(目前就当无人机数据是正四边形的-刘阳)
+        List<Record> gf_sb = Db.find("SELECT e.*,d.name as dir_name FROM " +
+                " (((select data_id,max(data_time) from tr_data_each GROUP BY data_id) b " +
                 " LEFT JOIN tr_data_each e ON e.data_time = b.max and b.data_id =  e.data_id) " +
+                " LEFT JOIN tr_data d ON d.id = e.data_id)" +
                 " LEFT JOIN tr_tiankuai T ON ST_Intersects ( T.geom, st_geometryfromtext (concat_ws ( '','POLYGON((', " +
                 "  concat_ws ( ',', " +
                 " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" ), " +
@@ -89,22 +90,11 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 " concat_ws ( ' ', e.\"bottomRightLongitude\", e.\"bottomRightLatitude\" ), " +
                 " concat_ws ( ' ', e.\"bottomLeftLongitude\", e.\"bottomLeftLatitude\" ), " +
                 " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )),'))'), 4326 ))" +
-                " where e.TYPE IN ( 3, 4 ) AND t.id = ?", id);
-        //无人机(目前就当无人机数据是正四边形的-刘阳)
-        String webRootPath = PathKit.getWebRootPath().replace("\\","/");
-
-
-
+                " where (e.TYPE IN ( 3, 4 ) or e.data_id = 88) AND t.id = ?", id);
         //哨兵2待确认
         //landset待添加
 
-        return null;
-    }
-
-    @Override
-    public Ret getExcelTemplates(Integer id) {
-
-        return null;
+        return Ret.ok("list",gf_sb);
     }
 
     @Override
@@ -147,7 +137,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             if (data_time_desc == null) {
                 return Ret.fail("errorMsg", "暂无数据");
             } else {
-                List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataTimeEqualTo(data_time_desc.getDataTime()).example());
+                List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(data.getId()).andDataTimeEqualTo(data_time_desc.getDataTime()).example());
                 List<Double> lon = new ArrayList<>();
                 List<Double> lat = new ArrayList<>();
                 String webRootPath = PathKit.getWebRootPath().replace("\\","/");
@@ -239,9 +229,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     File file1 = new File(webRootPath + dataEach.getUrl());
                     file = file1.getParentFile();
                 }
-                if (file.exists()) {
-                    file.delete();
-                }
+                file.delete();
             }
         }
         return Ret.ok("msg", "删除成功");
