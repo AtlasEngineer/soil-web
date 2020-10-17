@@ -39,4 +39,17 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
     @ApiMapping(value = "search.camera",useLogin = false)
     public Ret all(Integer id);
 
+
+    /**
+     * 数据查询面查询
+     * @param id
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "search.lanlats",useLogin = false)
+    public Ret searchLanlats(String lanlats,Integer id);
+
+
+
+
 }

@@ -34,4 +34,9 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
     public Ret all(Integer id) {
         return null;
     }
+
+    @Override
+    public Ret searchLanlats(String lanlats,Integer id) {
+        return null;
+    }
 }

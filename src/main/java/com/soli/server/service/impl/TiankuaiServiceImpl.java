@@ -19,8 +19,11 @@ import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitModelServiceImpl;
+import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
 
+import com.soli.server.model.Data;
+import com.soli.server.model.DataEach;
 import com.soli.server.service.TiankuaiService;
 import com.soli.server.model.Tiankuai;
 
@@ -62,5 +65,27 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 		List<Record> list=Db.find("select *,st_x(geom) as lon,st_y(geom) as lat from tr_camera WHERE ST_Contains((SELECT geom FROM tr_tiankuai WHERE id = "+id+"),geom)");
 
 		return Ret.ok("data",list);
+	}
+
+	@Override
+	public Ret searchLanlats(String lanlats,Integer id) {
+		if(StringUtils.isBlank(lanlats)){
+			return  Ret.fail("errorMsg","lanlats为空");
+		}
+		if(id==null){
+			return  Ret.fail("errorMsg","id为空");
+		}
+		Data data=Data.service().dao().findFirst(Data.sql().andIdEqualTo(id).andDelEqualTo(0).example());
+		if(data==null){
+			return  Ret.fail("errorMsg","未查到");
+		}
+		if(data.getType()!=0){
+			return  Ret.fail("errorMsg","数据类型只能查询空间数据");
+		}
+		DataEach dataEach=DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example());
+
+
+
+		return null;
 	}
 }
