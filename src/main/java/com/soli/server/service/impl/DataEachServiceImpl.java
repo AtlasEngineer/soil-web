@@ -31,6 +31,7 @@ import org.opengis.referencing.operation.TransformException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * @author yangyong
@@ -49,6 +50,19 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
             DAO = AopKit.singleton(DataEach.class);
         }
         return DAO;
+    }
+
+    @Override
+    public Ret searchJwAndJy(Integer id) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择地块");
+        }
+        //获取当前时间往前一年的时间
+        Date date = new Date();
+
+
+        Record record = Db.findFirst("SELECT * FROM tr_tk_humidity where tk_id = ? ", id);
+        return Ret.ok("data",record);
     }
 
     @Override

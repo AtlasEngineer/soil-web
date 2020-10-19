@@ -33,6 +33,16 @@ import com.soli.server.model.DataEach;
  */
 public interface DataEachService extends LambkitService<DataEach> {
 
+
+    /**
+     * 存取新添地块的
+     * @param id
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.searchJwAndJy",useLogin = false)
+    public Ret searchJwAndJy(Integer id);
+
     /**
      * 存取新添地块的
      * @param id
