@@ -228,7 +228,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
                     }
                 }
             }
-            if (dataEach.getType() == 3 || dataEach.getType() == 4) {
+			if (dataEach.getType() == 3 || dataEach.getType() == 4 || dataEach.getType() == 5) {
 				String tifGeomStr = "POLYGON((" + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topRightLongitude")) + " " + Double.valueOf(dataEach.getStr("topRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomRightLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "))";
 				Geometry tifGeom = reader.read(tifGeomStr);
                 Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326), st_geometryfromtext('POINT(" + longitude + " " + latitude + ")',4326)) as num");
@@ -262,7 +262,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 					}
 				}
 			}
-			if (dataEach.getType() == 1 || dataEach.getType() == 5) {
+			if (dataEach.getType() == 1) {
 				if (url.startsWith("d:")) {
 					/* 截取 d: 后面的 文件名*/
 					url = url.substring(2, url.length());
@@ -282,7 +282,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 					}
 				}
 			}
-			if (dataEach.getType() == 3 || dataEach.getType() == 4) {
+			if (dataEach.getType() == 3 || dataEach.getType() == 4 || dataEach.getType() == 5) {
 				String tifGeomStr = "POLYGON((" + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topRightLongitude")) + " " + Double.valueOf(dataEach.getStr("topRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomRightLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "))";
 				Geometry tifGeom = reader.read(tifGeomStr);
 				Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326), st_geometryfromtext('POLYGON (("+latlons+"))',4326)) as num");
@@ -305,7 +305,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
      */
     public static boolean queryField(Record latlons, SimpleFeatureSource featureSource) throws IOException, CQLException {
         //final Filter filter = CQL.toFilter( "area < 40" );
-        Filter filter = ECQL.toFilter("INTERSECTS(the_geom," + latlons.getStr("geom") + ")");
+        Filter filter = ECQL.toFilter("INTERSECTS(the_geom,'"+ latlons.getStr("geom") + "')");
         SimpleFeatureCollection features = featureSource.getFeatures(filter);
         System.out.println(features.size());
         if (features.size() != 0) {
