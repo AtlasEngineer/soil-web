@@ -289,7 +289,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
      */
     public static boolean queryField(Record latlons, SimpleFeatureSource featureSource) throws IOException, CQLException {
         //final Filter filter = CQL.toFilter( "area < 40" );
-        Filter filter = ECQL.toFilter("INTERSECTS(the_geom,'"+ latlons.getStr("geom") + "')");
+        Filter filter = ECQL.toFilter("INTERSECTS(the_geom,"+ latlons.getStr("geom") + ")");
         SimpleFeatureCollection features = featureSource.getFeatures(filter);
         if (features.size() != 0) {
             return true;
