@@ -116,16 +116,8 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     public Ret compoundQuery(Integer countyId, Integer type, String time[]) {
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         WKTReader reader = new WKTReader(geometryFactory);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date startTime = null, endTime = null;
         List<Record> resultList = new ArrayList<>();
-        /**
-         * 	查询语句 开始时间条件没加------~~~~！！！！！
-         * 	！！！！
-         * 	！！！
-         */
         try {
-
             Record first = Db.findFirst("SELECT st_astext(geom) as geom FROM tr_ch_county WHERE gid = " + countyId);
             String geometryStr = first.getStr("geom");
             Geometry countyGeom = reader.read(geometryStr);
@@ -147,7 +139,8 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
                         }
                     }
                 }
-            } else if (type == 1) {
+            }
+            if (type == 1) {
                 List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type in (1,5) and time between '"+time[0]+"' and '"+time[1]+"' ");
                 for (Record record : records) {
                     String url = record.getStr("url");
@@ -171,8 +164,6 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
                     }
                 }
                 return Ret.ok("data", resultList);
-            } else {
-                return Ret.fail("errorMsg", "暂不支持此类型文件查询");
             }
         } catch (Exception e) {
             e.printStackTrace();
