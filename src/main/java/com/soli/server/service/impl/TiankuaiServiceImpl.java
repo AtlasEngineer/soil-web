@@ -113,7 +113,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 
 
     @Override
-    public Ret compoundQuery(Integer countyId, Integer type, String time) {
+    public Ret compoundQuery(Integer countyId, Integer type, String time[]) {
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         WKTReader reader = new WKTReader(geometryFactory);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -125,10 +125,9 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
          * 	！！！
          */
         try {
-            if (StringUtils.isNotBlank(time)) {
-                String[] split = time.split(",");
-                startTime = simpleDateFormat.parse(split[0]);
-                endTime = simpleDateFormat.parse(split[1]);
+            if (time!=null&&time.length!=0) {
+                startTime = simpleDateFormat.parse(time[0]);
+                endTime = simpleDateFormat.parse(time[1]);
             }
 
             Record first = Db.findFirst("SELECT st_astext(geom) as geom FROM tr_ch_county WHERE gid = " + countyId);

@@ -58,7 +58,7 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
      */
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.compoundQuery",useLogin = false)
-    public Ret compoundQuery(Integer countyId,Integer type,String time);
+    public Ret compoundQuery(Integer countyId,Integer type,String time[]);
 
 
 
