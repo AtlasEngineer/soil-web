@@ -19,6 +19,7 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.GeometryBuilder;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.junit.Test;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -28,11 +29,42 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class Test1 {
+
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    @Test
+    public void test() {
+        int year = 2020;
+        int m = 1;//月份计数
+        while (m < 13) {
+            int month = m;
+            Calendar cal = Calendar.getInstance();//获得当前日期对象
+            cal.clear();//清除信息
+            cal.set(Calendar.YEAR, year);
+            cal.set(Calendar.MONTH, month - 1);//1月从0开始
+            cal.set(Calendar.DAY_OF_MONTH, 1);//设置为1号,当前日期既为本月第一天
+
+            System.out.println("##########___" + sdf.format(cal.getTime()));
+
+            int count = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+            System.out.println("$$$$$$$$$$________" + count);
+
+            for (int j = 0; j <= (count - 2); ) {
+                cal.add(Calendar.DAY_OF_MONTH, +1);
+                j++;
+                System.out.println(sdf.format(cal.getTime()));
+            }
+            m++;
+        }
+    }
 
     public static void main(String[] args) {
         try {
@@ -40,16 +72,16 @@ public class Test1 {
             String filename = "C:\\Users\\xiaoxu\\Desktop\\ld_province2\\d-" + UUID.randomUUID().toString() + ".shp";
 //        Object buffer = buffer(path, filename);
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("sdm","111");
-            jsonObject.put("PNAME","省份");
-            exportShp(path,filename,jsonObject);
+            jsonObject.put("sdm", "111");
+            jsonObject.put("PNAME", "省份");
+            exportShp(path, filename, jsonObject);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public static boolean exportShp(String path,String shpPath,JSONObject jsonObject) throws Exception {
+    public static boolean exportShp(String path, String shpPath, JSONObject jsonObject) throws Exception {
         //源文件
         ShapefileDataStore shapeDS = (ShapefileDataStore) new ShapefileDataStoreFactory().createDataStore(new File(path).toURI().toURL());
         SimpleFeatureSource fs = shapeDS.getFeatureSource(shapeDS.getTypeNames()[0]);
@@ -85,9 +117,9 @@ public class Test1 {
         for (int i = 0; i < attributeCount; i++) {
             String name = pgfeaturetype.getDescriptor(i).getName().toString();
             System.out.println(pgfeaturetype.getDescriptor(i).getName());
-            if("the_geom".equals(name)){
+            if ("the_geom".equals(name)) {
                 featureBuilder.add(polygon);
-            }else{
+            } else {
                 featureBuilder.add(jsonObject.get(name));
             }
         }
@@ -101,7 +133,7 @@ public class Test1 {
             simpleFeature.setValue(feature.getProperties());
             featureWriter.write();
             //添加新要素
-            if(!iterator.hasNext()){
+            if (!iterator.hasNext()) {
                 SimpleFeature next = featureWriter.next();
                 feature.setValue(simpleFeature1.getProperties());
                 next.setValue(feature.getProperties());

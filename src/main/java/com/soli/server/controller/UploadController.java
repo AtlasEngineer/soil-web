@@ -108,7 +108,7 @@ public class UploadController extends LambkitController {
             //重命名
             if (type == 0) {
                 filename = "shp-" + filename;
-            } else if (type == 1) {
+            } else if (type == 1||type == 5) {
                 filename = "tif-" + filename;
             } else if (type == 3) {
                 filename = "GF-" + UUID.randomUUID().toString() + ".tar.gz";

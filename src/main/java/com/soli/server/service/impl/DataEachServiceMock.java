@@ -31,6 +31,11 @@ import com.soli.server.service.DataEachService;
  */
 public class DataEachServiceMock extends BaseServiceMock<DataEach> implements DataEachService {
     @Override
+    public Ret searchJwAndJy(Integer id) {
+        return null;
+    }
+
+    @Override
     public Ret updateTkTiff(Integer id) {
         return null;
     }
