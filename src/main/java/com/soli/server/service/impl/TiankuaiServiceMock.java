@@ -40,4 +40,9 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
         return null;
     }
 
+
+    @Override
+    public Ret compoundQuery(Integer countyId, Integer type, String time) {
+        return null;
+    }
 }
