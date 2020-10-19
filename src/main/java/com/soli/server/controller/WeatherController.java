@@ -426,10 +426,6 @@ public class WeatherController extends LambkitController {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "地址不能为空")));
             return;
         }
-        if (StringUtils.isBlank(url)) {
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "url不能为空")));
-            return;
-        }
 
         if (StringUtils.isBlank(latlons)) {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "latlons不能为空")));
