@@ -117,7 +117,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         WKTReader reader = new WKTReader(geometryFactory);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date startTime, endTime;
+        Date startTime = null, endTime = null;
         List<Record> resultList = new ArrayList<>();
         /**
          * 	查询语句 开始时间条件没加------~~~~！！！！！
@@ -136,7 +136,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             Geometry countyGeom = reader.read(geometryStr);
             /* shp  文件类型	  */
             if (type == 0) {
-                List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type = 0 ");
+                List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type = 0 and between '"+startTime+"' and '"+endTime+"' ");
                 for (Record record : records) {
                     /* geometry 与  shp 比较 */
                     String url = record.getStr("url");
@@ -155,7 +155,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             }
             /*	tif	  文件类型    */
             else if (type == 1) {
-                List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type = 1 ");
+                List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type in (1,5) and and between '"+startTime+"' and '"+endTime+"' ");
                 for (Record record : records) {
                     String url = record.getStr("url");
                     if (url.startsWith("d:")) {
@@ -188,12 +188,12 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     }
 
     @Override
-    public Ret compoundQueryBySpot(Integer id[], Double longitude, Double latitude) throws IOException, CQLException, ParseException {
+    public Ret compoundQueryBySpot(Double longitude, Double latitude) throws IOException, CQLException, ParseException {
         List<DataEach> dataEaches = new ArrayList<>();
+        List<DataEach> dataEachList=DataEach.service().dao().findAll();
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         WKTReader reader = new WKTReader(geometryFactory);
-        for (int i = 0; i < id.length; i++) {
-            DataEach dataEach = DataEach.service().dao().findById(id[i]);
+        for (DataEach dataEach:dataEachList) {
             String url = dataEach.getStr("url");
             if (dataEach.getType() == 0) {
                 if (url.startsWith("d:")) {
@@ -229,26 +229,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
                 }
             }
             if (dataEach.getType() == 3 || dataEach.getType() == 4) {
-                List<Double> lon = new ArrayList<>();
-                List<Double> lat = new ArrayList<>();
-
-                lon.add(Double.valueOf(dataEach.getStr("topLeftLongitude")));
-                lon.add(Double.valueOf(dataEach.getStr("topRightLongitude")));
-                lon.add(Double.valueOf(dataEach.getStr("bottomRightLongitude")));
-                lon.add(Double.valueOf(dataEach.getStr("bottomLeftLongitude")));
-
-                lat.add(Double.valueOf(dataEach.getStr("topLeftLatitude")));
-                lat.add(Double.valueOf(dataEach.getStr("topRightLatitude")));
-                lat.add(Double.valueOf(dataEach.getStr("bottomRightLatitude")));
-                lat.add(Double.valueOf(dataEach.getStr("bottomLeftLatitude")));
-
-				Double min_x = Collections.min(lon);
-				Double max_x = Collections.max(lon);
-				Double min_y = Collections.min(lat);
-				Double max_y = Collections.min(lat);
-
-				String tifGeomStr = "POLYGON((" + min_x + " " + max_y + "," + max_x + " " + max_y + "," + min_x + " " + min_y + "," + min_x + " " + max_y + "," + min_x + " " + max_y + "))";
-
+				String tifGeomStr = "POLYGON((" + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topRightLongitude")) + " " + Double.valueOf(dataEach.getStr("topRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomRightLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "))";
 				Geometry tifGeom = reader.read(tifGeomStr);
                 Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326), st_geometryfromtext('POINT(" + longitude + " " + latitude + ")',4326)) as num");
                 if (record.getBoolean("num")) {
@@ -260,12 +241,12 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     }
 
 	@Override
-	public Ret compoundQueryByNoodles(Integer id[],String latlons) throws IOException, CQLException, ParseException {
+	public Ret compoundQueryByNoodles(String latlons) throws IOException, CQLException, ParseException {
 		List<DataEach> dataEaches = new ArrayList<>();
+		List<DataEach> dataEachList=DataEach.service().dao().findAll();
 		GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 		WKTReader reader = new WKTReader(geometryFactory);
-		for (int i = 0; i < id.length; i++) {
-			DataEach dataEach = DataEach.service().dao().findById(id[i]);
+		for (DataEach dataEach:dataEachList) {
 			String url = dataEach.getStr("url");
 			if (dataEach.getType() == 0) {
 				if (url.startsWith("d:")) {
@@ -302,26 +283,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 				}
 			}
 			if (dataEach.getType() == 3 || dataEach.getType() == 4) {
-				List<Double> lon = new ArrayList<>();
-				List<Double> lat = new ArrayList<>();
-
-				lon.add(Double.valueOf(dataEach.getStr("topLeftLongitude")));
-				lon.add(Double.valueOf(dataEach.getStr("topRightLongitude")));
-				lon.add(Double.valueOf(dataEach.getStr("bottomRightLongitude")));
-				lon.add(Double.valueOf(dataEach.getStr("bottomLeftLongitude")));
-
-				lat.add(Double.valueOf(dataEach.getStr("topLeftLatitude")));
-				lat.add(Double.valueOf(dataEach.getStr("topRightLatitude")));
-				lat.add(Double.valueOf(dataEach.getStr("bottomRightLatitude")));
-				lat.add(Double.valueOf(dataEach.getStr("bottomLeftLatitude")));
-
-				Double min_x = Collections.min(lon);
-				Double max_x = Collections.max(lon);
-				Double min_y = Collections.min(lat);
-				Double max_y = Collections.min(lat);
-
-				String tifGeomStr = "POLYGON((" + min_x + " " + max_y + "," + max_x + " " + max_y + "," + min_x + " " + min_y + "," + min_x + " " + max_y + "," + min_x + " " + max_y + "))";
-
+				String tifGeomStr = "POLYGON((" + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topRightLongitude")) + " " + Double.valueOf(dataEach.getStr("topRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomRightLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "))";
 				Geometry tifGeom = reader.read(tifGeomStr);
 				Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326), st_geometryfromtext('POLYGON (("+latlons+"))',4326)) as num");
 				if (record.getBoolean("num")) {

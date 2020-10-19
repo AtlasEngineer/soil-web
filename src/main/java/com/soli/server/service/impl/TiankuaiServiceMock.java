@@ -52,12 +52,12 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
     }
 
     @Override
-    public Ret compoundQueryBySpot(Integer id[],Double longitude, Double latitude) {
+    public Ret compoundQueryBySpot(Double longitude, Double latitude) {
         return null;
     }
 
     @Override
-    public Ret compoundQueryByNoodles(Integer id[],String latlons) throws IOException, CQLException, ParseException {
+    public Ret compoundQueryByNoodles(String latlons) throws IOException, CQLException, ParseException {
         return null;
     }
 }
