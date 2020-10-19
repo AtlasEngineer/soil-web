@@ -15,19 +15,30 @@
  */
 package com.soli.server.service.impl;
 
+import com.jfinal.kit.Kv;
+import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitModelServiceImpl;
+import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
 
+import com.soli.server.model.Data;
+import com.soli.server.model.DataEach;
 import com.soli.server.service.TiankuaiService;
 import com.soli.server.model.Tiankuai;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.PrecisionModel;
+import com.vividsolutions.jts.io.WKTReader;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static com.soli.server.utils.ReadTiffUtils.getTiffXY;
 
 /**
  * @author yangyong 
@@ -63,4 +74,98 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 
 		return Ret.ok("data",list);
 	}
+
+	@Override
+	public Ret searchDiseases(String type,String period,Integer pageNum, Integer pageSize) {
+
+		if(StringUtils.isBlank(type)){
+			return  Ret.fail("errorMsg","类型不能为空");
+		}
+		if(StringUtils.isBlank(period)){
+			return  Ret.fail("errorMsg","时期不能为空");
+		}
+		String select="";
+		if("病害".equals(type)){
+			select="SELECT diseases_name,diseases_condition,diseases_methon,type,period,id,del,diseases_symptom";
+		}
+		if("虫害".equals(type)){
+			select="SELECT pests_name,pests_features,pests_grow,type,period,id,del,pests_harm,pests_methon";
+		}
+		if("草害".equals(type)){
+			select="SELECT grass_name,grass_about,grass_methon,type,period,id,del";
+		}
+
+		Page<Record> page=Db.paginate(pageNum,pageSize,select,"from where del=0 and type='"+type+"'");
+
+		return null;
+	}
+
+
+	@Override
+	public Ret compoundQuery(Integer countyId, Integer type, String time) {
+		GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+		WKTReader reader = new WKTReader( geometryFactory );
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date startTime ,endTime ;
+		List<Record> resultList = new ArrayList<>();
+		/**
+		 * 	查询语句 开始时间条件没加------~~~~！！！！！
+		 * 	！！！！
+		 * 	！！！
+		 */
+		try {
+			if (StringUtils.isNotBlank(time)){
+				String[] split = time.split(",");
+					startTime = simpleDateFormat.parse(split[0]);
+					endTime = simpleDateFormat.parse(split[1]);
+			}
+
+			Record first = Db.findFirst("SELECT st_astext(geom) as geom FROM tr_ch_county WHERE gid = "+countyId);
+			String geometryStr = first.getStr("geom");
+			Geometry countyGeom = reader.read(geometryStr);
+			/* shp  文件类型	  */
+			if (type == 0){
+				List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type = 0 ");
+				for (Record record : records) {
+					/* geometry 与  shp 比较 */
+
+					if (true){
+						resultList.add(record);
+					}
+				}
+			}
+			/*	tif	  文件类型    */
+			else if (type == 1){
+				List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type = 1 ");
+				for (Record	record: records) {
+					String url = record.getStr("url");
+					if (url.startsWith("d:")){
+						/* 截取 d: 后面的 文件名*/
+						url = url.substring(2,url.length());
+						String rootPath = PathKit.getWebRootPath() + "/d/";
+
+						Kv tiffXY = getTiffXY(rootPath + url + "/" + url + ".tif");
+						double minX = tiffXY.getNumber("minX").doubleValue();
+						double minY = tiffXY.getNumber("minY").doubleValue();
+						double maxX = tiffXY.getNumber("maxX").doubleValue();
+						double maxY = tiffXY.getNumber("maxY").doubleValue();
+						/* 将tif 包围盒转成 一个面进行比较 */
+						String tifGeomStr = "POLYGON(("+minX+" "+maxY+","+maxX+" "+maxY+","+minX+" "+minY+","+minX+" "+maxY+","+minX+" "+maxY+"))";
+						Geometry tifGeom = reader.read(tifGeomStr);
+						/*	如果相交	  */
+						if (countyGeom.intersects(tifGeom)){
+							resultList.add(record);
+						}
+					}
+				}
+				return Ret.ok("data",resultList);
+			}else {
+				return Ret.fail("errorMsg","暂不支持此类型文件查询");
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return Ret.ok("data",resultList);
+	}
+
 }

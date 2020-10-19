@@ -34,4 +34,15 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
     public Ret all(Integer id) {
         return null;
     }
+
+    @Override
+    public Ret searchDiseases(String type,String period,Integer pageNum, Integer pageSize) {
+        return null;
+    }
+
+
+    @Override
+    public Ret compoundQuery(Integer countyId, Integer type, String time) {
+        return null;
+    }
 }
