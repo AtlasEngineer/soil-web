@@ -206,10 +206,14 @@ public class HnwJgpzServiceImpl extends LambkitModelServiceImpl<HnwJgpz> impleme
 
 	@Override
 	public Ret hnwj(String name) throws ParseException, UnsupportedEncodingException {
+		List<Record> records=null;
+
 		if(StringUtils.isBlank(name)){
-			return  Ret.fail("errorMsg","name不能为空");
+			records=Db.find("select product from hnw_jgpz  GROUP BY product");
+		}else {
+			records=Db.find("select product from hnw_jgpz where  product like '%"+name+"%' GROUP BY product");
 		}
-		List<Record> records=Db.find("select product from hnw_jgpz where  product like '%"+name+"%' GROUP BY product");
+
 		return Ret.ok("data",records);
 	}
 }
