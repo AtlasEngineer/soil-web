@@ -291,7 +291,6 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
         //final Filter filter = CQL.toFilter( "area < 40" );
         Filter filter = ECQL.toFilter("INTERSECTS(the_geom,'"+ latlons.getStr("geom") + "')");
         SimpleFeatureCollection features = featureSource.getFeatures(filter);
-        System.out.println(features.size());
         if (features.size() != 0) {
             return true;
         } else {
