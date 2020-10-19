@@ -9,6 +9,7 @@ import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.WKTReader;
+import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.*;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
@@ -21,6 +22,7 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
+import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureIterator;
@@ -31,6 +33,8 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
 
+import org.geotools.gce.geotiff.GeoTiffReader;
+import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.GeometryBuilder;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -38,6 +42,8 @@ import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -407,6 +413,70 @@ public class readShp {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static SimpleFeatureSource getShpStore(String path) throws IOException {
+        //long time1 = System.currentTimeMillis();
+        // shp文件路径
+        ShapefileDataStore shpDataStore = null;
+        SimpleFeatureSource source = null;
+        File file = new File(path);
+        ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
+        Map<String, Serializable> params = new HashMap<String, Serializable>();
+        params.put("url", file.toURI().toURL());
+        params.put("cache and reuse memory maps", Boolean.TRUE);
+        params.put("memory mapped buffer", Boolean.TRUE);
+
+        shpDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
+
+        shpDataStore.setCharset(Charset.forName("GBK"));
+        //System.out.println(System.currentTimeMillis() - time1 + "读取shp文件时间");
+        // 文件名称
+        String typeName = shpDataStore.getTypeNames()[0];
+        source = shpDataStore.getFeatureSource(typeName);
+        return source;
+    }
+
+
+    public static double getAltitude(Double lon, Double lat, String url) throws Exception {
+        File file = new File(url);
+        Hints tiffHints = new Hints();
+        tiffHints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE));
+        tiffHints.add(new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, DefaultGeographicCRS.WGS84));
+        GeoTiffReader tifReader = new GeoTiffReader(file, tiffHints);
+        GridCoverage2D coverage = tifReader.read(null);
+        // 获取坐标系
+        CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
+        // 构建地理坐标
+        DirectPosition position = new DirectPosition2D(crs, lon, lat);
+        Object results = coverage.evaluate(position);
+        Double objectClass = getObjectClass(results);
+        return objectClass;
+    }
+
+    public static Double getObjectClass(Object param) {
+        Double d = 0.0;
+        if ((param instanceof Integer[]) || (param instanceof int[])) {
+            int[] b = (int[]) param;
+            d = Double.valueOf(b[0]);
+        } else if (param instanceof String[]) {
+            String[] b = (String[]) param;
+            d = Double.valueOf(b[0]);
+        } else if (param instanceof Double[] || param instanceof double[]) {
+            Double[] b = (Double[]) param;
+            d = Double.valueOf(b[0]);
+        } else if (param instanceof Float[] || param instanceof float[]) {
+            float[] b = (float[]) param;
+            d = Double.valueOf(b[0]);
+        } else if (param instanceof Long[] || param instanceof long[]) {
+            long[] b = (long[]) param;
+            d = Double.valueOf(b[0]);
+        } else if (param instanceof byte[] || param instanceof Byte[]) {
+            byte[] b = (byte[]) param;
+            d = Double.valueOf(b[0]);
+        }
+//        System.out.println("===");
+        return d;
     }
 
 }

@@ -18,8 +18,13 @@ package com.soli.server.service.impl;
 import com.jfinal.kit.Ret;
 import com.lambkit.common.service.BaseServiceMock;
 
+import com.soli.server.model.DataEach;
 import com.soli.server.model.Tiankuai;
 import com.soli.server.service.TiankuaiService;
+import com.vividsolutions.jts.io.ParseException;
+import org.geotools.filter.text.cql2.CQLException;
+
+import java.io.IOException;
 
 /**
  * @author yangyong
@@ -43,6 +48,16 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
 
     @Override
     public Ret compoundQuery(Integer countyId, Integer type, String time) {
+        return null;
+    }
+
+    @Override
+    public Ret compoundQueryBySpot(Integer id[],Double longitude, Double latitude) {
+        return null;
+    }
+
+    @Override
+    public Ret compoundQueryByNoodles(Integer id[],String latlons) throws IOException, CQLException, ParseException {
         return null;
     }
 }

@@ -22,7 +22,10 @@ import com.lambkit.core.api.route.ApiBody;
 import com.lambkit.core.api.route.ApiMapping;
 import com.lambkit.core.api.route.ApiRenderJFinalJson;
 import com.soli.server.model.Tiankuai;
+import com.vividsolutions.jts.io.ParseException;
+import org.geotools.filter.text.cql2.CQLException;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -56,6 +59,35 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.compoundQuery",useLogin = false)
     public Ret compoundQuery(Integer countyId,Integer type,String time);
+
+
+
+
+    /**
+     *  数据查询 -  点查询
+     * @param countyId      县id
+     * @param type          数据类型
+     * @param time          时间【 以逗号分隔 】 eg: 2020-10-16,2020-10-17
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "search.compoundQuery.spot",useLogin = false)
+    public Ret compoundQueryBySpot(Integer id[],Double longitude, Double latitude) throws IOException, CQLException, ParseException;
+
+
+
+    /**
+     *  数据查询 -  多边形查询
+     * @param countyId      县id
+     * @param type          数据类型
+     * @param time          时间【 以逗号分隔 】 eg: 2020-10-16,2020-10-17
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "search.compoundQuery.noodles",useLogin = false)
+    public Ret compoundQueryByNoodles(Integer id[],String latlons) throws IOException, CQLException, ParseException;
+
+
 
 
 }
