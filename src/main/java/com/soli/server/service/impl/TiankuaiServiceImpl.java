@@ -106,7 +106,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             select = "SELECT grass_name,grass_about,grass_methon,type,period,id,del";
         }
 
-        Page<Record> page = Db.paginate(pageNum, pageSize, select, "from where del=0 and type='" + type + "'");
+        Page<Record> page = Db.paginate(pageNum, pageSize, select, "from  tr_diseases where del=0 and type='" + type + "'");
 
         return Ret.ok("data",page);
     }
