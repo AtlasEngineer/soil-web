@@ -125,17 +125,13 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
          * 	！！！
          */
         try {
-            if (time!=null&&time.length!=0) {
-                startTime = simpleDateFormat.parse(time[0]);
-                endTime = simpleDateFormat.parse(time[1]);
-            }
 
             Record first = Db.findFirst("SELECT st_astext(geom) as geom FROM tr_ch_county WHERE gid = " + countyId);
             String geometryStr = first.getStr("geom");
             Geometry countyGeom = reader.read(geometryStr);
             /* shp  文件类型	  */
             if (type == 0) {
-                List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type = 0 and between '"+startTime+"' and '"+endTime+"' ");
+                List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type = 0 and time between '"+time[0]+"' and '"+time[1]+"' ");
                 for (Record record : records) {
                     /* geometry 与  shp 比较 */
                     String url = record.getStr("url");
@@ -151,10 +147,8 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
                         }
                     }
                 }
-            }
-            /*	tif	  文件类型    */
-            else if (type == 1) {
-                List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type in (1,5) and and between '"+startTime+"' and '"+endTime+"' ");
+            } else if (type == 1) {
+                List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type in (1,5) and time between '"+time[0]+"' and '"+time[1]+"' ");
                 for (Record record : records) {
                     String url = record.getStr("url");
                     if (url.startsWith("d:")) {
