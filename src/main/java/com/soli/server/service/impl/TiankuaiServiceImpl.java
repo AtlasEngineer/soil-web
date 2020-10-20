@@ -239,7 +239,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 					String rootPath = PathKit.getWebRootPath() + "/d/";
 					SimpleFeatureSource shpStore = readShp.getShpStore(rootPath + url + "/" + url + ".shp");
 					/* 将tif 包围盒转成 一个面进行比较 */
-                    Record record=Db.findFirst("select st_geometryfromtext('POLYGON (("+latlons+"))',4326) as geom");
+                    Record record=Db.findFirst("select st_astext(st_geometryfromtext('POLYGON (("+latlons+"))',4326)) as geom");
 					boolean flag = queryField(record,shpStore);
 					if (flag) {
 						dataEaches.add(dataEach);
@@ -289,7 +289,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
      */
     public static boolean queryField(Record latlons, SimpleFeatureSource featureSource) throws IOException, CQLException {
         //final Filter filter = CQL.toFilter( "area < 40" );
-        Filter filter = ECQL.toFilter("INTERSECTS(the_geom,'"+latlons.getStr("geom")+"')");
+        Filter filter = ECQL.toFilter("INTERSECTS(the_geom,"+latlons.getStr("geom")+")");
         SimpleFeatureCollection features = featureSource.getFeatures(filter);
         if (features.size() != 0) {
             return true;
