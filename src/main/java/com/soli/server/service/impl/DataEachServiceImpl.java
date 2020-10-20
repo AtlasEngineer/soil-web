@@ -91,14 +91,14 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
             Record rec10 = Db.findFirst("SELECT value FROM "+table_name+" where type = 10 and tk_id = ? and time = ?", id, date);
             Record rec40 = Db.findFirst("SELECT value FROM "+table_name+" where type = 40 and tk_id = ? and time = ?", id, date);
             if (rec10 == null) {
-                record10.set(sdf.format(date), "");
+                record10.set(sdf.format(date), 0);
             } else {
-                record10.set(sdf.format(date), rec10.getStr("value"));
+                record10.set(sdf.format(date), Double.valueOf(rec10.getStr("value")));
             }
             if (rec40 == null) {
-                record40.set(sdf.format(date), "");
+                record40.set(sdf.format(date), 0);
             } else {
-                record40.set(sdf.format(date), rec40.getStr("value"));
+                record40.set(sdf.format(date), Double.valueOf(rec40.getStr("value")));
             }
         }
         return Ret.ok("list10", record10).set("list40",record40);
@@ -107,6 +107,7 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
     public List<Date> getTimes(int year) {
         int m = 1;//月份计数
         List<Date> lDate = new ArrayList();
+        Date date = new Date();
         while (m < 13) {
             int month = m;
             Calendar cal = Calendar.getInstance();//获得当前日期对象
@@ -119,6 +120,9 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
             int count = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
             for (int j = 0; j <= (count - 2); j++) {
                 cal.add(Calendar.DAY_OF_MONTH, +1);
+                if(cal.getTime().after(date)){
+                    return lDate;
+                }
                 lDate.add(cal.getTime());
             }
             m++;
