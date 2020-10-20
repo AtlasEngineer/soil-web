@@ -133,7 +133,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
                         String rootPath = PathKit.getWebRootPath() + "/d/";
                         SimpleFeatureSource shpStore = readShp.getShpStore(rootPath + url + "/" + url + ".shp");
                         /* 将tif 包围盒转成 一个面进行比较 */
-                        boolean flag = queryField(first, shpStore);
+                        boolean flag = queryFieldBy(first, shpStore);
                         if (flag) {
                             resultList.add(record);
                         }
@@ -289,7 +289,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
      */
     public static boolean queryField(Record latlons, SimpleFeatureSource featureSource) throws IOException, CQLException {
         //final Filter filter = CQL.toFilter( "area < 40" );
-        Filter filter = ECQL.toFilter("INTERSECTS(the_geom,"+ latlons.getStr("geom") + ")");
+        Filter filter = ECQL.toFilter("INTERSECTS(the_geom,'"+latlons.getStr("geom")+"')");
         SimpleFeatureCollection features = featureSource.getFeatures(filter);
         if (features.size() != 0) {
             return true;
@@ -297,6 +297,29 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             return false;
         }
     }
+
+    /**
+     * 面查询
+     *
+     * @param latlons
+     * @param featureSource
+     * @return
+     * @throws IOException
+     * @throws CQLException
+     */
+    public static boolean queryFieldBy(Record latlons, SimpleFeatureSource featureSource) throws IOException, CQLException {
+        //final Filter filter = CQL.toFilter( "area < 40" );
+        Filter filter = ECQL.toFilter("INTERSECTS(the_geom,"+latlons.getStr("geom")+")");
+        SimpleFeatureCollection features = featureSource.getFeatures(filter);
+        if (features.size() != 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+
 
     /**
      * 点查询
