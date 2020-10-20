@@ -56,7 +56,15 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
 
     @Override
     public Ret getYears() {
-        return null;
+        //获取最近五年年份
+        Date date = new Date();
+        List<Integer> list = new ArrayList<>();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
+        Integer year = Integer.valueOf(simpleDateFormat.format(date));
+        for (int i = 0; i < 5; i++) {
+            list.add( year - i);
+        }
+        return Ret.ok("list",list);
     }
 
     @Override
