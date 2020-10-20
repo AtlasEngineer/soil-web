@@ -39,9 +39,4 @@ public class DataEachServiceMock extends BaseServiceMock<DataEach> implements Da
     public Ret updateTkTiff(Integer id) {
         return null;
     }
-
-    @Override
-    public Ret updateQwAndSd(Integer id) {
-        return null;
-    }
 }

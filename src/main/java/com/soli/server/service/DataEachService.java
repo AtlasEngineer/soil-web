@@ -35,7 +35,7 @@ public interface DataEachService extends LambkitService<DataEach> {
 
 
     /**
-     * 存取新添地块的
+     * 查询指定地块的，一年的温度湿度统计
      * @param id
      * @return
      */
@@ -44,7 +44,7 @@ public interface DataEachService extends LambkitService<DataEach> {
     public Ret searchJwAndJy(Integer id);
 
     /**
-     * 存取新添地块的
+     * 存取新添地块的所有时间的温度和湿度
      * @param id
      * @return
      */
@@ -52,12 +52,4 @@ public interface DataEachService extends LambkitService<DataEach> {
     @ApiMapping(value = "data.updateTkTiff",useLogin = false)
     public Ret updateTkTiff(Integer id);
 
-    /**
-     * 新的温度湿度tif添加时获取每个地块的新时间的tif
-     * @param id
-     * @return
-     */
-    @ApiBody(ApiRenderJFinalJson.class)
-    @ApiMapping(value = "data.updateQwAndSd",useLogin = false)
-    public Ret updateQwAndSd(Integer id);
 }

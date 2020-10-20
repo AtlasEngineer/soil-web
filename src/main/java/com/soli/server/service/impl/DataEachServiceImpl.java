@@ -32,6 +32,7 @@ import org.opengis.referencing.operation.TransformException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author yangyong
@@ -62,7 +63,7 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
 
 
         Record record = Db.findFirst("SELECT * FROM tr_tk_humidity where tk_id = ? ", id);
-        return Ret.ok("data",record);
+        return Ret.ok("data", record);
     }
 
     @Override
@@ -84,10 +85,7 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         return Ret.ok("温度", tr_tk_temperature).set("湿度", tr_tk_humidity);
     }
 
-    @Override
-    public Ret updateQwAndSd(Integer id) {
-        return null;
-    }
+
 
     public static Kv updateTkTif(File file, String wkt, String tableName, Integer id) {
         Kv kv = new Kv();
@@ -125,7 +123,7 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
                     if (first == null) {
                         Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + timeFile.getName() + "',10)");
                         kv.set(timeFile.getName() + ",10", v10);
-                    }else{
+                    } else {
                         kv.set(timeFile.getName() + ",10", "数据已存在");
                     }
                 }
@@ -135,7 +133,7 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
                     if (first == null) {
                         Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v40 + "','" + timeFile.getName() + "',40)");
                         kv.set(timeFile.getName() + ",40", v40);
-                    }else{
+                    } else {
                         kv.set(timeFile.getName() + ",40", "数据已存在");
                     }
                 }

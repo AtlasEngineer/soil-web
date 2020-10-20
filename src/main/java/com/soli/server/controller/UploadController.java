@@ -17,6 +17,7 @@ import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.controller.LambkitController;
 import com.soli.server.model.Data;
 import com.soli.server.model.DataEach;
+import com.soli.server.service.impl.DataEachServiceImpl;
 import com.soli.server.utils.*;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -108,7 +109,7 @@ public class UploadController extends LambkitController {
             //重命名
             if (type == 0) {
                 filename = "shp-" + filename;
-            } else if (type == 1||type == 5) {
+            } else if (type == 1 || type == 5) {
                 filename = "tif-" + filename;
             } else if (type == 3) {
                 filename = "GF-" + UUID.randomUUID().toString() + ".tar.gz";
@@ -215,6 +216,18 @@ public class UploadController extends LambkitController {
                             //添加最大最小坐标
                             Kv tiffXY = ReadTiffUtils.getTiffXY(tifPath);
                             kv.set(tiffXY);
+                        } else if ("10cm土壤温度".equals(data.getName())) {
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_temperature",data_time,10);
+                            kv.set(readQwAndSd);
+                        } else if ("0-10cm土壤湿度".equals(data.getName())) {
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_humidity",data_time,10);
+                            kv.set(readQwAndSd);
+                        } else if ("40cm土壤温度".equals(data.getName())) {
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_temperature",data_time,40);
+                            kv.set(readQwAndSd);
+                        } else if ("10-40cm土壤湿度".equals(data.getName())) {
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_humidity",data_time,40);
+                            kv.set(readQwAndSd);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -344,6 +357,32 @@ public class UploadController extends LambkitController {
                 renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "保存失败")));
             }
         }
+    }
+
+    //更新所有地块的温度或湿度数据
+    public static Kv readQwAndSd(String filePath, String tableName, Date time,int height) {
+        //1、获取地块wkt
+        List<Record> records = Db.find("select id,st_astext(geom) as wkt,dk_name from tr_tiankuai");
+        Kv kv = Kv.create();
+        for (Record record : records) {
+            //2、分获取积温、积雨日期列表，遍历读取像素值保存
+            String wkt = record.get("wkt");
+            Integer id = record.getInt("id");
+            String dk_name = record.getStr("dk_name");
+            //读取当前日期文件两个数据像素值
+            try {
+                double v10 = ReadTiffUtils.getAltitudeByWkt(wkt, filePath);
+                Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + time + "' and type = '"+height+"' ");
+                if (first == null) {
+                    Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + time + "','"+height+"')");
+                    kv.set(dk_name + ","+height, v10);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                kv.set(dk_name, e.getMessage());
+            }
+        }
+        return kv;
     }
 
 
