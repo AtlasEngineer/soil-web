@@ -87,6 +87,7 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         List<Date> times = getTimes(year);
         Record record10 = new Record();
         Record record40 = new Record();
+        List<Double> values = new ArrayList<>();
         for (Date date : times) {
             Record rec10 = Db.findFirst("SELECT value FROM "+table_name+" where type = 10 and tk_id = ? and time = ?", id, date);
             Record rec40 = Db.findFirst("SELECT value FROM "+table_name+" where type = 40 and tk_id = ? and time = ?", id, date);
@@ -94,14 +95,17 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
                 record10.set(sdf.format(date), 0);
             } else {
                 record10.set(sdf.format(date), Double.valueOf(rec10.getStr("value")));
+                values.add(Double.valueOf(rec10.getStr("value")));
             }
             if (rec40 == null) {
                 record40.set(sdf.format(date), 0);
             } else {
                 record40.set(sdf.format(date), Double.valueOf(rec40.getStr("value")));
+                values.add(Double.valueOf(rec10.getStr("value")));
             }
         }
-        return Ret.ok("list10", record10).set("list40",record40);
+        Double max = Collections.max(values);
+        return Ret.ok("list10", record10).set("list40",record40).set("max",max);
     }
 
     public List<Date> getTimes(int year) {
