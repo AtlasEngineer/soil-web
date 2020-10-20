@@ -33,6 +33,13 @@ import com.soli.server.model.DataEach;
  */
 public interface DataEachService extends LambkitService<DataEach> {
 
+    /**
+     * 查询指定地块的，一年的温度湿度统计
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.getYears",useLogin = false)
+    public Ret getYears();
 
     /**
      * 查询指定地块的，一年的温度湿度统计
@@ -41,7 +48,7 @@ public interface DataEachService extends LambkitService<DataEach> {
      */
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "data.searchJwAndJy",useLogin = false)
-    public Ret searchJwAndJy(Integer id);
+    public Ret searchJwAndJy(Integer id,Integer year,Integer type);
 
     /**
      * 存取新添地块的所有时间的温度和湿度

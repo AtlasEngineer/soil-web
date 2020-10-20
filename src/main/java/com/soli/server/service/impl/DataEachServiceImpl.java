@@ -31,8 +31,8 @@ import org.opengis.referencing.operation.TransformException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author yangyong
@@ -45,6 +45,7 @@ import java.util.List;
 public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> implements DataEachService {
 
     private DataEach DAO = null;
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public DataEach dao() {
         if (DAO == null) {
@@ -54,16 +55,67 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
     }
 
     @Override
-    public Ret searchJwAndJy(Integer id) {
+    public Ret getYears() {
+        return null;
+    }
+
+    @Override
+    public Ret searchJwAndJy(Integer id, Integer year, Integer type) {
         if (id == null) {
             return Ret.fail("errorMsg", "请选择地块");
         }
+        if (year == null) {
+            return Ret.fail("errorMsg", "请选择年份");
+        }
+        String table_name;
+        if (type == 1) {
+            table_name = "tr_tk_temperature";
+        } else if (type == 0) {
+            table_name = "tr_tk_humidity";
+        } else {
+            return Ret.fail("errorMsg", "请选择积温或积雨");
+        }
         //获取当前时间往前一年的时间
-        Date date = new Date();
+        List<Date> times = getTimes(year);
+        Record record10 = new Record();
+        Record record40 = new Record();
+        for (Date date : times) {
+            Record rec10 = Db.findFirst("SELECT value FROM "+table_name+" where type = 10 and tk_id = ? and time = ?", id, date);
+            Record rec40 = Db.findFirst("SELECT value FROM "+table_name+" where type = 40 and tk_id = ? and time = ?", id, date);
+            if (rec10 == null) {
+                record10.set(sdf.format(date), "");
+            } else {
+                record10.set(sdf.format(date), rec10.getStr("value"));
+            }
+            if (rec40 == null) {
+                record40.set(sdf.format(date), "");
+            } else {
+                record40.set(sdf.format(date), rec40.getStr("value"));
+            }
+        }
+        return Ret.ok("list10", record10).set("list40",record40);
+    }
 
+    public List<Date> getTimes(int year) {
+        int m = 1;//月份计数
+        List<Date> lDate = new ArrayList();
+        while (m < 13) {
+            int month = m;
+            Calendar cal = Calendar.getInstance();//获得当前日期对象
+            cal.clear();//清除信息
+            cal.set(Calendar.YEAR, year);
+            cal.set(Calendar.MONTH, month - 1);//1月从0开始
+            cal.set(Calendar.DAY_OF_MONTH, 1);//设置为1号,当前日期既为本月第一天
 
-        Record record = Db.findFirst("SELECT * FROM tr_tk_humidity where tk_id = ? ", id);
-        return Ret.ok("data", record);
+            lDate.add(cal.getTime());
+            int count = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+            for (int j = 0; j <= (count - 2); j++) {
+                cal.add(Calendar.DAY_OF_MONTH, +1);
+                lDate.add(cal.getTime());
+            }
+            m++;
+        }
+        return lDate;
     }
 
     @Override
@@ -84,7 +136,6 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         Kv tr_tk_humidity = updateTkTif(file2, wkt, "tr_tk_humidity", id);
         return Ret.ok("温度", tr_tk_temperature).set("湿度", tr_tk_humidity);
     }
-
 
 
     public static Kv updateTkTif(File file, String wkt, String tableName, Integer id) {

@@ -29,18 +29,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Test1 {
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Test
-    public void test() {
+    public void testbe() throws ParseException {
         int year = 2020;
         int m = 1;//月份计数
         while (m < 13) {
@@ -55,7 +53,7 @@ public class Test1 {
 
             int count = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-            System.out.println("$$$$$$$$$$________" + count);
+            System.out.println("$$________" + count);
 
             for (int j = 0; j <= (count - 2); ) {
                 cal.add(Calendar.DAY_OF_MONTH, +1);
@@ -64,6 +62,85 @@ public class Test1 {
             }
             m++;
         }
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//        Date dBegin = sdf.parse("2019-10-20");
+//        Date dEnd = sdf.parse("2020-10-20");
+////            List lDate = new ArrayList();
+////            lDate.add(dBegin);
+//            Calendar calBegin = Calendar.getInstance();
+//            // 使用给定的 Date 设置此 Calendar 的时间
+//            calBegin.setTime(dBegin);
+//            Calendar calEnd = Calendar.getInstance();
+//            // 使用给定的 Date 设置此 Calendar 的时间
+//            calEnd.setTime(dEnd);
+//            // 测试此日期是否在指定日期之后
+//            while (dEnd.after(calBegin.getTime())) {
+//                // 根据日历的规则，为给定的日历字段添加或减去指定的时间量
+//                calBegin.add(Calendar.DAY_OF_MONTH, 1);
+//                Date time = calBegin.getTime();
+//                System.out.println(sdf.format(time));
+//            }
+//            return lDate;
+    }
+
+    @Test
+    public void tets() {
+        {
+            int year = 2013;
+            int m = 1;//月份计数
+            while (m < 13) {
+                int month = m;
+                Calendar cal = Calendar.getInstance();//获得当前日期对象
+                cal.clear();//清除信息
+                cal.set(Calendar.YEAR, year);
+                cal.set(Calendar.MONTH, month - 1);//1月从0开始
+                cal.set(Calendar.DAY_OF_MONTH, 1);//设置为1号,当前日期既为本月第一天
+
+                System.out.println("##########___" + sdf.format(cal.getTime()));
+
+                int count = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+                System.out.println("$$________" + count);
+
+                for (int j = 0; j <= (count - 2); ) {
+                    cal.add(Calendar.DAY_OF_MONTH, +1);
+                    j++;
+                    System.out.println(sdf.format(cal.getTime()));
+                }
+                m++;
+            }
+        }
+    }
+
+
+    /**
+     * 某一年某个月的每一天
+     */
+    public static List<String> getMonthFullDay(int year, int month, int day) {
+        List<String> fullDayList = new ArrayList<String>();
+        if (day <= 0) day = 1;
+        Calendar cal = Calendar.getInstance();// 获得当前日期对象
+        cal.clear();// 清除信息
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month - 1);// 1月从0开始
+        cal.set(Calendar.DAY_OF_MONTH, day);// 设置为1号,当前日期既为本月第一天
+        int count = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        for (int j = 0; j <= (count - 1); ) {
+            if (sdf.format(cal.getTime()).equals(getLastDay(year, month)))
+                break;
+            cal.add(Calendar.DAY_OF_MONTH, j == 0 ? +0 : +1);
+            j++;
+            fullDayList.add(sdf.format(cal.getTime()));
+        }
+        return fullDayList;
+    }
+
+    public static String getLastDay(int year, int month) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.DAY_OF_MONTH, 0);
+        return sdf.format(cal.getTime());
     }
 
     public static void main(String[] args) {
