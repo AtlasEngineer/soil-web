@@ -56,7 +56,15 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
 
     @Override
     public Ret getYears() {
-        return null;
+        //获取最近五年年份
+        Date date = new Date();
+        List<Integer> list = new ArrayList<>();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
+        Integer year = Integer.valueOf(simpleDateFormat.format(date));
+        for (int i = 0; i < 5; i++) {
+            list.add( year - i);
+        }
+        return Ret.ok("list",list);
     }
 
     @Override
@@ -79,26 +87,31 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         List<Date> times = getTimes(year);
         Record record10 = new Record();
         Record record40 = new Record();
+        List<Double> values = new ArrayList<>();
         for (Date date : times) {
             Record rec10 = Db.findFirst("SELECT value FROM "+table_name+" where type = 10 and tk_id = ? and time = ?", id, date);
             Record rec40 = Db.findFirst("SELECT value FROM "+table_name+" where type = 40 and tk_id = ? and time = ?", id, date);
             if (rec10 == null) {
-                record10.set(sdf.format(date), "");
+                record10.set(sdf.format(date), 0);
             } else {
-                record10.set(sdf.format(date), rec10.getStr("value"));
+                record10.set(sdf.format(date), Double.valueOf(rec10.getStr("value")));
+                values.add(Double.valueOf(rec10.getStr("value")));
             }
             if (rec40 == null) {
-                record40.set(sdf.format(date), "");
+                record40.set(sdf.format(date), 0);
             } else {
-                record40.set(sdf.format(date), rec40.getStr("value"));
+                record40.set(sdf.format(date), Double.valueOf(rec40.getStr("value")));
+                values.add(Double.valueOf(rec10.getStr("value")));
             }
         }
-        return Ret.ok("list10", record10).set("list40",record40);
+        Double max = Collections.max(values);
+        return Ret.ok("list10", record10).set("list40",record40).set("max",max);
     }
 
     public List<Date> getTimes(int year) {
         int m = 1;//月份计数
         List<Date> lDate = new ArrayList();
+        Date date = new Date();
         while (m < 13) {
             int month = m;
             Calendar cal = Calendar.getInstance();//获得当前日期对象
@@ -111,6 +124,9 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
             int count = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
             for (int j = 0; j <= (count - 2); j++) {
                 cal.add(Calendar.DAY_OF_MONTH, +1);
+                if(cal.getTime().after(date)){
+                    return lDate;
+                }
                 lDate.add(cal.getTime());
             }
             m++;
