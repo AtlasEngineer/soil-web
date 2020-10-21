@@ -228,6 +228,12 @@ public class UploadController extends LambkitController {
                         } else if ("10-40cm土壤湿度".equals(data.getName())) {
                             Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_humidity",data_time,40);
                             kv.set(readQwAndSd);
+                        }else if ("积温".equals(data.getName())) {
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_accumulated",data_time,0);
+                            kv.set(readQwAndSd);
+                        } else if ("积雨".equals(data.getName())) {
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_eroded",data_time,0);
+                            kv.set(readQwAndSd);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

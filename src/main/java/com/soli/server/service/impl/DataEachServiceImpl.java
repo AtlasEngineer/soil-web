@@ -62,9 +62,9 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
         Integer year = Integer.valueOf(simpleDateFormat.format(date));
         for (int i = 0; i < 5; i++) {
-            list.add( year - i);
+            list.add(year - i);
         }
-        return Ret.ok("list",list);
+        return Ret.ok("list", list);
     }
 
     @Override
@@ -89,8 +89,8 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         Record record40 = new Record();
         List<Double> values = new ArrayList<>();
         for (Date date : times) {
-            Record rec10 = Db.findFirst("SELECT value FROM "+table_name+" where type = 10 and tk_id = ? and time = ?", id, date);
-            Record rec40 = Db.findFirst("SELECT value FROM "+table_name+" where type = 40 and tk_id = ? and time = ?", id, date);
+            Record rec10 = Db.findFirst("SELECT value FROM " + table_name + " where type = 10 and tk_id = ? and time = ?", id, date);
+            Record rec40 = Db.findFirst("SELECT value FROM " + table_name + " where type = 40 and tk_id = ? and time = ?", id, date);
             if (rec10 == null) {
                 record10.set(sdf.format(date), 0);
             } else {
@@ -105,7 +105,7 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
             }
         }
         Double max = Collections.max(values);
-        return Ret.ok("list10", record10).set("list40",record40).set("max",max);
+        return Ret.ok("list10", record10).set("list40", record40).set("max", max);
     }
 
     public List<Date> getTimes(int year) {
@@ -124,7 +124,7 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
             int count = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
             for (int j = 0; j <= (count - 2); j++) {
                 cal.add(Calendar.DAY_OF_MONTH, +1);
-                if(cal.getTime().after(date)){
+                if (cal.getTime().after(date)) {
                     return lDate;
                 }
                 lDate.add(cal.getTime());
@@ -144,13 +144,56 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         String wkt = wktRec.getStr("wkt");
         //2、分获取积温、积雨日期列表，遍历读取像素值保存
         String root = PathKit.getWebRootPath().replace("\\", "/");
-        //温度
-        File file1 = new File(root + "/python/土壤温度/");
-        Kv tr_tk_temperature = updateTkTif(file1, wkt, "tr_tk_temperature", id);
-        //湿度
-        File file2 = new File(root + "/python/土壤湿度/");
-        Kv tr_tk_humidity = updateTkTif(file2, wkt, "tr_tk_humidity", id);
-        return Ret.ok("温度", tr_tk_temperature).set("湿度", tr_tk_humidity);
+        //10cm土壤温度48
+        //10cm土壤湿度47
+        //40cm土壤温度92
+        //10-40cm土壤湿度94
+        //积温98
+        //积雨95
+        List<Record> records = Db.find("select * from tr_data_each where data_id in (48,47,92,94,95,98)");
+        for (Record record : records) {
+            String url = record.getStr("url").split(":")[1];
+            readQwAndSd(wkt, root + "/d/" + url + "/" + url + ".tif", record.getInt("id"), record.getDate("data_time"));
+        }
+        return Ret.ok();
+    }
+
+    //更新所有地块的温度或湿度数据
+    public static Kv readQwAndSd(String wkt, String path, Integer id, Date time) {
+        String tableName = null;
+        Integer height = null;
+        if (id == 48) {
+            tableName = "tr_tk_temperature";
+            height = 10;
+        } else if (id == 47) {
+            tableName = "tr_tk_humidity";
+            height = 10;
+        } else if (id == 92) {
+            tableName = "tr_tk_temperature";
+            height = 40;
+        } else if (id == 94) {
+            tableName = "tr_tk_humidity";
+            height = 40;
+        } else if (id == 98) {
+            tableName = "tr_tk_accumulated";
+            height = 0;
+        } else if (id == 95) {
+            tableName = "tr_tk_eroded";
+            height = 0;
+        }
+        Kv kv = Kv.create();
+        //2、分获取积温、积雨日期列表，遍历读取像素值保存
+        //读取当前日期文件两个数据像素值
+        try {
+            double v10 = ReadTiffUtils.getAltitudeByWkt(wkt, path);
+            Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + time + "' and type = '" + height + "' ");
+            if (first == null) {
+                Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + time + "','" + height + "')");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return kv;
     }
 
 
