@@ -60,4 +60,9 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
     public Ret compoundQueryByNoodles(String latlons) throws IOException, CQLException, ParseException {
         return null;
     }
+
+    @Override
+    public Ret uav() {
+        return null;
+    }
 }

@@ -278,7 +278,13 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 		return Ret.ok("data", dataEaches);
 	}
 
-	/**
+    @Override
+    public Ret uav() {
+        List<DataEach> eachList = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(88).example().setOrderBy("data_time desc"));
+        return  Ret.ok("data",eachList);
+    }
+
+    /**
      * 面查询
      *
      * @param latlons

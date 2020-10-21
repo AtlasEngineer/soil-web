@@ -89,5 +89,18 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
 
 
 
+    /**
+     *  数据管理 -  无人机影像数据
+     * @param countyId      县id
+     * @param type          数据类型
+     * @param time          时间【 以逗号分隔 】 eg: 2020-10-16,2020-10-17
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "search.uav",useLogin = false)
+    public Ret uav();
+
+
+
 
 }
