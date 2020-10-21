@@ -197,61 +197,61 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
     }
 
 
-    public static Kv updateTkTif(File file, String wkt, String tableName, Integer id) {
-        Kv kv = new Kv();
-        File[] files = file.listFiles();
-        //3、遍历时间文件夹
-        for (File timeFile : files) {
-            //读取10和40的数据
-            String path10 = null;
-            String path40 = null;
-            File[] fileList = timeFile.listFiles();
-            for (File file1 : fileList) {
-                System.out.println("file1:" + file1.getName());
-                if (file1.isFile()) {
-                    String[] split = file1.getName().split("\\.");
-                    StringBuffer sb = new StringBuffer();
-                    for (int i = 1; i < split.length; i++) {
-                        sb.append(split[i]).append(".");
-                    }
-                    String s1 = sb.toString().substring(0, sb.length() - 1);
-                    if ("tif".equals(s1)) {
-                        String name = file1.getName();
-                        if (name.contains("10")) {
-                            path10 = file1.getAbsolutePath();
-                        } else if (name.contains("40")) {
-                            path40 = file1.getAbsolutePath();
-                        }
-                    }
-                }
-            }
-            //读取当前日期文件两个数据像素值
-            try {
-                if (path10 != null) {
-                    double v10 = ReadTiffUtils.getAltitudeByWkt(wkt, path10);
-                    Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + timeFile.getName() + "' and type = 10");
-                    if (first == null) {
-                        Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + timeFile.getName() + "',10)");
-                        kv.set(timeFile.getName() + ",10", v10);
-                    } else {
-                        kv.set(timeFile.getName() + ",10", "数据已存在");
-                    }
-                }
-                if (path40 != null) {
-                    double v40 = ReadTiffUtils.getAltitudeByWkt(wkt, path40);
-                    Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + timeFile.getName() + "' and type = 40");
-                    if (first == null) {
-                        Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v40 + "','" + timeFile.getName() + "',40)");
-                        kv.set(timeFile.getName() + ",40", v40);
-                    } else {
-                        kv.set(timeFile.getName() + ",40", "数据已存在");
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                kv.set(timeFile.getName(), e.getMessage());
-            }
-        }
-        return kv;
-    }
+//    public static Kv updateTkTif(File file, String wkt, String tableName, Integer id) {
+//        Kv kv = new Kv();
+//        File[] files = file.listFiles();
+//        //3、遍历时间文件夹
+//        for (File timeFile : files) {
+//            //读取10和40的数据
+//            String path10 = null;
+//            String path40 = null;
+//            File[] fileList = timeFile.listFiles();
+//            for (File file1 : fileList) {
+//                System.out.println("file1:" + file1.getName());
+//                if (file1.isFile()) {
+//                    String[] split = file1.getName().split("\\.");
+//                    StringBuffer sb = new StringBuffer();
+//                    for (int i = 1; i < split.length; i++) {
+//                        sb.append(split[i]).append(".");
+//                    }
+//                    String s1 = sb.toString().substring(0, sb.length() - 1);
+//                    if ("tif".equals(s1)) {
+//                        String name = file1.getName();
+//                        if (name.contains("10")) {
+//                            path10 = file1.getAbsolutePath();
+//                        } else if (name.contains("40")) {
+//                            path40 = file1.getAbsolutePath();
+//                        }
+//                    }
+//                }
+//            }
+//            //读取当前日期文件两个数据像素值
+//            try {
+//                if (path10 != null) {
+//                    double v10 = ReadTiffUtils.getAltitudeByWkt(wkt, path10);
+//                    Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + timeFile.getName() + "' and type = 10");
+//                    if (first == null) {
+//                        Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + timeFile.getName() + "',10)");
+//                        kv.set(timeFile.getName() + ",10", v10);
+//                    } else {
+//                        kv.set(timeFile.getName() + ",10", "数据已存在");
+//                    }
+//                }
+//                if (path40 != null) {
+//                    double v40 = ReadTiffUtils.getAltitudeByWkt(wkt, path40);
+//                    Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + timeFile.getName() + "' and type = 40");
+//                    if (first == null) {
+//                        Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v40 + "','" + timeFile.getName() + "',40)");
+//                        kv.set(timeFile.getName() + ",40", v40);
+//                    } else {
+//                        kv.set(timeFile.getName() + ",40", "数据已存在");
+//                    }
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                kv.set(timeFile.getName(), e.getMessage());
+//            }
+//        }
+//        return kv;
+//    }
 }
