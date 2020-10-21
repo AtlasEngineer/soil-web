@@ -156,7 +156,11 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
                 values.add(Double.valueOf(rec10.getStr("value")));
             }
         }
-        Double max = Collections.max(values);
+        Double max = 0.0;
+        if (values.size() > 0) { 
+            max = Collections.max(values);
+        }
+
         return Ret.ok("list10", record10).set("list40", record40).set("max", max);
     }
 
