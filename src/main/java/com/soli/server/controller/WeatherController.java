@@ -23,6 +23,7 @@ import com.soli.server.model.*;
 import com.soli.server.service.impl.DataEachServiceImpl;
 import com.soli.server.utils.Co;
 import com.soli.server.utils.IssueShpUtils;
+import com.soli.server.utils.ReadTiffUtils;
 import org.opengis.geometry.Geometry;
 
 import java.io.File;
@@ -440,6 +441,23 @@ public class WeatherController extends LambkitController {
                 "\"dk_farmland\", \"dk_perimeter\", \"dk_farm\", \"dk_altitude\", \"dk_slope\", \"dk_growers\", \"dk_phone\", \"dk_person\", \"dk_fertilizer\", \"dk_user_id\", \"dk_username\", \"dk_time\", \"del\", \"dk_type\", \"dk_density\", \"dk_irrigation\", \"geom\") " +
                 "values(?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'SRID=4326;POLYGON(("+latlons+"))')",record+1,type,name,geom_type,address,url,sdf.parse(dk_begin_time),sdf.parse(dk_end_time),farmland,perimeter,farm,altitude,slope,growers,phone,person,fertilizer,upmsUser.getUserId(),upmsUser.getRealname(),date,0,dk_type,density,irrigation);
         if (num>0) {
+            //1、获取地块wkt
+            Record max=Db.findFirst("SELECT max(gid) from tr_tiankuai");
+            Record wktRec = Db.findFirst("select st_astext(geom) as wkt from tr_tiankuai where id = ?", max.getInt("max"));
+            String wkt = wktRec.getStr("wkt");
+            //2、分获取积温、积雨日期列表，遍历读取像素值保存
+            String root = PathKit.getWebRootPath().replace("\\", "/");
+            //10cm土壤温度48
+            //10cm土壤湿度47
+            //40cm土壤温度92
+            //10-40cm土壤湿度94
+            //积温98
+            //积雨95
+            List<Record> records = Db.find("select * from tr_data_each where data_id in (48,47,92,94,95,98)");
+            for (Record record_new : records) {
+                String url_new = record_new.getStr("url").split(":")[1];
+                readQwAndSd(wkt, root + "/d/" + url_new + "/" + url_new + ".tif", record_new.getInt("id"), record_new.getDate("data_time"));
+            }
             renderJson(Co.ok("data", Ret.ok()));
             return;
         } else {
@@ -447,6 +465,44 @@ public class WeatherController extends LambkitController {
             return;
         }
 
+    }
+
+    //更新所有地块的温度或湿度数据
+    public static Kv readQwAndSd(String wkt, String path, Integer id, Date time) {
+        String tableName = null;
+        Integer height = null;
+        if (id == 48) {
+            tableName = "tr_tk_temperature";
+            height = 10;
+        } else if (id == 47) {
+            tableName = "tr_tk_humidity";
+            height = 10;
+        } else if (id == 92) {
+            tableName = "tr_tk_temperature";
+            height = 40;
+        } else if (id == 94) {
+            tableName = "tr_tk_humidity";
+            height = 40;
+        } else if (id == 98) {
+            tableName = "tr_tk_accumulated";
+            height = 0;
+        } else if (id == 95) {
+            tableName = "tr_tk_eroded";
+            height = 0;
+        }
+        Kv kv = Kv.create();
+        //2、分获取积温、积雨日期列表，遍历读取像素值保存
+        //读取当前日期文件两个数据像素值
+        try {
+            double v10 = ReadTiffUtils.getAltitudeByWkt(wkt, path);
+            Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + time + "' and type = '" + height + "' ");
+            if (first == null) {
+                Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + time + "','" + height + "')");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return kv;
     }
 
 
