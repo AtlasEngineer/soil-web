@@ -79,7 +79,8 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         List<Date> times = getTimes(year);
         Record accumulated = new Record();
         Record eroded = new Record();
-        List<Double> values = new ArrayList<>();
+        List<Double> accumulatedValues = new ArrayList<>();
+        List<Double> erodedValues = new ArrayList<>();
         for (Date date : times) {
             Record rec10 = Db.findFirst("SELECT value FROM tr_tk_accumulated where tk_id = ? and time = ?", id, date);
             Record rec40 = Db.findFirst("SELECT value FROM tr_tk_eroded where tk_id = ? and time = ?", id, date);
@@ -87,20 +88,25 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
                 accumulated.set(sdf.format(date), 0);
             } else {
                 accumulated.set(sdf.format(date), Double.valueOf(rec10.getStr("value")));
-                values.add(Double.valueOf(rec10.getStr("value")));
+                accumulatedValues.add(Double.valueOf(rec10.getStr("value")));
             }
             if (rec40 == null) {
                 eroded.set(sdf.format(date), 0);
             } else {
                 eroded.set(sdf.format(date), Double.valueOf(rec40.getStr("value")));
-                values.add(Double.valueOf(rec40.getStr("value")));
+                erodedValues.add(Double.valueOf(rec40.getStr("value")));
             }
         }
-        Double max = 0.0;
-        if (values.size() > 0) {
-            max = Collections.max(values);
+        Double accumulatedMax = 0.0;
+        if (accumulatedValues.size() > 0) {
+            accumulatedMax = Collections.max(accumulatedValues);
         }
-        return Ret.ok("accumulated", accumulated).set("eroded", eroded).set("max", max);
+        Double erodedMax = 0.0;
+        if (erodedValues.size() > 0) {
+            erodedMax = Collections.max(erodedValues);
+        }
+        return Ret.ok("accumulated", accumulated).set("eroded", eroded)
+                .set("accumulatedMax", accumulatedMax).set("erodedMax", erodedMax);
     }
 
     @Override
