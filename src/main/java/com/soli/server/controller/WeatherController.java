@@ -440,18 +440,6 @@ public class WeatherController extends LambkitController {
                 "\"dk_farmland\", \"dk_perimeter\", \"dk_farm\", \"dk_altitude\", \"dk_slope\", \"dk_growers\", \"dk_phone\", \"dk_person\", \"dk_fertilizer\", \"dk_user_id\", \"dk_username\", \"dk_time\", \"del\", \"dk_type\", \"dk_density\", \"dk_irrigation\", \"geom\") " +
                 "values(?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'SRID=4326;POLYGON(("+latlons+"))')",record+1,type,name,geom_type,address,url,sdf.parse(dk_begin_time),sdf.parse(dk_end_time),farmland,perimeter,farm,altitude,slope,growers,phone,person,fertilizer,upmsUser.getUserId(),upmsUser.getRealname(),date,0,dk_type,density,irrigation);
         if (num>0) {
-            //1、获取地块wkt
-            Record id=Db.findFirst("SELECT * from tr_tiankuai ORDER BY id desc LIMIT 1");
-            Record wktRec = Db.findFirst("select st_astext(geom) as wkt from tr_tiankuai where id = ?", id.getInt("id"));
-            String wkt = wktRec.getStr("wkt");
-            //2、分获取积温、积雨日期列表，遍历读取像素值保存
-            String root = PathKit.getWebRootPath().replace("\\", "/");
-            //温度
-            File file1 = new File(root + "/python/土壤温度/");
-            Kv tr_tk_temperature = DataEachServiceImpl.updateTkTif(file1, wkt, "tr_tk_temperature", id.getInt("id"));
-            //湿度
-            File file2 = new File(root + "/python/土壤湿度/");
-            Kv tr_tk_humidity = DataEachServiceImpl.updateTkTif(file2, wkt, "tr_tk_humidity", id.getInt("id"));
             renderJson(Co.ok("data", Ret.ok()));
             return;
         } else {
@@ -558,16 +546,6 @@ public class WeatherController extends LambkitController {
         tiankuai.setDkIrrigation(irrigation);
         boolean result=tiankuai.update();
         if (result) {
-            Record wktRec = Db.findFirst("select st_astext(geom) as wkt from tr_tiankuai where id = ?", id);
-            String wkt = wktRec.getStr("wkt");
-            //2、分获取积温、积雨日期列表，遍历读取像素值保存
-            String root = PathKit.getWebRootPath().replace("\\", "/");
-            //温度
-            File file1 = new File(root + "/python/土壤温度/");
-            Kv tr_tk_temperature = DataEachServiceImpl.updateTkTif(file1, wkt, "tr_tk_temperature", id);
-            //湿度
-            File file2 = new File(root + "/python/土壤湿度/");
-            Kv tr_tk_humidity = DataEachServiceImpl.updateTkTif(file2, wkt, "tr_tk_humidity", id);
             renderJson(Co.ok("data", Ret.ok()));
             return;
         } else {
