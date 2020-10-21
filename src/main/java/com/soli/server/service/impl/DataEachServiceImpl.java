@@ -68,6 +68,42 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
     }
 
     @Override
+    public Ret searchAccumulatedAndEroded(Integer id, Integer year) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择地块");
+        }
+        if (year == null) {
+            return Ret.fail("errorMsg", "请选择年份");
+        }
+        //获取当前时间往前一年的时间
+        List<Date> times = getTimes(year);
+        Record accumulated = new Record();
+        Record eroded = new Record();
+        List<Double> values = new ArrayList<>();
+        for (Date date : times) {
+            Record rec10 = Db.findFirst("SELECT value FROM tr_tk_accumulated where tk_id = ? and time = ?", id, date);
+            Record rec40 = Db.findFirst("SELECT value FROM tr_tk_eroded where tk_id = ? and time = ?", id, date);
+            if (rec10 == null) {
+                accumulated.set(sdf.format(date), 0);
+            } else {
+                accumulated.set(sdf.format(date), Double.valueOf(rec10.getStr("value")));
+                values.add(Double.valueOf(rec10.getStr("value")));
+            }
+            if (rec40 == null) {
+                eroded.set(sdf.format(date), 0);
+            } else {
+                eroded.set(sdf.format(date), Double.valueOf(rec40.getStr("value")));
+                values.add(Double.valueOf(rec40.getStr("value")));
+            }
+        }
+        Double max = 0.0;
+        if (values.size() > 0) {
+            max = Collections.max(values);
+        }
+        return Ret.ok("accumulated", accumulated).set("eroded", eroded).set("max", max);
+    }
+
+    @Override
     public Ret searchJwAndJy(Integer id, Integer year, Integer type) {
         if (id == null) {
             return Ret.fail("errorMsg", "请选择地块");
