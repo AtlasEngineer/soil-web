@@ -42,7 +42,7 @@ public interface DataEachService extends LambkitService<DataEach> {
     public Ret getYears();
 
     /**
-     * 查询指定地块的，一年的温度湿度统计
+     * 查询指定地块的，一年的积温积雨统计
      * @param id
      * @return
      */

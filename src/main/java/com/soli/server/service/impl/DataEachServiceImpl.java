@@ -25,6 +25,7 @@ import com.lambkit.core.aop.AopKit;
 
 import com.soli.server.service.DataEachService;
 import com.soli.server.model.DataEach;
+import com.soli.server.utils.Arith;
 import com.soli.server.utils.ReadTiffUtils;
 import com.vividsolutions.jts.io.ParseException;
 import org.opengis.referencing.operation.TransformException;
@@ -81,20 +82,29 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         Record eroded = new Record();
         List<Double> accumulatedValues = new ArrayList<>();
         List<Double> erodedValues = new ArrayList<>();
+
+        //积温
+        Double acc = 0.0;
+        //积雨
+        Double ero = 0.0;
         for (Date date : times) {
             Record rec10 = Db.findFirst("SELECT value FROM tr_tk_accumulated where tk_id = ? and time = ?", id, date);
             Record rec40 = Db.findFirst("SELECT value FROM tr_tk_eroded where tk_id = ? and time = ?", id, date);
             if (rec10 == null) {
                 accumulated.set(sdf.format(date), 0);
             } else {
-                accumulated.set(sdf.format(date), Double.valueOf(rec10.getStr("value")));
-                accumulatedValues.add(Double.valueOf(rec10.getStr("value")));
+                Double value = Double.valueOf(rec10.getStr("value"));
+                acc = Arith.add(acc,value);
+                accumulated.set(sdf.format(date), acc);
+                accumulatedValues.add(acc);
             }
             if (rec40 == null) {
                 eroded.set(sdf.format(date), 0);
             } else {
-                eroded.set(sdf.format(date), Double.valueOf(rec40.getStr("value")));
-                erodedValues.add(Double.valueOf(rec40.getStr("value")));
+                Double value = Double.valueOf(rec40.getStr("value"));
+                ero = Arith.add(ero,value);
+                eroded.set(sdf.format(date), ero);
+                erodedValues.add(Double.valueOf(ero));
             }
         }
         Double accumulatedMax = 0.0;
