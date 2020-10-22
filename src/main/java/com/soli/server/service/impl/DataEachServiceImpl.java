@@ -209,7 +209,7 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         List<Record> records = Db.find("select * from tr_data_each where data_id in (48,47,92,94,95,98)");
         for (Record record : records) {
             String url = record.getStr("url").split(":")[1];
-            readQwAndSd(wkt, root + "/d/" + url + "/" + url + ".tif", record.getInt("id"), record.getDate("data_time"));
+            readQwAndSd(wkt, root + "/d/" + url + "/" + url + ".tif", record.getInt("data_id"), record.getDate("data_time"));
         }
         return Ret.ok();
     }

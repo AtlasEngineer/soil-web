@@ -456,7 +456,7 @@ public class WeatherController extends LambkitController {
             List<Record> records = Db.find("select * from tr_data_each where data_id in (48,47,92,94,95,98)");
             for (Record record_new : records) {
                 String url_new = record_new.getStr("url").split(":")[1];
-                readQwAndSd(wkt, root + "/d/" + url_new + "/" + url_new + ".tif", record_new.getInt("id"), record_new.getDate("data_time"));
+                readQwAndSd(wkt, root + "/d/" + url_new + "/" + url_new + ".tif", record_new.getInt("data_id"), record_new.getDate("data_time"));
             }
             renderJson(Co.ok("data", Ret.ok()));
             return;
