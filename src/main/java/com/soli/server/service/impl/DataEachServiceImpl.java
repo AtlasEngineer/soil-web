@@ -25,6 +25,7 @@ import com.lambkit.core.aop.AopKit;
 
 import com.soli.server.service.DataEachService;
 import com.soli.server.model.DataEach;
+import com.soli.server.utils.Arith;
 import com.soli.server.utils.ReadTiffUtils;
 import com.vividsolutions.jts.io.ParseException;
 import org.opengis.referencing.operation.TransformException;
@@ -68,6 +69,57 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
     }
 
     @Override
+    public Ret searchAccumulatedAndEroded(Integer id, Integer year) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择地块");
+        }
+        if (year == null) {
+            return Ret.fail("errorMsg", "请选择年份");
+        }
+        //获取当前时间往前一年的时间
+        List<Date> times = getTimes(year);
+        Record accumulated = new Record();
+        Record eroded = new Record();
+        List<Double> accumulatedValues = new ArrayList<>();
+        List<Double> erodedValues = new ArrayList<>();
+
+        //积温
+        Double acc = 0.0;
+        //积雨
+        Double ero = 0.0;
+        for (Date date : times) {
+            Record rec10 = Db.findFirst("SELECT value FROM tr_tk_accumulated where tk_id = ? and time = ?", id, date);
+            Record rec40 = Db.findFirst("SELECT value FROM tr_tk_eroded where tk_id = ? and time = ?", id, date);
+            if (rec10 == null) {
+                accumulated.set(sdf.format(date), 0);
+            } else {
+                Double value = Double.valueOf(rec10.getStr("value"));
+                acc = Arith.add(acc,value);
+                accumulated.set(sdf.format(date), acc);
+                accumulatedValues.add(acc);
+            }
+            if (rec40 == null) {
+                eroded.set(sdf.format(date), 0);
+            } else {
+                Double value = Double.valueOf(rec40.getStr("value"));
+                ero = Arith.add(ero,value);
+                eroded.set(sdf.format(date), ero);
+                erodedValues.add(Double.valueOf(ero));
+            }
+        }
+        Double accumulatedMax = 0.0;
+        if (accumulatedValues.size() > 0) {
+            accumulatedMax = Collections.max(accumulatedValues);
+        }
+        Double erodedMax = 0.0;
+        if (erodedValues.size() > 0) {
+            erodedMax = Collections.max(erodedValues);
+        }
+        return Ret.ok("accumulated", accumulated).set("eroded", eroded)
+                .set("accumulatedMax", accumulatedMax).set("erodedMax", erodedMax);
+    }
+
+    @Override
     public Ret searchJwAndJy(Integer id, Integer year, Integer type) {
         if (id == null) {
             return Ret.fail("errorMsg", "请选择地块");
@@ -104,7 +156,11 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
                 values.add(Double.valueOf(rec10.getStr("value")));
             }
         }
-        Double max = Collections.max(values);
+        Double max = 0.0;
+        if (values.size() > 0) {
+            max = Collections.max(values);
+        }
+
         return Ret.ok("list10", record10).set("list40", record40).set("max", max);
     }
 

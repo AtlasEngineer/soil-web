@@ -38,6 +38,11 @@ public class DataEachServiceMock extends BaseServiceMock<DataEach> implements Da
     }
 
     @Override
+    public Ret searchAccumulatedAndEroded(Integer id, Integer year) {
+        return null;
+    }
+
+    @Override
     public Ret searchJwAndJy(Integer id, Integer year, Integer type) {
         return null;
     }

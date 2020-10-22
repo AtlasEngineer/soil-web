@@ -78,7 +78,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         if (id == null) {
             return Ret.fail("errorMsg", "请选择数据");
         }
-        //高分和哨兵数据,无人机(目前就当无人机数据是正四边形的-刘阳)
+        //高分和哨兵1数据,无人机(目前就当无人机数据是正四边形的-刘阳)
         List<Record> gf_sb = Db.find("SELECT e.*,d.name as dir_name FROM " +
                 " (((select data_id,max(data_time) from tr_data_each GROUP BY data_id) b " +
                 " LEFT JOIN tr_data_each e ON e.data_time = b.max and b.data_id =  e.data_id) " +
@@ -90,11 +90,17 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 " concat_ws ( ' ', e.\"bottomRightLongitude\", e.\"bottomRightLatitude\" ), " +
                 " concat_ws ( ' ', e.\"bottomLeftLongitude\", e.\"bottomLeftLatitude\" ), " +
                 " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )),'))'), 4326 ))" +
-                " where (e.TYPE IN ( 3, 4 ) or e.data_id = 88) AND t.id = ?", id);
-        //哨兵2待确认
+                " where (e.TYPE IN ( 3, 4  ) or e.data_id = 88) AND t.id = ?", id);
+        //哨兵2
+        Record record = Db.findFirst("SELECT e.*,d.name as dir_name FROM ((tr_data_each e LEFT JOIN tr_data d ON d.id = e.data_id) LEFT JOIN tr_tiankuai T " +
+                " ON ST_Intersects (T.geom,st_geometryfromtext ( concat_ws ( '', 'POLYGON((', e.latlons, '))' ),4326) ))  " +
+                " WHERE e.data_id = 84 AND T.ID = 35 ORDER BY e.data_time DESC");
+        if (record != null) {
+            gf_sb.add(record);
+        }
         //landset待添加
 
-        return Ret.ok("list",gf_sb);
+        return Ret.ok("list", gf_sb);
     }
 
     @Override
@@ -103,7 +109,8 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择数据");
         }
         Data data = Data.service().dao().findById(id);
-        if (data.getType() == 3 || data.getType() == 4) {
+        //高分、哨兵1，哨兵2-84，landset
+        if (data.getType() == 3 || data.getType() == 4 || data.getId() == 84) {
             //获取当前系统时间最近15天的数据
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 15);
@@ -112,27 +119,48 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             List<Double> lon = new ArrayList<>();
             List<Double> lat = new ArrayList<>();
             for (DataEach dataEach : data_time_desc) {
-                lon.add(Double.valueOf(dataEach.getStr("topLeftLongitude")));
-                lon.add(Double.valueOf(dataEach.getStr("topRightLongitude")));
-                lon.add(Double.valueOf(dataEach.getStr("bottomRightLongitude")));
-                lon.add(Double.valueOf(dataEach.getStr("bottomLeftLongitude")));
+                if (data.getId() == 84) {
+                    //哨兵2包围盒
+                    String latlons = dataEach.getStr("latlons");
+                    Record first = Db.findFirst(" select st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom) " +
+                            "from (SELECT st_envelope(st_geometryfromtext('polygon((" + latlons + "))')) as geom) as a");
+                    lon.add(Double.valueOf(first.getDouble("st_xmax")));
+                    lon.add(Double.valueOf(first.getDouble("st_xmin")));
 
-                lat.add(Double.valueOf(dataEach.getStr("topLeftLatitude")));
-                lat.add(Double.valueOf(dataEach.getStr("topRightLatitude")));
-                lat.add(Double.valueOf(dataEach.getStr("bottomRightLatitude")));
-                lat.add(Double.valueOf(dataEach.getStr("bottomLeftLatitude")));
+                    lat.add(Double.valueOf(first.getDouble("st_ymin")));
+                    lat.add(Double.valueOf(first.getDouble("st_ymax")));
+
+                } else {
+                    lon.add(Double.valueOf(dataEach.getStr("topLeftLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("topRightLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("bottomRightLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("bottomLeftLongitude")));
+
+                    lat.add(Double.valueOf(dataEach.getStr("topLeftLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("topRightLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("bottomRightLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("bottomLeftLatitude")));
+                }
             }
-            Double min_lon = Collections.min(lon);
-            Double max_lon = Collections.max(lon);
-            Double min_lat = Collections.min(lat);
-            Double max_lat = Collections.min(lat);
+            Double min_lon = null;
+            Double max_lon = null;
+            Double min_lat = null;
+            Double max_lat = null;
+            if (lon.size() > 0) {
+                min_lon = Collections.min(lon);
+                max_lon = Collections.max(lon);
+            }
+            if (lat.size() > 0) {
+                min_lat = Collections.min(lat);
+                max_lat = Collections.min(lat);
+            }
             if (data_time_desc == null) {
                 return Ret.fail("errorMsg", "暂无数据");
             } else {
-                return Ret.ok("data", data_time_desc).set("min_lon",min_lon).set("max_lon",max_lon).set("min_lat",min_lat).set("max_lat",max_lat);
+                return Ret.ok("data", data_time_desc).set("min_lon", min_lon).set("max_lon", max_lon).set("min_lat", min_lat).set("max_lat", max_lat);
             }
-        } else if("无人机数据".equals(data.getName())){
-                //最新一天的所有数据
+        } else if ("无人机数据".equals(data.getName())) {
+            //最新一天的所有数据
             DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
             if (data_time_desc == null) {
                 return Ret.fail("errorMsg", "暂无数据");
@@ -140,7 +168,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(data.getId()).andDataTimeEqualTo(data_time_desc.getDataTime()).example());
                 List<Double> lon = new ArrayList<>();
                 List<Double> lat = new ArrayList<>();
-                String webRootPath = PathKit.getWebRootPath().replace("\\","/");
+                String webRootPath = PathKit.getWebRootPath().replace("\\", "/");
                 for (DataEach dataEach : dataEaches) {
 //                    Kv tiffXY = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + dataEach.getUrl().split(":")[1] + "/" + dataEach.getUrl().split(":")[1] + ".tif");
 //                    lon.add(tiffXY.getNumber("minY").doubleValue());
@@ -162,7 +190,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 Double max_lon = Collections.max(lon);
                 Double min_lat = Collections.min(lat);
                 Double max_lat = Collections.min(lat);
-                return Ret.ok("data", dataEaches).set("min_lon",min_lon).set("max_lon",max_lon).set("min_lat",min_lat).set("max_lat",max_lat);
+                return Ret.ok("data", dataEaches).set("min_lon", min_lon).set("max_lon", max_lon).set("min_lat", min_lat).set("max_lat", max_lat);
             }
         } else {
             DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
