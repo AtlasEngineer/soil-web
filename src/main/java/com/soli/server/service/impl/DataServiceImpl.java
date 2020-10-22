@@ -152,7 +152,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             }
             if (lat.size() > 0) {
                 min_lat = Collections.min(lat);
-                max_lat = Collections.min(lat);
+                max_lat = Collections.max(lat);
             }
             if (data_time_desc == null) {
                 return Ret.fail("errorMsg", "暂无数据");
