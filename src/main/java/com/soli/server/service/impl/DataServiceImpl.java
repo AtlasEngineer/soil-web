@@ -78,7 +78,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         if (id == null) {
             return Ret.fail("errorMsg", "请选择数据");
         }
-        //高分和哨兵数据,无人机(目前就当无人机数据是正四边形的-刘阳)
+        //高分和哨兵1数据,无人机(目前就当无人机数据是正四边形的-刘阳)
         List<Record> gf_sb = Db.find("SELECT e.*,d.name as dir_name FROM " +
                 " (((select data_id,max(data_time) from tr_data_each GROUP BY data_id) b " +
                 " LEFT JOIN tr_data_each e ON e.data_time = b.max and b.data_id =  e.data_id) " +
@@ -90,8 +90,14 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 " concat_ws ( ' ', e.\"bottomRightLongitude\", e.\"bottomRightLatitude\" ), " +
                 " concat_ws ( ' ', e.\"bottomLeftLongitude\", e.\"bottomLeftLatitude\" ), " +
                 " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )),'))'), 4326 ))" +
-                " where (e.TYPE IN ( 3, 4 ) or e.data_id = 88) AND t.id = ?", id);
-        //哨兵2待确认
+                " where (e.TYPE IN ( 3, 4  ) or e.data_id = 88) AND t.id = ?", id);
+        //哨兵2
+        Record record = Db.findFirst("SELECT e.*,d.name as dir_name FROM ((tr_data_each e LEFT JOIN tr_data d ON d.id = e.data_id) LEFT JOIN tr_tiankuai T " +
+                " ON ST_Intersects (T.geom,st_geometryfromtext ( concat_ws ( '', 'POLYGON((', e.latlons, '))' ),4326) ))  " +
+                " WHERE e.data_id = 84 AND T.ID = 35 ORDER BY e.data_time DESC");
+        if (record != null) {
+            gf_sb.add(record);
+        }
         //landset待添加
 
         return Ret.ok("list", gf_sb);
@@ -113,9 +119,9 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             List<Double> lon = new ArrayList<>();
             List<Double> lat = new ArrayList<>();
             for (DataEach dataEach : data_time_desc) {
-                if(data.getId() == 84){
+                if (data.getId() == 84) {
                     //哨兵2包围盒
-                    String latlons = data.getStr("latlons");
+                    String latlons = dataEach.getStr("latlons");
                     Record first = Db.findFirst(" select st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom) " +
                             "from (SELECT st_envelope(st_geometryfromtext('polygon((" + latlons + "))')) as geom) as a");
                     lon.add(Double.valueOf(first.getDouble("st_xmax")));
@@ -124,7 +130,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     lat.add(Double.valueOf(first.getDouble("st_ymin")));
                     lat.add(Double.valueOf(first.getDouble("st_ymax")));
 
-                }else{
+                } else {
                     lon.add(Double.valueOf(dataEach.getStr("topLeftLongitude")));
                     lon.add(Double.valueOf(dataEach.getStr("topRightLongitude")));
                     lon.add(Double.valueOf(dataEach.getStr("bottomRightLongitude")));
