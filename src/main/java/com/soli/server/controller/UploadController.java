@@ -114,7 +114,14 @@ public class UploadController extends LambkitController {
             } else if (type == 3) {
                 filename = "GF-" + UUID.randomUUID().toString() + ".tar.gz";
             } else if (type == 4) {
-                filename = "SB-" + filename;
+                if (id == 82) {
+                    //landset
+                    filename = "landset-" + filename;
+                }else{
+                    filename = "SB1-" + filename;
+                }
+            } else if (type == 6) {
+                filename = "SB2-" + filename;
             }
             boolean b = file.renameTo(new File(rootPath + filename));
             if (!b) {
@@ -217,22 +224,22 @@ public class UploadController extends LambkitController {
                             Kv tiffXY = ReadTiffUtils.getTiffXY(tifPath);
                             kv.set(tiffXY);
                         } else if ("10cm土壤温度".equals(data.getName())) {
-                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_temperature",data_time,10);
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_temperature", data_time, 10);
                             kv.set(readQwAndSd);
                         } else if ("0-10cm土壤湿度".equals(data.getName())) {
-                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_humidity",data_time,10);
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_humidity", data_time, 10);
                             kv.set(readQwAndSd);
                         } else if ("40cm土壤温度".equals(data.getName())) {
-                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_temperature",data_time,40);
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_temperature", data_time, 40);
                             kv.set(readQwAndSd);
                         } else if ("10-40cm土壤湿度".equals(data.getName())) {
-                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_humidity",data_time,40);
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_humidity", data_time, 40);
                             kv.set(readQwAndSd);
-                        }else if ("积温".equals(data.getName())) {
-                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_accumulated",data_time,0);
+                        } else if ("积温".equals(data.getName())) {
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_accumulated", data_time, 0);
                             kv.set(readQwAndSd);
                         } else if ("积雨".equals(data.getName())) {
-                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_eroded",data_time,0);
+                            Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_eroded", data_time, 0);
                             kv.set(readQwAndSd);
                         }
                     } catch (Exception e) {
@@ -271,8 +278,8 @@ public class UploadController extends LambkitController {
                 //高分数据
                 GzUtils.readTarFile(file);
                 name = file.getName().substring(0, file.getName().indexOf(".tar.gz"));
-            } else if (type == 4) {
-                //哨兵数据
+            } else if (type == 6) {
+                //哨兵2数据
                 //解压后文件夹
                 String s = root + "/d/" + name;
                 try {
@@ -316,7 +323,7 @@ public class UploadController extends LambkitController {
                 dataEach.setUrl("/upload/datafile/" + filename);
             } else if (type == 3) {
                 dataEach.setUrl("/d/" + name + "/" + name + ".jpg");
-            } else if (type == 4) {
+            } else if (type == 6) {
                 dataEach.setUrl("/d/" + name + "/INSPIRE.xml");
             }
             boolean save = dataEach.save();
@@ -333,7 +340,7 @@ public class UploadController extends LambkitController {
                         kv1 = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + dataEach1.getUrl().split(":")[1] + "/" + dataEach1.getUrl().split(":")[1] + ".tif");
                     } else if (type1 == 3) {
                         kv1 = ReadTiffUtils.getXmlLatlons(root + "/d/" + name + "/" + name + ".xml");
-                    } else if (type1 == 4) {
+                    } else if (type1 == 6) {
                         SAXReader reader = new SAXReader();
                         Document doc = null;
                         try {
@@ -366,7 +373,7 @@ public class UploadController extends LambkitController {
     }
 
     //更新所有地块的温度或湿度数据
-    public static Kv readQwAndSd(String filePath, String tableName, Date time,int height) {
+    public static Kv readQwAndSd(String filePath, String tableName, Date time, int height) {
         //1、获取地块wkt
         List<Record> records = Db.find("select id,st_astext(geom) as wkt,dk_name from tr_tiankuai");
         Kv kv = Kv.create();
@@ -378,10 +385,10 @@ public class UploadController extends LambkitController {
             //读取当前日期文件两个数据像素值
             try {
                 double v10 = ReadTiffUtils.getAltitudeByWkt(wkt, filePath);
-                Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + time + "' and type = '"+height+"' ");
+                Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + time + "' and type = '" + height + "' ");
                 if (first == null) {
-                    Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + time + "','"+height+"')");
-                    kv.set(dk_name + ","+height, v10);
+                    Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + time + "','" + height + "')");
+                    kv.set(dk_name + "," + height, v10);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

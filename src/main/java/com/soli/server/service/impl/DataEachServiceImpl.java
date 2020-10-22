@@ -157,7 +157,7 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
             }
         }
         Double max = 0.0;
-        if (values.size() > 0) { 
+        if (values.size() > 0) {
             max = Collections.max(values);
         }
 

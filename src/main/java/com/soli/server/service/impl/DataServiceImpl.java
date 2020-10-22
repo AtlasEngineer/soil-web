@@ -94,7 +94,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         //哨兵2待确认
         //landset待添加
 
-        return Ret.ok("list",gf_sb);
+        return Ret.ok("list", gf_sb);
     }
 
     @Override
@@ -103,7 +103,8 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择数据");
         }
         Data data = Data.service().dao().findById(id);
-        if (data.getType() == 3 || data.getType() == 4) {
+        //高分、哨兵1，哨兵2-84，landset
+        if (data.getType() == 3 || data.getType() == 4 || data.getId() == 84) {
             //获取当前系统时间最近15天的数据
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 15);
@@ -112,27 +113,47 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             List<Double> lon = new ArrayList<>();
             List<Double> lat = new ArrayList<>();
             for (DataEach dataEach : data_time_desc) {
-                lon.add(Double.valueOf(dataEach.getStr("topLeftLongitude")));
-                lon.add(Double.valueOf(dataEach.getStr("topRightLongitude")));
-                lon.add(Double.valueOf(dataEach.getStr("bottomRightLongitude")));
-                lon.add(Double.valueOf(dataEach.getStr("bottomLeftLongitude")));
+                if(data.getId() == 84){
+                    lon.add(Double.valueOf(dataEach.getStr("topLeftLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("topRightLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("bottomRightLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("bottomLeftLongitude")));
 
-                lat.add(Double.valueOf(dataEach.getStr("topLeftLatitude")));
-                lat.add(Double.valueOf(dataEach.getStr("topRightLatitude")));
-                lat.add(Double.valueOf(dataEach.getStr("bottomRightLatitude")));
-                lat.add(Double.valueOf(dataEach.getStr("bottomLeftLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("topLeftLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("topRightLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("bottomRightLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("bottomLeftLatitude")));
+                }else{
+                    //哨兵2包围盒
+                    String latlons = data.getStr("latlons");
+                    Record first = Db.findFirst(" select st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom) " +
+                            "from (SELECT st_envelope(st_geometryfromtext('polygon((" + latlons + "))')) as geom) as a");
+                    lon.add(Double.valueOf(first.getDouble("st_xmax")));
+                    lon.add(Double.valueOf(first.getDouble("st_xmin")));
+
+                    lat.add(Double.valueOf(first.getDouble("st_ymin")));
+                    lat.add(Double.valueOf(first.getDouble("st_ymax")));
+                }
             }
-            Double min_lon = Collections.min(lon);
-            Double max_lon = Collections.max(lon);
-            Double min_lat = Collections.min(lat);
-            Double max_lat = Collections.min(lat);
+            Double min_lon = null;
+            Double max_lon = null;
+            Double min_lat = null;
+            Double max_lat = null;
+            if (lon.size() > 0) {
+                min_lon = Collections.min(lon);
+                max_lon = Collections.max(lon);
+            }
+            if (lat.size() > 0) {
+                min_lat = Collections.min(lat);
+                max_lat = Collections.min(lat);
+            }
             if (data_time_desc == null) {
                 return Ret.fail("errorMsg", "暂无数据");
             } else {
-                return Ret.ok("data", data_time_desc).set("min_lon",min_lon).set("max_lon",max_lon).set("min_lat",min_lat).set("max_lat",max_lat);
+                return Ret.ok("data", data_time_desc).set("min_lon", min_lon).set("max_lon", max_lon).set("min_lat", min_lat).set("max_lat", max_lat);
             }
-        } else if("无人机数据".equals(data.getName())){
-                //最新一天的所有数据
+        } else if ("无人机数据".equals(data.getName())) {
+            //最新一天的所有数据
             DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
             if (data_time_desc == null) {
                 return Ret.fail("errorMsg", "暂无数据");
@@ -140,7 +161,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(data.getId()).andDataTimeEqualTo(data_time_desc.getDataTime()).example());
                 List<Double> lon = new ArrayList<>();
                 List<Double> lat = new ArrayList<>();
-                String webRootPath = PathKit.getWebRootPath().replace("\\","/");
+                String webRootPath = PathKit.getWebRootPath().replace("\\", "/");
                 for (DataEach dataEach : dataEaches) {
 //                    Kv tiffXY = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + dataEach.getUrl().split(":")[1] + "/" + dataEach.getUrl().split(":")[1] + ".tif");
 //                    lon.add(tiffXY.getNumber("minY").doubleValue());
@@ -162,7 +183,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 Double max_lon = Collections.max(lon);
                 Double min_lat = Collections.min(lat);
                 Double max_lat = Collections.min(lat);
-                return Ret.ok("data", dataEaches).set("min_lon",min_lon).set("max_lon",max_lon).set("min_lat",min_lat).set("max_lat",max_lat);
+                return Ret.ok("data", dataEaches).set("min_lon", min_lon).set("max_lon", max_lon).set("min_lat", min_lat).set("max_lat", max_lat);
             }
         } else {
             DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
