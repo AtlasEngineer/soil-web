@@ -209,13 +209,13 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         List<Record> records = Db.find("select * from tr_data_each where data_id in (48,47,92,94,95,98)");
         for (Record record : records) {
             String url = record.getStr("url").split(":")[1];
-            readQwAndSd(wkt, root + "/d/" + url + "/" + url + ".tif", record.getInt("data_id"), record.getDate("data_time"));
+            readQwAndSd(wkt, root + "/d/" + url + "/" + url + ".tif", record.getInt("data_id"), record.getDate("data_time"), id);
         }
         return Ret.ok();
     }
 
     //更新所有地块的温度或湿度数据
-    public static Kv readQwAndSd(String wkt, String path, Integer id, Date time) {
+    public static Kv readQwAndSd(String wkt, String path, Integer id, Date time,Integer tk_id) {
         String tableName = null;
         Integer height = null;
         if (id == 48) {
@@ -242,9 +242,9 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
         //读取当前日期文件两个数据像素值
         try {
             double v10 = ReadTiffUtils.getAltitudeByWkt(wkt, path);
-            Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + id + "' and time = '" + time + "' and type = '" + height + "' ");
+            Record first = Db.findFirst("select * from " + tableName + " where tk_id = '" + tk_id + "' and time = '" + time + "' and type = '" + height + "' ");
             if (first == null) {
-                Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + id + "','" + v10 + "','" + time + "','" + height + "')");
+                Db.update("insert into " + tableName + "(tk_id,value,time,type) values('" + tk_id + "','" + v10 + "','" + time + "','" + height + "')");
             }
         } catch (Exception e) {
             e.printStackTrace();
