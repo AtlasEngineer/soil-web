@@ -161,6 +161,9 @@ public class HnwJgpzServiceImpl extends LambkitModelServiceImpl<HnwJgpz> impleme
 		}
 
 		Record record=Db.findFirst("select * from tr_ch_county WHERE ST_Contains(geom,(SELECT geom FROM tr_tiankuai WHERE id = "+id+")) ");
+		if(record==null){
+			return  Ret.fail("errorMsg","暂无数据");
+		}
 
 		StringBuffer stringBuffer=new StringBuffer();
 
