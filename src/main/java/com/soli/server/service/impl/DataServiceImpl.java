@@ -114,16 +114,6 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             List<Double> lat = new ArrayList<>();
             for (DataEach dataEach : data_time_desc) {
                 if(data.getId() == 84){
-                    lon.add(Double.valueOf(dataEach.getStr("topLeftLongitude")));
-                    lon.add(Double.valueOf(dataEach.getStr("topRightLongitude")));
-                    lon.add(Double.valueOf(dataEach.getStr("bottomRightLongitude")));
-                    lon.add(Double.valueOf(dataEach.getStr("bottomLeftLongitude")));
-
-                    lat.add(Double.valueOf(dataEach.getStr("topLeftLatitude")));
-                    lat.add(Double.valueOf(dataEach.getStr("topRightLatitude")));
-                    lat.add(Double.valueOf(dataEach.getStr("bottomRightLatitude")));
-                    lat.add(Double.valueOf(dataEach.getStr("bottomLeftLatitude")));
-                }else{
                     //哨兵2包围盒
                     String latlons = data.getStr("latlons");
                     Record first = Db.findFirst(" select st_xmin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom) " +
@@ -133,6 +123,17 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
 
                     lat.add(Double.valueOf(first.getDouble("st_ymin")));
                     lat.add(Double.valueOf(first.getDouble("st_ymax")));
+
+                }else{
+                    lon.add(Double.valueOf(dataEach.getStr("topLeftLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("topRightLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("bottomRightLongitude")));
+                    lon.add(Double.valueOf(dataEach.getStr("bottomLeftLongitude")));
+
+                    lat.add(Double.valueOf(dataEach.getStr("topLeftLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("topRightLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("bottomRightLatitude")));
+                    lat.add(Double.valueOf(dataEach.getStr("bottomLeftLatitude")));
                 }
             }
             Double min_lon = null;
