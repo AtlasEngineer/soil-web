@@ -60,7 +60,7 @@ public class IssueTiffUtils {
         if (result) {
             Kv sld = createSld(tiffFile, name);
             if (sld.getInt("code") != 200) {
-                return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set(sld);
+                return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 409);
             }else{
                 return Kv.by("msg", "发布成功").set("code", 200).set("sld", sld.get("msg"));
             }
@@ -375,7 +375,7 @@ public class IssueTiffUtils {
             return Kv.by("msg", "生成sld成功:" + path).set("code", "200").set("path", path);
         } catch (Exception e) {
             e.printStackTrace();
-            return Kv.by("msg", "生成sld失败:" + e.getMessage()).set("code", "500").set("Exception", e.getMessage());
+            return Kv.by("msg", "生成sld失败:" + e.getMessage()).set("code", "400").set("Exception", e.getMessage());
         }
     }
 
