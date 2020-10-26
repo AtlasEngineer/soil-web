@@ -19,6 +19,7 @@ import org.dom4j.io.XMLWriter;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.gce.geotiff.GeoTiffReader;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -58,7 +59,11 @@ public class IssueTiffUtils {
         boolean result = geoServerRESTPublisher.publishGeoTIFF(workspace, name, tiffFile);
         if (result) {
             Kv sld = createSld(tiffFile, name);
-            return Kv.by("msg", "发布成功").set("code", 200).set("sld", sld.get("msg"));
+            if (sld.getInt("code") != 200) {
+                return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set(sld);
+            }else{
+                return Kv.by("msg", "发布成功").set("code", 200).set("sld", sld.get("msg"));
+            }
         } else {
             return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 400);
         }
@@ -197,7 +202,7 @@ public class IssueTiffUtils {
             while ((rowValues = reader.nextRecord()) != null) {
                 for (int i = 0; i < rowValues.length; i++) {
                     if (i == index) {
-                        doubles.add(((BigDecimal)rowValues[i]).doubleValue());
+                        doubles.add(((BigDecimal) rowValues[i]).doubleValue());
                     }
                 }
             }
@@ -250,7 +255,7 @@ public class IssueTiffUtils {
             // <Opacity>1.0</Opacity>
             row_nl_us_r_p.addElement("Opacity").addText("1.0");
             Element row_nl_us_r_c_p = row_nl_us_r_p.addElement("ColorMap");
-            row_nl_us_r_c_p.addAttribute("type","values");
+            row_nl_us_r_c_p.addAttribute("type", "values");
             String color = "#ff2626,#ff6c2b,#ffa82b,#ffda2b,#d5ff2b,#a8ff2b,#4eff2b,#2bff9e,#2bffda,#2bf3ff,#2bd5ff,#2bb2ff,#2b8fff,#2b49ff,#762bff,#b22bff,#e42bff,#ff2be9,#ff2bb7,#ff2b76";
             String[] colors = color.split(",");
             for (int i = 0; i < doubles.size(); i++) {
@@ -284,6 +289,8 @@ public class IssueTiffUtils {
 //            TiledImage tiledImage = new TiledImage(sourceImage, true);
             Raster sourceRaster = sourceImage.getData();
 //            WritableRaster writableRaster = tiledImage.copyData();
+//            CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
+
             GridSampleDimension sampleDimension = coverage.getSampleDimension(0);
             //波段数量
             int numBands = sourceRaster.getNumBands();
