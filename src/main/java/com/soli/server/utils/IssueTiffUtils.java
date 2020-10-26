@@ -60,7 +60,7 @@ public class IssueTiffUtils {
             Kv sld = createSld(tiffFile, name);
             return Kv.by("msg", "发布成功").set("code", 200).set("sld", sld.get("msg"));
         } else {
-            return Kv.by("msg", "发布失败").set("code", 400);
+            return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 400);
         }
 //        else {
 //            return Kv.by("msg", "该数据已存在").set("code", 400);
