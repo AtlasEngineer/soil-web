@@ -219,6 +219,10 @@ public class UploadController extends LambkitController {
                     //发布tiff
                     try {
                         kv = IssueTiffUtils.uploadTiff(tifPath, name);
+                        if (kv.getInt("code") != 200) {
+                            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", kv.get("msg"))));
+                            return;
+                        }
                         if ("无人机数据".equals(data.getName())) {
                             //添加最大最小坐标
                             Kv tiffXY = ReadTiffUtils.getTiffXY(tifPath);
@@ -244,11 +248,9 @@ public class UploadController extends LambkitController {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg","请检查数据坐标系等信息").set("code",409)));
+                        return;
                     }
-                }
-                if (kv.getInt("code") != 200) {
-                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", kv.get("msg"))));
-                    return;
                 }
             } else if (type == 2) {
                 //发布表格到数据库
