@@ -61,7 +61,7 @@ public class IssueTiffUtils {
             Kv sld = createSld(tiffFile, name);
             if (sld.getInt("code") != 200) {
                 return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 409);
-            }else{
+            } else {
                 return Kv.by("msg", "发布成功").set("code", 200).set("sld", sld.get("msg"));
             }
         } else {
@@ -307,6 +307,7 @@ public class IssueTiffUtils {
             double[] adsaf = {0};
             double max = 0;
             double min = 0;
+            List<Double> count = new ArrayList();
             for (int i = 0; i < iwidth; i++) {
                 for (int j = 0; j < iheight; j++) {
                     double[] pixel = sourceRaster.getPixel(i, j, adsaf);
@@ -314,18 +315,11 @@ public class IssueTiffUtils {
                     if (nodData == v) {
                         continue;
                     }
-                    if (i == 0 && j == 0) {
-                        max = v;
-                        min = v;
-                    }
-                    if (v > max) {
-                        max = v;
-                    }
-                    if (v < min) {
-                        min = v;
-                    }
+                    count.add(v);
                 }
             }
+            max = Collections.max(count);
+            min = Collections.min(count);
             System.out.println("max:" + max + "---min:" + min);
             double cha = max - min;
             double ji = cha / 4;
