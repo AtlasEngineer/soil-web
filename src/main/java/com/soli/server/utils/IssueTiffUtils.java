@@ -322,7 +322,7 @@ public class IssueTiffUtils {
             min = Collections.min(count);
             System.out.println("max:" + max + "---min:" + min);
             double cha = max - min;
-            double ji = cha / 4;
+            double ji = Arith.div(cha,4,2);
             double[] aa = new double[5];
             for (int i = 0; i < 5; i++) {
                 if (i == 0) {
