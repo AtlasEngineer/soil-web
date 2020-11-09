@@ -119,10 +119,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             List<Double> lon = new ArrayList<>();
             List<Double> lat = new ArrayList<>();
             for (DataEach dataEach : data_time_desc) {
-                Record sld = Db.findFirst("select sld from tr_sld where data_id = ?", data.getId());
-                if (sld != null) {
-                    dataEach.put("sld",sld.getStr("sld"));
-                }
+                dataEach.put("sld",null);
                 if (data.getId() == 84) {
                     //哨兵2包围盒
                     String latlons = dataEach.getStr("latlons");
@@ -174,6 +171,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 List<Double> lat = new ArrayList<>();
                 String webRootPath = PathKit.getWebRootPath().replace("\\", "/");
                 for (DataEach dataEach : dataEaches) {
+                    dataEach.put("sld",null);
 //                    Kv tiffXY = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + dataEach.getUrl().split(":")[1] + "/" + dataEach.getUrl().split(":")[1] + ".tif");
 //                    lon.add(tiffXY.getNumber("minY").doubleValue());
 //                    lon.add(tiffXY.getNumber("maxY").doubleValue());
@@ -198,6 +196,12 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             }
         } else {
             DataEach data_time_desc = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(data.getId()).example().setOrderBy("data_time desc"));
+            Record sld = Db.findFirst("select sld from tr_sld where data_id = ?", data.getId());
+            if (sld != null) {
+                data_time_desc.put("sld",sld.getStr("sld"));
+            }else{
+                data_time_desc.put("sld",null);
+            }
             if (data_time_desc == null) {
                 return Ret.fail("errorMsg", "暂无数据");
             } else {
@@ -320,14 +324,18 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             Integer type1 = data.getType();
             Kv kv = null;
             if (type1 == 0) {
+                data.put("sld",null);
                 kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
             } else if (type1 == 1 || type1 == 5) {
                 Record sld = Db.findFirst("select sld from tr_sld where data_id = ?", data.getId());
                 if (sld != null) {
                     data.put("sld",sld.getStr("sld"));
+                }else{
+                    data.put("sld",null);
                 }
                 kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
             } else if (type1 == 3) {
+                data.put("sld",null);
                 kv = ReadTiffUtils.getXmlLatlons(webRootPath + data.getUrl().replace("jpg", "xml"));
             }
 //            else if (type1 == 4) {
