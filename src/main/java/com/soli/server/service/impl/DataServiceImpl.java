@@ -119,6 +119,10 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             List<Double> lon = new ArrayList<>();
             List<Double> lat = new ArrayList<>();
             for (DataEach dataEach : data_time_desc) {
+                Record sld = Db.findFirst("select sld from tr_sld where data_id = ?", data.getId());
+                if (sld != null) {
+                    dataEach.put("sld",sld.getStr("sld"));
+                }
                 if (data.getId() == 84) {
                     //哨兵2包围盒
                     String latlons = dataEach.getStr("latlons");
@@ -318,6 +322,10 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             if (type1 == 0) {
                 kv = readShp.readShpXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".shp");
             } else if (type1 == 1 || type1 == 5) {
+                Record sld = Db.findFirst("select sld from tr_sld where data_id = ?", data.getId());
+                if (sld != null) {
+                    data.put("sld",sld.getStr("sld"));
+                }
                 kv = ReadTiffUtils.getTiffXY(webRootPath + "/d/" + data.getUrl().split(":")[1] + "/" + data.getUrl().split(":")[1] + ".tif");
             } else if (type1 == 3) {
                 kv = ReadTiffUtils.getXmlLatlons(webRootPath + data.getUrl().replace("jpg", "xml"));

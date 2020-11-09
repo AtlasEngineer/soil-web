@@ -10,6 +10,8 @@ import com.soli.lambkit.start.GeoServerConfig;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.GeoServerRESTReader;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStoreList;
+import it.geosolutions.jaiext.range.NoDataContainer;
+import it.geosolutions.jaiext.range.Range;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -17,12 +19,19 @@ import org.dom4j.Namespace;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.geotools.coverage.GridSampleDimension;
+import org.geotools.coverage.grid.GridCoordinates2D;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.gce.geotiff.GeoTiffReader;
+import org.geotools.image.ImageWorker;
+import org.geotools.resources.coverage.CoverageUtilities;
+import org.locationtech.jts.geom.Geometry;
+import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import javax.media.jai.TiledImage;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.awt.image.WritableRaster;
 import java.io.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -274,6 +283,17 @@ public class IssueTiffUtils {
     }
 
 
+    public static void main(String[] args) {
+
+
+        double dis = 1e-6;
+        double d1 = 0.0000001d;
+        double d2 = 0d;
+        System.out.println(d1 == d2); //直接判断为flase
+        System.out.println(Math.abs(d1 - d2) < dis);    //允许一定的误差范围，判断结果为true
+        createSld(new File("C:\\Users\\xiaoxu\\Desktop\\1002\\GST010_7E3797.tif"), "aaaa");
+    }
+
     /**
      * @return boolean
      * @Author queer
@@ -286,33 +306,44 @@ public class IssueTiffUtils {
             GeoTiffReader reader = new GeoTiffReader(tifFile);
             GridCoverage2D coverage = reader.read(null);
             RenderedImage sourceImage = coverage.getRenderedImage();
-//            TiledImage tiledImage = new TiledImage(sourceImage, true);
+            TiledImage tiledImage = new TiledImage(sourceImage, true);
             Raster sourceRaster = sourceImage.getData();
 //            WritableRaster writableRaster = tiledImage.copyData();
 //            CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
-
             GridSampleDimension sampleDimension = coverage.getSampleDimension(0);
             //波段数量
             int numBands = sourceRaster.getNumBands();
             if (numBands != 1) {
                 return Kv.by("msg", "波段数量:" + numBands).set("code", "400");
             }
+
+            NoDataContainer noDataProperty = CoverageUtilities.getNoDataProperty(coverage);
+            Range asRange = noDataProperty.getAsRange();
+            System.out.println(asRange.getMin());
+
             //No Data
-            double nodData = sampleDimension.getMinimumValue();
+            Double noData = sampleDimension.getMaximumValue();
+            Double noDataValues = sampleDimension.getNoDataValues()[0];
+            System.out.println("noData1:" + noDataValues);
+            System.out.println("noData2:" + noData);
             //获取影像长宽
             int iwidth = sourceImage.getWidth();
             int iheight = sourceImage.getHeight();
             System.out.println("宽：" + iwidth + "----长：" + iheight);
             //获取行列对应的像元值
-            double[] adsaf = {0};
+            float[] adsaf = {0};
             double max = 0;
             double min = 0;
-            List<Double> count = new ArrayList();
+            List<Float> count = new ArrayList();
             for (int i = 0; i < iwidth; i++) {
                 for (int j = 0; j < iheight; j++) {
-                    double[] pixel = sourceRaster.getPixel(i, j, adsaf);
-                    double v = pixel[0];
-                    if (nodData == v) {
+//                    GridCoordinates2D coord = new GridCoordinates2D(i, j);
+//                    DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
+//                    float[] sss = (float[]) coverage.evaluate(tmpPos);
+//                    Float v = sss[0];
+                    sourceRaster.getPixel(i, j, adsaf);
+                    float v = adsaf[0];
+                    if (Math.abs(v-noData.floatValue()) < 1e-6) {
                         continue;
                     }
                     count.add(v);
@@ -322,7 +353,7 @@ public class IssueTiffUtils {
             min = Collections.min(count);
             System.out.println("max:" + max + "---min:" + min);
             double cha = max - min;
-            double ji = Arith.div(cha,4,2);
+            double ji = Arith.div(cha, 4, 2);
             double[] aa = new double[5];
             for (int i = 0; i < 5; i++) {
                 if (i == 0) {
