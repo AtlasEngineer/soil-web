@@ -27,11 +27,13 @@ import org.geotools.geometry.jts.GeometryBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.resources.coverage.CoverageUtilities;
 import org.junit.Test;
 import org.opengis.coverage.ColorInterpretation;
 import org.opengis.coverage.PaletteInterpretation;
 import org.opengis.coverage.SampleDimension;
 import org.opengis.coverage.SampleDimensionType;
+import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -40,9 +42,11 @@ import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.CoordinateSystem;
 import org.opengis.util.InternationalString;
 
 import javax.measure.unit.Unit;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.TiledImage;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -121,28 +125,35 @@ public class Test1 {
                     float[] sss = (float[]) coverage.evaluate(tmpPos);
                     float s = sss[0];
                     if (Math.abs(s - noDataValues.floatValue()) > 1e-6) {
-                        data[j - max_y][i - min_x] =  s;
-                    }else{
+                        data[j - max_y][i - min_x] = s;
+                    } else {
                         data[j - max_y][i - min_x] = noDataValues.floatValue();
                     }
-                }else{
+                } else {
                     data[j - max_y][i - min_x] = noDataValues.floatValue();
                 }
             }
         }
         //导出tiff
         ReferencedEnvelope envelope = new ReferencedEnvelope(min_lon, max_lon, min_lat, max_lat, crs);
-        exportTIFF(writePath, data, envelope,noDataValues);
+        exportTIFF(writePath, data, envelope, noDataValues.floatValue());
     }
 
-    private void exportTIFF(String outputPath, float[][] data, Envelope env,Double nodate) throws Exception {
+    private void exportTIFF(String outputPath, float[][] data, Envelope env, float nodate) throws Exception {
         GridCoverageFactory factory = new GridCoverageFactory();
         CharSequence cs = "test";
+        HashMap properties = new HashMap<>();
+        CoverageUtilities.setNoDataProperty(properties, new NoDataContainer(nodate));
         GridCoverage2D outputCoverage = factory.create(cs, data, env);
         GridSampleDimension sampleDimension = outputCoverage.getSampleDimension(0);
         System.out.println(sampleDimension.getMaximumValue());
+
+//        RenderedImage renderedImage = outputCoverage.getRenderedImage();
+//        PlanarImage t = PlanarImage.wrapRenderedImage(renderedImage);
+//        t.setProperty(NoDataContainer.GC_NODATA, new NoDataContainer(nodate));
+//        renderedImage = t;
 //        Map properties = outputCoverage.getProperties();
-//        properties.put("",nodate);
+//        properties.put(NoDataContainer.GC_NODATA,nodate);
 
         GeoTiffWriter writer = new GeoTiffWriter(new File(outputPath));
         writer.write(outputCoverage, null);

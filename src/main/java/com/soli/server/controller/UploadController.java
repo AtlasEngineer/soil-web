@@ -117,7 +117,7 @@ public class UploadController extends LambkitController {
                 if (id == 82) {
                     //landset
                     filename = "landset-" + filename;
-                }else{
+                } else {
                     filename = "SB1-" + filename;
                 }
             } else if (type == 6) {
@@ -246,9 +246,18 @@ public class UploadController extends LambkitController {
                             Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_eroded", data_time, 0);
                             kv.set(readQwAndSd);
                         }
+                        if(id == 44 ||id == 45||id == 30 ||id == 46 || id == 47 || id == 94 || id == 95||id == 28 || id == 48 || id == 92 || id == 48){
+                            //气象数据重新生成sld
+                            Kv sld = IssueTiffUtils.createFixedSld(id, name);
+                            if (sld.getInt("code") != 200) {
+                                kv = Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 409);
+                            } else {
+                                kv = Kv.by("msg", "发布成功").set("code", 200).set("sld", sld.get("msg"));
+                            }
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg","请检查数据坐标系等信息").set("code",409)));
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请检查数据坐标系等信息").set("code", 409)));
                         return;
                     }
                 }
