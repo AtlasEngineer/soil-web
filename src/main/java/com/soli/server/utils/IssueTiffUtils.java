@@ -472,12 +472,12 @@ public class IssueTiffUtils {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(200)).addAttribute("label", "200");
             }
             if (id == 44) {
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1483ff").addAttribute("quantity", String.valueOf(1000)).addAttribute("label", "1000");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(1250)).addAttribute("label", "1250");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1fff14").addAttribute("quantity", String.valueOf(1500)).addAttribute("label", "1500");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(1650)).addAttribute("label", "1650");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(1800)).addAttribute("label", "1800");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#640909").addAttribute("quantity", String.valueOf(2000)).addAttribute("label", "2000");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1483ff").addAttribute("quantity", String.valueOf(10)).addAttribute("label", "10");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(40)).addAttribute("label", "40");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1fff14").addAttribute("quantity", String.valueOf(80)).addAttribute("label", "80");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(120)).addAttribute("label", "120");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(160)).addAttribute("label", "160");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#640909").addAttribute("quantity", String.valueOf(200)).addAttribute("label", "200");
             }
             if (id == 45) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(0)).addAttribute("label", "0");

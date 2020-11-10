@@ -37,6 +37,15 @@ import java.util.Date;
 public interface DataService extends LambkitService<Data> {
 
     /**
+     * 更新ndvi
+     * @param path
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.updateNDVI",useLogin = false)
+    public Ret updateNDVI(String path);
+
+    /**
      * 获取田块相关的遥感数据
      * @param id
      * @return

@@ -74,6 +74,18 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
+    public Ret updateNDVI(String path) {
+        //ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
+        String rootPath = PathKit.getWebRootPath().replace("\\", "/");
+        path = rootPath + path;
+        File directory = new File(path);
+//        directory.get
+
+
+        return Ret.ok();
+    }
+
+    @Override
     public Ret getTkRemoteData(Integer id) {
         if (id == null) {
             return Ret.fail("errorMsg", "请选择数据");

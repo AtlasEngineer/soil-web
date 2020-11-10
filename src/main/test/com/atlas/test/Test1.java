@@ -141,22 +141,13 @@ public class Test1 {
 
     private void exportTIFF(String outputPath, float[][] data, Envelope env, float nodate) throws Exception {
         GridCoverageFactory factory = new GridCoverageFactory();
-        CharSequence cs = "test";
         HashMap properties = new HashMap<>();
         CoverageUtilities.setNoDataProperty(properties, new NoDataContainer(nodate));
-        GridCoverage2D outputCoverage = factory.create(cs, data, env);
-        GridSampleDimension sampleDimension = outputCoverage.getSampleDimension(0);
-        System.out.println(sampleDimension.getMaximumValue());
-
-//        RenderedImage renderedImage = outputCoverage.getRenderedImage();
-//        PlanarImage t = PlanarImage.wrapRenderedImage(renderedImage);
-//        t.setProperty(NoDataContainer.GC_NODATA, new NoDataContainer(nodate));
-//        renderedImage = t;
-//        Map properties = outputCoverage.getProperties();
-//        properties.put(NoDataContainer.GC_NODATA,nodate);
+        GridCoverage2D outputCoverage = factory.create("test", data, env);
+        GridCoverage2D nodata = factory.create("test", outputCoverage.getRenderedImage(), outputCoverage.getEnvelope(), outputCoverage.getSampleDimensions(), null, properties);
 
         GeoTiffWriter writer = new GeoTiffWriter(new File(outputPath));
-        writer.write(outputCoverage, null);
+        writer.write(nodata, null);
         writer.dispose();
     }
 

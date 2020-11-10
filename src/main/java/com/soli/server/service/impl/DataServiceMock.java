@@ -33,6 +33,11 @@ import com.soli.server.service.DataService;
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
 
     @Override
+    public Ret updateNDVI(String path) {
+        return null;
+    }
+
+    @Override
     public Ret getTkRemoteData(Integer id) {
         return null;
     }
