@@ -28,6 +28,7 @@ import com.soli.server.service.ProductService;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author ww
@@ -52,8 +53,13 @@ public class ProductServiceImpl extends LambkitModelServiceImpl implements Produ
 			from += " AND product like '%" + name + "%'";
 		}
 		from += " ORDER BY create_time desc";
-		Page<Record> paginate = Db.paginate(pagenum, pagesize, "select id,product,phenology", from);
-		return Ret.ok("data",paginate);
+		if (pagenum == 0){
+			List<Record> paginate = Db.find("select id,product,phenology", from);
+			return Ret.ok("data",paginate);
+		}else {
+			Page<Record> paginate = Db.paginate(pagenum, pagesize, "select id,product,phenology", from);
+			return Ret.ok("data",paginate);
+		}
 	}
 
 	@Override
@@ -102,16 +108,17 @@ public class ProductServiceImpl extends LambkitModelServiceImpl implements Produ
 	@Override
 	public Ret getPhenologyListByName(String name) {
 		Record first = Db.findFirst("SELECT id, product, phenology FROM tr_product WHERE product = '" + name + "'");
-		String phenology = first.getStr("phenology");
-		if (StringUtils.isNotBlank(phenology)){
-			String[] split = phenology.split(",");
-			first.set("pheList",split);
-		}
-		else {
-			first.set("pheList",new String[0]);
+		if (first != null){
+			String phenology = first.getStr("phenology");
+			if (StringUtils.isNotBlank(phenology)){
+				String[] split = phenology.split(",");
+				first.set("pheList",split);
+			}
+			else {
+				first.set("pheList",new String[0]);
+			}
 		}
 		return Ret.ok("msg",first);
-
 	}
 
 }
