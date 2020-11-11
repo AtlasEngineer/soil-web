@@ -44,16 +44,21 @@ public class UploadController extends LambkitController {
     public void uploadProductExcel(){
         UploadFile uf = getFile();
         File file = uf.getFile();
-        if (file == null || !(file.getName().endsWith("xls")&&file.getName().endsWith("xlsx"))){
+        String name = file.getName();
+        if (file == null){
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "未获取到excel")));
             return;
-        }
-        try {
-            ExcelReaderUtils.productUpload(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidFormatException e) {
-            e.printStackTrace();
+        }else if ((!name.endsWith("xls"))&&(!name.endsWith("xlsx"))){
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "只能导入excel格式数据")));
+            return;
+        }else {
+            try {
+                ExcelReaderUtils.productUpload(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InvalidFormatException e) {
+                e.printStackTrace();
+            }
         }
         renderJson(Co.ok("data", Co.by("state", "ok").set("msg", "保存成功")));
         return;

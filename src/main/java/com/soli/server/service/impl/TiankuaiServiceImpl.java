@@ -19,13 +19,11 @@ import com.jfinal.kit.Kv;
 import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
-import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
 
-import com.soli.server.model.Data;
 import com.soli.server.model.DataEach;
 import com.soli.server.service.TiankuaiService;
 import com.soli.server.model.Tiankuai;
@@ -36,16 +34,12 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
-import org.opengis.feature.Property;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.Filter;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.soli.server.utils.ReadTiffUtils.getTiffXY;
@@ -87,7 +81,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     }
 
     @Override
-    public Ret searchDiseases(String type, String period, Integer pageNum, Integer pageSize) {
+    public Ret searchDiseases(String type, String period) {
 
         if (StringUtils.isBlank(type)) {
             return Ret.fail("errorMsg", "类型不能为空");
@@ -97,18 +91,95 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
         }
         String select = "";
         if ("病害".equals(type)) {
-            select = "SELECT diseases_name,diseases_condition,diseases_methon,type,period,id,del,diseases_symptom";
+            select = "SELECT * from tr_diseases_diseases ";
         }
         if ("虫害".equals(type)) {
-            select = "SELECT pests_name,pests_features,pests_grow,type,period,id,del,pests_harm,pests_methon";
+            select = "SELECT * from tr_diseases_pests ";
         }
         if ("草害".equals(type)) {
-            select = "SELECT grass_name,grass_about,grass_methon,type,period,id,del";
+            select = "SELECT * from tr_diseases_grass ";
         }
 
-        List<Record> page = Db.find( select+" from  tr_diseases where del=0 and type=? and period =?",type,period);
+        List<Record> page = Db.find( select+" where del=0 and type=? and period =? ORDER BY create_time desc",type,period);
 
         return Ret.ok("data",page);
+    }
+
+    @Override
+    public Ret searchDiseasesAdd(String type, String period, String name,
+                                 String about, String feature, String way,
+                                 String condition, String symptom, String grow,
+                                 String harm, String methon) {
+        if (StringUtils.isBlank(type)) {
+            return Ret.fail("errorMsg", "类型不能为空");
+        }
+        if (StringUtils.isBlank(period)) {
+            return Ret.fail("errorMsg", "时期不能为空");
+        }
+        Boolean success = false;
+
+        Record record = new Record();
+        record.set("type",type);
+        record.set("period",period);
+        record.set("del",0);
+        record.set("create_time",new Date());
+        if ("病害".equals(type)) {
+            record.set("diseases_name",name);
+            record.set("diseases_condition",condition);
+            record.set("diseases_methon",methon);
+            record.set("diseases_symptom",symptom);
+            record.set("diseases_feature",feature);
+            record.set("diseases_way",way);
+            success = Db.save("tr_diseases_diseases", record);
+        }
+        if ("虫害".equals(type)) {
+            record.set("pests_name",name);
+            record.set("pests_features",feature);
+            record.set("pests_grow",grow);
+            record.set("pests_harm",harm);
+            record.set("pests_methon",methon);
+            record.set("pests_about",about);
+            success = Db.save("tr_diseases_pests", record);
+        }
+        if ("草害".equals(type)) {
+            record.set("grass_name",name);
+            record.set("grass_about",about);
+            record.set("grass_methon",methon);
+            record.set("grass_harm",harm);
+            record.set("grass_feature",feature);
+            success = Db.save("tr_diseases_grass",record);
+        }
+        if (success){
+            return Ret.ok("msg","添加成功");
+        }else {
+            return Ret.fail("errorMsg", "添加失败");
+        }
+    }
+
+    @Override
+    public Ret searchDiseasesDel(String type, Integer id) {
+        Record record = new Record() ;
+        Boolean success = false;
+        if ("病害".equals(type)) {
+           record = Db.findById("tr_diseases_diseases",id);
+            record.set("del", 1);
+            success = Db.update("tr_diseases_diseases",record);
+        }
+        if ("虫害".equals(type)) {
+            record = Db.findById("tr_diseases_pests",id);
+            record.set("del", 1);
+            success = Db.update("tr_diseases_pests",record);
+        }
+        if ("草害".equals(type)) {
+            record = Db.findById("tr_diseases_grass",id);
+            record.set("del", 1);
+            success = Db.update("tr_diseases_grass",record);
+        }
+        if (success){
+            return Ret.ok("msg","删除成功");
+        }else {
+            return Ret.fail("errorMsg", "删除失败");
+        }
     }
 
 
@@ -330,7 +401,6 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     /**
      * 点查询
      *
-     * @param latlons
      * @param featureSource
      * @return
      * @throws IOException

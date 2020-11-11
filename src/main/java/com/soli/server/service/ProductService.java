@@ -47,6 +47,13 @@ public interface ProductService extends LambkitService {
     public Ret getProductById(Integer id);
 
     /**
+     * 获取作物及物候详情
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "product.add",useLogin = false)
+    public Ret addProduct(String name,String phenology);
+
+    /**
      * 编辑作物及物候详情
      */
     @ApiBody(ApiRenderJFinalJson.class)
