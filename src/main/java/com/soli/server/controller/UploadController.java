@@ -19,12 +19,14 @@ import com.soli.server.model.Data;
 import com.soli.server.model.DataEach;
 import com.soli.server.service.impl.DataEachServiceImpl;
 import com.soli.server.utils.*;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +37,28 @@ import static com.soli.server.utils.CodePageUtils.getUserEntity;
 
 @Clear(JwtTokenInterceptor.class)
 public class UploadController extends LambkitController {
+
+
+    @Clear
+    @ApiOperation(url = "/upload/uploadProductExcel", tag = "/upload", httpMethod = "post", description = "上传数据")
+    public void uploadProductExcel(){
+        UploadFile uf = getFile();
+        File file = uf.getFile();
+        if (file == null || !(file.getName().endsWith("xls")&&file.getName().endsWith("xlsx"))){
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "未获取到excel")));
+            return;
+        }
+        try {
+            ExcelReaderUtils.productUpload(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        }
+        renderJson(Co.ok("data", Co.by("state", "ok").set("msg", "保存成功")));
+        return;
+    }
+
 
     /**
      * @return void

@@ -101,6 +101,7 @@ public class MschModule extends LambkitModule  {
 		ServiceManager.me().mapping(DirectoryService.class, DirectoryServiceImpl.class, DirectoryServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(CatalogueService.class, CatalogueServiceImpl.class, CatalogueServiceMock.class, group, version, port);
 		ServiceManager.me().mapping(DataEachService.class, DataEachServiceImpl.class, DataEachServiceMock.class, group, version, port);
+		ServiceManager.me().mapping(ProductService.class, ProductServiceImpl.class, ProductServiceMock.class, group, version, port);
 	}
 
 	public void registerRemoteService() {
@@ -116,6 +117,7 @@ public class MschModule extends LambkitModule  {
 		ServiceManager.me().remote(DirectoryService.class, DirectoryServiceMock.class, group, version, port);
 		ServiceManager.me().remote(CatalogueService.class, CatalogueServiceMock.class, group, version, port);
 		ServiceManager.me().remote(DataEachService.class, DataEachServiceMock.class, group, version, port);
+		ServiceManager.me().remote(ProductService.class, ProductServiceMock.class, group, version, port);
 	}
 
 	public int getRpcPort() {
