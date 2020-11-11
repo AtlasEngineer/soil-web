@@ -19,13 +19,11 @@ import com.jfinal.kit.Kv;
 import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
-import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.service.LambkitModelServiceImpl;
 import com.lambkit.common.util.StringUtils;
 import com.lambkit.core.aop.AopKit;
 
-import com.soli.server.model.Data;
 import com.soli.server.model.DataEach;
 import com.soli.server.service.TiankuaiService;
 import com.soli.server.model.Tiankuai;
@@ -36,16 +34,12 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
-import org.opengis.feature.Property;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.Filter;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.soli.server.utils.ReadTiffUtils.getTiffXY;
@@ -159,6 +153,32 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             return Ret.ok("msg","添加成功");
         }else {
             return Ret.fail("errorMsg", "添加失败");
+        }
+    }
+
+    @Override
+    public Ret searchDiseasesDel(String type, Integer id) {
+        Record record = new Record() ;
+        Boolean success = false;
+        if ("病害".equals(type)) {
+           record = Db.findById("tr_diseases_diseases",id);
+            record.set("del", 1);
+            success = Db.update("tr_diseases_diseases",record);
+        }
+        if ("虫害".equals(type)) {
+            record = Db.findById("tr_diseases_pests",id);
+            record.set("del", 1);
+            success = Db.update("tr_diseases_pests",record);
+        }
+        if ("草害".equals(type)) {
+            record = Db.findById("tr_diseases_grass",id);
+            record.set("del", 1);
+            success = Db.update("tr_diseases_grass",record);
+        }
+        if (success){
+            return Ret.ok("msg","删除成功");
+        }else {
+            return Ret.fail("errorMsg", "删除失败");
         }
     }
 

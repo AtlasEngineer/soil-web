@@ -53,7 +53,7 @@ public class ProductServiceImpl extends LambkitModelServiceImpl implements Produ
 		}
 		from += " ORDER BY create_time desc";
 		if (pagenum == 0){
-			List<Record> paginate = Db.find("select id,product,phenology", from);
+			List<Record> paginate = Db.find("select id,product,phenology" +  from);
 			return Ret.ok("data",paginate);
 		}else {
 			Page<Record> paginate = Db.paginate(pagenum, pagesize, "select id,product,phenology", from);

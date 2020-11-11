@@ -54,6 +54,10 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
                                 ,String grow,String harm,String methon
     );
 
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "search.diseases.del",useLogin = false)
+    public Ret searchDiseasesDel(String type,Integer id);
+
 
 
 
