@@ -27,6 +27,8 @@ import com.soli.server.service.CatalogueService;
 import com.soli.server.service.ProductService;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Date;
+
 /**
  * @author ww
  * @website: www.lambkit.com
@@ -45,7 +47,11 @@ public class ProductServiceImpl extends LambkitModelServiceImpl implements Produ
 
 	@Override
 	public Ret getProductList(Integer pagenum, Integer pagesize, String name) {
-		String from = " FROM tr_product WHERE del = 0 ORDER BY create_time desc";
+		String from = " FROM tr_product WHERE del = 0 ";
+		if (StringUtils.isNotBlank(name)){
+			from += " AND product like '%" + name + "%'";
+		}
+		from += " ORDER BY create_time desc";
 		Page<Record> paginate = Db.paginate(pagenum, pagesize, "select id,product,phenology", from);
 		return Ret.ok("data",paginate);
 	}
@@ -54,6 +60,21 @@ public class ProductServiceImpl extends LambkitModelServiceImpl implements Produ
 	public Ret getProductById(Integer id) {
 		Record tr_product = Db.findById("tr_product", id);
 		return Ret.ok("data",tr_product);
+	}
+
+	@Override
+	public Ret addProduct(String name, String phenology) {
+		Record tr_product = new Record();
+		tr_product.set("product",name);
+		tr_product.set("phenology",phenology);
+		tr_product.set("create_time",new Date());
+		tr_product.set("del", 0);
+		boolean tr_product1 = Db.save("tr_product", tr_product);
+		if (tr_product1){
+			return Ret.ok("msg","添加成功");
+		}else {
+			return Ret.fail("errorMsg","添加失败");
+		}
 	}
 
 	@Override

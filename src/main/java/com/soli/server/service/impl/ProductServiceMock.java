@@ -47,6 +47,11 @@ public class ProductServiceMock extends LambkitModelServiceImpl implements Produ
 	}
 
 	@Override
+	public Ret addProduct(String name, String phenology) {
+		return null;
+	}
+
+	@Override
 	public Ret updateProduct(Integer id, String name, String phenology) {
 		return null;
 	}
