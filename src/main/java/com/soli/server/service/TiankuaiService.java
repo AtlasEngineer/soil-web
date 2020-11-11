@@ -51,7 +51,7 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
     @ApiMapping(value = "search.diseases.add",useLogin = false)
     public Ret searchDiseasesAdd(String type,String period,String name,
                                  String about,String feature,String way,String condition,String symptom
-            ,String grow,String harm,String methon
+                                ,String grow,String harm,String methon
     );
 
 
