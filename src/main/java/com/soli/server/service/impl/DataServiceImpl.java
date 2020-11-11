@@ -79,9 +79,10 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择更新的数据");
         }
         //获取最新的landset
-        List<DataEach> dataEachs = DataEach.service().dao().find(DataEach.sql().andDataIdIn(ids).example().setOrderBy("data_time desc"));
+        List<DataEach> dataEachs = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(82).andIdIn(ids).example().setOrderBy("data_time desc"));
+        List<NDVIModel> ndviModels = new ArrayList<>();
+        String rootPath = PathKit.getWebRootPath().replace("\\", "/");
         for (DataEach dataEach : dataEachs) {
-            String rootPath = PathKit.getWebRootPath().replace("\\", "/");
             File directory = new File(rootPath + dataEach.getUrl());
             File[] files = directory.listFiles();
             File b5File = null;
@@ -139,19 +140,92 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     }
                     //获取nodata
                     Double noDate = ReadTiffUtils.getNoDate(b4File.getAbsolutePath());
+
+                    NDVIModel ndviModel = new NDVIModel();
+                    ndviModel.setName(directory.getName());
+                    ndviModel.setNoData(noDate);
+                    ndviModel.setData(data);
+                    ndviModel.setGeom(geom);
+                    ndviModel.setTk_id(tk.getInt("gid"));
+                    ndviModel.setPath(writePath);
+                    ndviModel.setData_time(dataEach.getDataTime());
+                    ndviModels.add(ndviModel);
                     //生成tiff
                     ReadTiffUtils.writerTif(geom, data, rootPath + writePath, noDate);
-                    //发布数据
-
-                    //保存数据
-                    Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,url) values('" + tk.getInt("gid") + "','" + dataEach.getDataTime() + "','" + writePath + "')");
+//                    //保存数据
+//                    Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,url) values('" + tk.getInt("gid") + "','" + dataEach.getDataTime() + "','" + writePath + "')");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
-        //并和相交的田块tif
-
+        //并和相交的田块tif----同一数据时间和同一地块
+        List<Integer> list = new ArrayList<>();
+        for (NDVIModel ndviModel : ndviModels) {
+            if (list.contains(ndviModel.getTk_id())) {
+                continue;
+            }
+            for (NDVIModel ndviModel2 : ndviModels) {
+                if (!ndviModel.equals(ndviModel2) && ndviModel.getData_time().equals(ndviModel2.getData_time()) && ndviModel.getTk_id().equals(ndviModel2.getTk_id())) {
+                    //需要合并的
+                    String s = rootPath+ndviModel.getPath().split(".tif")[0]+"_"+ndviModel2.getName()+".tif";
+                    TiffOP.mergeTiff(new File(s),new File(rootPath+ndviModel.getPath()),new File(rootPath+ndviModel2.getPath()));
+                    list.add(ndviModel2.getTk_id());
+                }
+            }
+            //直接生成tiff
+            try {
+                ReadTiffUtils.writerTif(ndviModel.getGeom(), ndviModel.getData(), rootPath + ndviModel.getPath(), ndviModel.getNoData());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //保存数据
+            Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,url) values('" + ndviModel.getTk_id() + "','" + ndviModel.getData_time() + "','" + ndviModel.getPath() + "')");
+            //发布数据
+        }
+//        List<Integer> list = new ArrayList<>();
+//        for (NDVIModel ndviModel : ndviModels) {
+//            if (list.contains(ndviModel.getTk_id())) {
+//                continue;
+//            }
+//            float[][] data = new float[0][];
+//            for (NDVIModel ndviModel2 : ndviModels) {
+//                if (!ndviModel.equals(ndviModel2) && ndviModel.getData_time().equals(ndviModel2.getData_time()) && ndviModel.getTk_id().equals(ndviModel2.getTk_id())) {
+//                    //需要合并的
+////                    TiffOP.mergeTiff()
+//                    float[][] data1 = ndviModel.getData();
+//                    float[][] data2 = ndviModel2.getData();
+//                    data = new float[data1.length][data1[0].length];
+//                    for (int i = 0; i < data1.length; i++) {
+//                        for (int j = 0; j < data1[i].length; j++) {
+//                            float d1 = data1[i][j];
+//                            float d2 = data2[i][j];
+//                            if (d1 == 0) {
+//                                data[i][j] = d2;
+//                            } else if (d2 == 0) {
+//                                data[i][j] = d1;
+//                            } else {
+//                                //取平均值
+//                                Double div = Arith.div(Arith.add(d1, d2), 2);
+//                                data[i][j] = div.floatValue();
+//                            }
+//                        }
+//                    }
+//                    list.add(ndviModel2.getTk_id());
+//                } else {
+//                    data = ndviModel.getData();
+//                }
+//            }
+//            //直接生成tiff
+//            try {
+//                ReadTiffUtils.writerTif(ndviModel.getGeom(), data, rootPath + ndviModel.getPath(), ndviModel.getNoData());
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            //保存数据
+//            Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,url) values('" + ndviModel.getTk_id() + "','" + ndviModel.getData_time() + "','" + ndviModel.getPath() + "')");
+//            //发布数据
+//        }
         return Ret.ok();
     }
 

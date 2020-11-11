@@ -8,6 +8,7 @@ import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import it.geosolutions.jaiext.range.NoDataContainer;
+import org.bytedeco.javacpp.FlyCapture2;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
@@ -83,7 +84,7 @@ public class ReadTiffUtils {
         //导出tiff
         ReferencedEnvelope envelope = new ReferencedEnvelope(minPoint.getX(), maxPoint.getX(), minPoint.getY(), maxPoint.getY(), crs);
         if (noDataValues == null) {
-            exportTIFF(writePath, data, envelope,0);
+            exportTIFF(writePath, data, envelope, 0);
         } else {
             exportTIFF(writePath, data, envelope, noDataValues.floatValue());
         }
@@ -155,7 +156,7 @@ public class ReadTiffUtils {
                     DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
                     double lon = tmpPos.getCoordinate()[0];
                     double lat = tmpPos.getCoordinate()[1];
-                    boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))",32650);
+                    boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))", 32650);
                     if (iscontains) {
                         //面内，赋值像素值
                         int[] sss = (int[]) coverage.evaluate(tmpPos);
@@ -177,6 +178,7 @@ public class ReadTiffUtils {
         }
         return data;
     }
+
 
     /**
      * 投影转换， lon=经度，lat=纬度，ESPG格式（例）：EPSG:4610
