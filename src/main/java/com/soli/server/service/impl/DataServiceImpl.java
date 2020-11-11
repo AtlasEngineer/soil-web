@@ -74,13 +74,83 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
-    public Ret updateNDVI(String path) {
-        //ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
-        String rootPath = PathKit.getWebRootPath().replace("\\", "/");
-        path = rootPath + path;
-        File directory = new File(path);
-//        directory.get
+    public Ret updateNDVI(List<Integer> ids) {
+        if (ids.size() == 0) {
+            return Ret.fail("errorMsg", "请选择更新的数据");
+        }
+        //获取最新的landset
+        List<DataEach> dataEachs = DataEach.service().dao().find(DataEach.sql().andDataIdIn(ids).example().setOrderBy("data_time desc"));
+        for (DataEach dataEach : dataEachs) {
+            String rootPath = PathKit.getWebRootPath().replace("\\", "/");
+            File directory = new File(rootPath + dataEach.getUrl());
+            File[] files = directory.listFiles();
+            File b5File = null;
+            File b4File = null;
+            for (int i = 0; i < files.length; i++) {
+                File file = files[i];
+                if (file.getName().contains("_B5")) {
+                    b5File = file;
+                } else if (file.getName().contains("_B4")) {
+                    b4File = file;
+                }
+            }
+            if (b4File == null) {
+                return Ret.fail("errorMsg", "缺少红外波段数据");
+            }
+            if (b5File == null) {
+                return Ret.fail("errorMsg", "缺少近红外波段数据");
+            }
+            //获取与当前landset数据相交地的包围盒
+//        List<Record> tks = Db.find("SELECT gid,st_astext(geom) FROM tr_tiankuai ORDER BY gid");
+            List<Record> tks = Db.find("SELECT T.gid,st_astext(ST_Transform(T.geom,32650)) as geom FROM " +
+                    " tr_data_each e LEFT JOIN tr_tiankuai T ON ST_Intersects ( T.geom, st_geometryfromtext (concat_ws ( '','POLYGON((', " +
+                    "  concat_ws ( ',', " +
+                    " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" ), " +
+                    " concat_ws ( ' ', e.\"topRightLongitude\", e.\"topRightLatitude\" ), " +
+                    " concat_ws ( ' ', e.\"bottomRightLongitude\", e.\"bottomRightLatitude\" ), " +
+                    " concat_ws ( ' ', e.\"bottomLeftLongitude\", e.\"bottomLeftLatitude\" ), " +
+                    " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )),'))'), 4326 ))" +
+                    " where e.data_id = 82 and T.del = 0 ");
+            for (Record tk : tks) {
+                //获取wkt坐标，读取像素值
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                String writePath = "/ndvi/ndvi_" + sdf.format(dataEach.getDataTime()) + "_" + tk.getInt("gid") + "_" + directory.getName() + ".tif";
+                String geom = tk.getStr("geom");
+                if (geom.contains("MULTIPOLYGON")) {
+                    geom = geom.substring(15, geom.length() - 3);
+                } else if (geom.contains("POLYGON")) {
+                    geom = geom.substring(9, geom.length() - 2);
+                }
+                try {
+                    float[][] ndviParams = ReadTiffUtils.getNDVIParams(geom, b4File);
+                    float[][] ndviParams1 = ReadTiffUtils.getNDVIParams(geom, b5File);
+                    //ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
+                    float[][] data = new float[ndviParams.length][ndviParams[0].length];
+                    for (int i = 0; i < ndviParams.length; i++) {
+                        for (int j = 0; j < ndviParams[i].length; j++) {
+                            float b4 = ndviParams[i][j];
+                            float b5 = ndviParams1[i][j];
+                            double add = Arith.add(b5, b4);
+                            if (add != 0) {
+                                Double div = Arith.div(Arith.sub(b5, b4), add);
+                                data[i][j] = div.floatValue();
+                            }
+                        }
+                    }
+                    //获取nodata
+                    Double noDate = ReadTiffUtils.getNoDate(b4File.getAbsolutePath());
+                    //生成tiff
+                    ReadTiffUtils.writerTif(geom, data, rootPath + writePath, noDate);
+                    //发布数据
 
+                    //保存数据
+                    Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,url) values('" + tk.getInt("gid") + "','" + dataEach.getDataTime() + "','" + writePath + "')");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        //并和相交的田块tif
 
         return Ret.ok();
     }

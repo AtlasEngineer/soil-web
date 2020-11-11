@@ -151,6 +151,7 @@ public class Test1 {
         writer.dispose();
     }
 
+
     @Test
     public void testABS() {
         float a = (float) 1.0E36;

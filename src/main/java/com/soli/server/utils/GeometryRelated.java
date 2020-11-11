@@ -76,6 +76,22 @@ public class GeometryRelated {
      * @param geometry wkt格式
      * @return
      */
+    public static boolean withinGeo(double x,double y,String geometry,int srid) throws ParseException {
+        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), srid);
+        Coordinate coord = new Coordinate(x,y);
+        Point point = geometryFactory.createPoint( coord );
+        WKTReader reader = new WKTReader( geometryFactory );
+        Polygon polygon = (Polygon) reader.read(geometry);
+        return point.within(polygon);
+    }
+
+    /**
+     * 判断以x,y为坐标的点point(x,y)是否在geometry表示的Polygon中
+     * @param x
+     * @param y
+     * @param geometry wkt格式
+     * @return
+     */
     public static boolean withinGeo(double x,double y,String geometry) throws ParseException {
         Coordinate coord = new Coordinate(x,y);
         Point point = geometryFactory.createPoint( coord );
