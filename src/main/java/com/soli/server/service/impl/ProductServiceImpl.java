@@ -27,8 +27,7 @@ import com.soli.server.service.CatalogueService;
 import com.soli.server.service.ProductService;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author ww
@@ -111,8 +110,14 @@ public class ProductServiceImpl extends LambkitModelServiceImpl implements Produ
 		if (first != null){
 			String phenology = first.getStr("phenology");
 			if (StringUtils.isNotBlank(phenology)){
+				List list = new ArrayList();
 				String[] split = phenology.split(",");
-				first.set("pheList",split);
+				for (String str : split) {
+					Map map = new HashMap<>();
+					map.put("name",str);
+					list.add(map);
+				}
+				first.set("pheList",list);
 			}
 			else {
 				first.set("pheList",new String[0]);
