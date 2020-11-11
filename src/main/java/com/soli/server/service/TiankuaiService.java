@@ -45,11 +45,11 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.diseases",useLogin = false)
-    public Ret searchDiseases(String type,String period);
+    public Ret searchDiseases(String type,String period,String crop);
 
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.diseases.add",useLogin = false)
-    public Ret searchDiseasesAdd(String type,String period,String name,
+    public Ret searchDiseasesAdd(String crop,String type,String period,String name,
                                  String about,String feature,String way,String condition,String symptom
                                 ,String grow,String harm,String methon
     );

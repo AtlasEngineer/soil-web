@@ -81,7 +81,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     }
 
     @Override
-    public Ret searchDiseases(String type, String period) {
+    public Ret searchDiseases(String type, String period,String crop) {
 
         if (StringUtils.isBlank(type)) {
             return Ret.fail("errorMsg", "类型不能为空");
@@ -100,13 +100,13 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             select = "SELECT * from tr_diseases_grass ";
         }
 
-        List<Record> page = Db.find( select+" where del=0 and type=? and period =? ORDER BY create_time desc",type,period);
+        List<Record> page = Db.find( select+" where del=0 and type=? and period =? and crop = ? ORDER BY create_time desc",type,period,crop);
 
         return Ret.ok("data",page);
     }
 
     @Override
-    public Ret searchDiseasesAdd(String type, String period, String name,
+    public Ret searchDiseasesAdd(String crop ,String type, String period, String name,
                                  String about, String feature, String way,
                                  String condition, String symptom, String grow,
                                  String harm, String methon) {
@@ -130,6 +130,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             record.set("diseases_symptom",symptom);
             record.set("diseases_feature",feature);
             record.set("diseases_way",way);
+            record.set("crop",crop);
             success = Db.save("tr_diseases_diseases", record);
         }
         if ("虫害".equals(type)) {
@@ -139,6 +140,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             record.set("pests_harm",harm);
             record.set("pests_methon",methon);
             record.set("pests_about",about);
+            record.set("crop",crop);
             success = Db.save("tr_diseases_pests", record);
         }
         if ("草害".equals(type)) {
@@ -147,6 +149,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             record.set("grass_methon",methon);
             record.set("grass_harm",harm);
             record.set("grass_feature",feature);
+            record.set("crop",crop);
             success = Db.save("tr_diseases_grass",record);
         }
         if (success){
