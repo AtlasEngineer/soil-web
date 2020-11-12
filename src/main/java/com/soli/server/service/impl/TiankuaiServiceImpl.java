@@ -186,7 +186,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             record.set("crop",crop);
             record.set("type",type);
             record.set("period",period);
-            success = Db.save("tr_diseases_diseases", record);
+            success = Db.update("tr_diseases_diseases", record);
         }
         if ("虫害".equals(type)) {
             Record record = Db.findById("tr_diseases_pests",id);
@@ -199,7 +199,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             record.set("crop",crop);
             record.set("type",type);
             record.set("period",period);
-            success = Db.save("tr_diseases_pests", record);
+            success = Db.update("tr_diseases_pests", record);
         }
         if ("草害".equals(type)) {
             Record record = Db.findById("tr_diseases_grass",id);
@@ -211,7 +211,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             record.set("crop",crop);
             record.set("type",type);
             record.set("period",period);
-            success = Db.save("tr_diseases_grass",record);
+            success = Db.update("tr_diseases_grass",record);
         }
         if (success){
             return Ret.ok("msg","修改成功");
