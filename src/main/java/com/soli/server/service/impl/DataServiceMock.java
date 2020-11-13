@@ -35,6 +35,11 @@ import java.util.List;
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
 
     @Override
+    public Ret updateNDVI2(List<Integer> ids) {
+        return null;
+    }
+
+    @Override
     public Ret updateNDVI(List<Integer> ids) {
         return null;
     }

@@ -44,9 +44,15 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.data.DataSourceException;
+import org.geotools.gce.geotiff.GeoTiffReader;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
@@ -71,6 +77,157 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             DAO = AopKit.singleton(Data.class);
         }
         return DAO;
+    }
+
+    public Ret updateNDVI2(List<Integer> ids) {
+        if (ids.size() == 0) {
+            return Ret.fail("errorMsg", "请选择更新的数据");
+        }
+        //获取最新的landset
+        List<DataEach> dataEachs = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(82).andIdIn(ids).example().setOrderBy("data_time desc"));
+        List<NDVIModel> ndviModels = new ArrayList<>();
+        String rootPath = PathKit.getWebRootPath().replace("\\", "/");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (DataEach dataEach : dataEachs) {
+            File directory = new File(rootPath + dataEach.getUrl());
+            File[] files = directory.listFiles();
+            File b5File = null;
+            File b4File = null;
+            for (int i = 0; i < files.length; i++) {
+                File file = files[i];
+                if (file.getName().contains("_B5")) {
+                    b5File = file;
+                } else if (file.getName().contains("_B4")) {
+                    b4File = file;
+                }
+            }
+            if (b4File == null) {
+                return Ret.fail("errorMsg", "缺少红外波段数据");
+            }
+            if (b5File == null) {
+                return Ret.fail("errorMsg", "缺少近红外波段数据");
+            }
+            //获取与当前landset数据相交地的包围盒
+//        List<Record> tks = Db.find("SELECT gid,st_astext(geom) FROM tr_tiankuai ORDER BY gid");
+            List<Record> tks = Db.find("SELECT T.gid,st_astext(ST_Transform(T.geom,32650)) as geom FROM " +
+                    " tr_data_each e LEFT JOIN tr_tiankuai T ON ST_Intersects ( T.geom,st_geometryfromtext (concat_ws ( '','POLYGON((', " +
+                    "  concat_ws ( ',', " +
+                    " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" ), " +
+                    " concat_ws ( ' ', e.\"topRightLongitude\", e.\"topRightLatitude\" ), " +
+                    " concat_ws ( ' ', e.\"bottomRightLongitude\", e.\"bottomRightLatitude\" ), " +
+                    " concat_ws ( ' ', e.\"bottomLeftLongitude\", e.\"bottomLeftLatitude\" ), " +
+                    " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )),'))'), 4326 ))" +
+                    " where e.id = '" + dataEach.getId() + "' and T.del = 0 ");
+            for (Record tk : tks) {
+                //获取wkt
+                String writePath = "/ndvi/" + tk.getInt("gid") + "_" + sdf.format(dataEach.getDataTime()) +directory.getName()+".tif";
+                String geom = tk.getStr("geom");
+                if (geom.contains("MULTIPOLYGON")) {
+                    geom = geom.substring(15, geom.length() - 3);
+                } else if (geom.contains("POLYGON")) {
+                    geom = geom.substring(9, geom.length() - 2);
+                }
+                //获取田块与landset相同分辨率的tif
+                try {
+                    //获取ndvi
+                    Kv kv1 = ReadTiffUtils.getNDVIParams(geom, b4File);
+//                    if (!kv1.getBoolean("intersec")) {
+//                        //地块与tiff不相交
+//                        continue;
+//                    }
+                    float[][] ndviParams = (float[][]) kv1.get("data");
+                    Kv kv2 = ReadTiffUtils.getNDVIParams(geom, b5File);
+                    float[][] ndviParams1 = (float[][]) kv2.get("data");
+
+                    Kv floatData = ReadTiffUtils.getFloatData(geom, b4File, rootPath + writePath);
+                    float[][] data = (float[][]) floatData.get("data");
+                    ReferencedEnvelope envelope = (ReferencedEnvelope) floatData.get("envelope");
+
+                    //ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
+                    for (int i = 0; i < ndviParams.length; i++) {
+                        for (int j = 0; j < ndviParams[i].length; j++) {
+                            float b4 = ndviParams[i][j];
+                            float b5 = ndviParams1[i][j];
+                            double add = Arith.add(b5, b4);
+                            if (add != 0) {
+                                Double div = Arith.div(Arith.sub(b5, b4), add);
+                                data[i][j] = div.floatValue();
+                            } else {
+                                data[i][j] = 0;
+                            }
+                        }
+                    }
+                    NDVIModel ndviModel = new NDVIModel();
+                    ndviModel.setName(directory.getName());
+                    ndviModel.setData(data);
+                    ndviModel.setGeom(geom);
+                    ndviModel.setTk_id(tk.getInt("gid"));
+                    ndviModel.setPath(writePath);
+                    ndviModel.setData_time(dataEach.getDataTime());
+                    ndviModels.add(ndviModel);
+
+                    try {
+                        ReadTiffUtils.writerTif(ndviModel.getGeom(), data, rootPath + "/ndvi2" + ndviModel.getPath(), ndviModel.getNoData());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        //并和相交的田块tif----同一数据时间和同一地块
+        List<Integer> list = new ArrayList<>();
+        for (NDVIModel ndviModel : ndviModels) {
+            if (list.contains(ndviModel.getTk_id())) {
+                continue;
+            }
+            float[][] data1 = ndviModel.getData();
+            float[][] data = new float[data1.length][data1[0].length];
+            for (NDVIModel ndviModel2 : ndviModels) {
+                if (ndviModel == ndviModel2) {
+                    list.add(ndviModel2.getTk_id());
+                    continue;
+                }
+                if (ndviModel.getData_time().equals(ndviModel2.getData_time()) && ndviModel.getTk_id().equals(ndviModel2.getTk_id())) {
+                    //需要合并的
+                    float[][] data2 = ndviModel2.getData();
+                    for (int i = 0; i < data1.length; i++) {
+                        for (int j = 0; j < data1[i].length; j++) {
+                            float d1 = data1[i][j];
+                            float d2 = data2[i][j];
+                            if (d1 == 0) {
+                                data[i][j] = d2;
+                            } else if (d2 == 0) {
+                                data[i][j] = d1;
+                            } else {
+                                //取平均值
+                                Double div = Arith.div(Arith.add(d1, d2), 2);
+                                data[i][j] = div.floatValue();
+                            }
+                        }
+                    }
+                    ndviModel.setPath("/ndvi/ndvi_" + sdf.format(ndviModel.getData_time()) + "_" + ndviModel.getTk_id() + ndviModel.getName() + "_" + ndviModel2.getName() + ".tif");
+                    list.add(ndviModel2.getTk_id());
+                } else {
+                    data = ndviModel.getData();
+                }
+            }
+            //生成tiff
+            try {
+                ReadTiffUtils.writerTif(ndviModel.getGeom(), data, rootPath + ndviModel.getPath(), 0.0);
+                //生成缩略tiff
+                String s = rootPath + ndviModel.getPath();
+                String[] split = s.split(".tif");
+                String s1 = split[0] + "_thumbs.tif";
+                ReadTiffUtils.makeThumbsFromTiff(s,s1);
+                //生成缩略图
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,url) values('" + ndviModel.getTk_id() + "','" + ndviModel.getData_time() + "','" + ndviModel.getPath() + "')");
+        }
+        return Ret.ok();
     }
 
     @Override
@@ -111,7 +268,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     " concat_ws ( ' ', e.\"bottomRightLongitude\", e.\"bottomRightLatitude\" ), " +
                     " concat_ws ( ' ', e.\"bottomLeftLongitude\", e.\"bottomLeftLatitude\" ), " +
                     " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )),'))'), 4326 ))" +
-                    " where e.data_id = 82 and T.del = 0 ");
+                    " where e.id = '" + dataEach.getId() + "' and T.del = 0 ");
             for (Record tk : tks) {
                 //获取wkt坐标，读取像素值
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -123,8 +280,14 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     geom = geom.substring(9, geom.length() - 2);
                 }
                 try {
-                    float[][] ndviParams = ReadTiffUtils.getNDVIParams(geom, b4File);
-                    float[][] ndviParams1 = ReadTiffUtils.getNDVIParams(geom, b5File);
+                    Kv kv1 = ReadTiffUtils.getNDVIParams(geom, b4File);
+                    if (!kv1.getBoolean("intersec")) {
+                        //地块与tiff不相交
+                        continue;
+                    }
+                    float[][] ndviParams = (float[][]) kv1.get("data");
+                    Kv kv2 = ReadTiffUtils.getNDVIParams(geom, b5File);
+                    float[][] ndviParams1 = (float[][]) kv2.get("data");
                     //ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
                     float[][] data = new float[ndviParams.length][ndviParams[0].length];
                     for (int i = 0; i < ndviParams.length; i++) {
@@ -166,19 +329,26 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 continue;
             }
             for (NDVIModel ndviModel2 : ndviModels) {
-                if (!ndviModel.equals(ndviModel2) && ndviModel.getData_time().equals(ndviModel2.getData_time()) && ndviModel.getTk_id().equals(ndviModel2.getTk_id())) {
+                if (ndviModel.equals(ndviModel2)) {
+                    list.add(ndviModel2.getTk_id());
+                    continue;
+                }
+                if (ndviModel.getData_time() == ndviModel2.getData_time() && ndviModel.getTk_id() == ndviModel2.getTk_id()) {
                     //需要合并的
-                    String s = rootPath+ndviModel.getPath().split(".tif")[0]+"_"+ndviModel2.getName()+".tif";
-                    TiffOP.mergeTiff(new File(s),new File(rootPath+ndviModel.getPath()),new File(rootPath+ndviModel2.getPath()));
+                    String s = rootPath + ndviModel.getPath().split(".tif")[0] + "_" + ndviModel2.getName() + ".tif";
+                    TiffOP.mergeTiff(new File(s), new File(rootPath + ndviModel.getPath()), new File(rootPath + ndviModel2.getPath()));
+                    ndviModel.setPath(ndviModel.getPath().split(".tif")[0] + "_" + ndviModel2.getName() + ".tif");
                     list.add(ndviModel2.getTk_id());
                 }
             }
-            //直接生成tiff
-            try {
-                ReadTiffUtils.writerTif(ndviModel.getGeom(), ndviModel.getData(), rootPath + ndviModel.getPath(), ndviModel.getNoData());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//            //直接生成tiff
+//            if(!isMerge){
+//                try {
+//                    ReadTiffUtils.writerTif(ndviModel.getGeom(), ndviModel.getData(), rootPath + ndviModel.getPath(), ndviModel.getNoData());
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
             //保存数据
             Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,url) values('" + ndviModel.getTk_id() + "','" + ndviModel.getData_time() + "','" + ndviModel.getPath() + "')");
             //发布数据

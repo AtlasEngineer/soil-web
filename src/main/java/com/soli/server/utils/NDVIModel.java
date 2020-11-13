@@ -14,6 +14,7 @@ public class NDVIModel {
     private Integer tk_id;
     private Date data_time;
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

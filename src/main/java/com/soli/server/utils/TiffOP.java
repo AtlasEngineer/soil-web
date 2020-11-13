@@ -2,6 +2,8 @@ package com.soli.server.utils;
 
 import com.sun.media.jai.codec.*;
 import com.sun.media.jai.codecimpl.TIFFImageDecoder;
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.processing.Operations;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -486,10 +488,7 @@ public class TiffOP {
                     JAI.create("encode", decImg, os, "PNG", paramEnc);
                     os.flush();
                     os.close();
-
                 }
-
-
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -618,7 +617,6 @@ public class TiffOP {
             if (reader != null) {
                 numPages = reader.getNumImages(true);
                 if (numPages > 0) {
-
                     for (int i = 0; i < numPages; i++) {
                         long[] dpiData = getTiffDPI(reader, i);
                         BufferedImage img = reader.read(i);
@@ -656,10 +654,7 @@ public class TiffOP {
                         g2.drawImage(img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH),
                                 x, y, null);
 
-
-                        File decPng = new File(decDir.getPath() + File.separator
-                                + String.format("%1$04d", i + 1) + ".png");
-                        ImageIO.write(decImg, "png", decPng);
+                        ImageIO.write(decImg, "png", decDir);
 
                     }
                 }
