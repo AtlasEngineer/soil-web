@@ -275,7 +275,7 @@ public class UploadController extends LambkitController {
                             kv.set(readQwAndSd);
                         }
                         if(id == 79 ||id == 44 ||id == 45||id == 30 ||id == 46 || id == 47 || id == 94 || id == 95||id == 28 || id == 48 || id == 92 || id == 48){
-                            //气象数据重新生成sld
+                            //气象数据重新生成sld、灌溉面积
                             Kv sld = IssueTiffUtils.createFixedSld(id, name);
                             if (sld.getInt("code") != 200) {
                                 kv = Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 409);

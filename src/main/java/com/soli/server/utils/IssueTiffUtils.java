@@ -439,7 +439,8 @@ public class IssueTiffUtils {
             String color = "#AAFFAA,#00FF00,#FFFF00,#FF7F00,#BF7F3F,#000000,#AAFFAA,#00FF00,#FFFF00,#FF7F00,#BF7F3F,#000000";
             String[] colors = color.split(",");
             if (id == 79) {
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#00a2ff").addAttribute("quantity", String.valueOf(1)).addAttribute("label", "1");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#00a2ff").addAttribute("quantity", String.valueOf(1));
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#00a2ff").addAttribute("quantity", String.valueOf(2));
             }
             if (id == 46) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#44cb2d").addAttribute("quantity", String.valueOf(0)).addAttribute("label", "0");
