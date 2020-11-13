@@ -81,7 +81,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     }
 
     @Override
-    public Ret searchDiseases(String type, String period) {
+    public Ret searchDiseases(String type, String period,String crop) {
 
         if (StringUtils.isBlank(type)) {
             return Ret.fail("errorMsg", "类型不能为空");
@@ -100,60 +100,9 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             select = "SELECT * from tr_diseases_grass ";
         }
 
-        List<Record> page = Db.find( select+" where del=0 and type=? and period =? ORDER BY create_time desc",type,period);
+        List<Record> page = Db.find( select+" where del=0 and type=? and period =? and crop = ? ORDER BY create_time desc",type,period,crop);
 
         return Ret.ok("data",page);
-    }
-
-    @Override
-    public Ret searchDiseasesAdd(String type, String period, String name,
-                                 String about, String feature, String way,
-                                 String condition, String symptom, String grow,
-                                 String harm, String methon) {
-        if (StringUtils.isBlank(type)) {
-            return Ret.fail("errorMsg", "类型不能为空");
-        }
-        if (StringUtils.isBlank(period)) {
-            return Ret.fail("errorMsg", "时期不能为空");
-        }
-        Boolean success = false;
-
-        Record record = new Record();
-        record.set("type",type);
-        record.set("period",period);
-        record.set("del",0);
-        record.set("create_time",new Date());
-        if ("病害".equals(type)) {
-            record.set("diseases_name",name);
-            record.set("diseases_condition",condition);
-            record.set("diseases_methon",methon);
-            record.set("diseases_symptom",symptom);
-            record.set("diseases_feature",feature);
-            record.set("diseases_way",way);
-            success = Db.save("tr_diseases_diseases", record);
-        }
-        if ("虫害".equals(type)) {
-            record.set("pests_name",name);
-            record.set("pests_features",feature);
-            record.set("pests_grow",grow);
-            record.set("pests_harm",harm);
-            record.set("pests_methon",methon);
-            record.set("pests_about",about);
-            success = Db.save("tr_diseases_pests", record);
-        }
-        if ("草害".equals(type)) {
-            record.set("grass_name",name);
-            record.set("grass_about",about);
-            record.set("grass_methon",methon);
-            record.set("grass_harm",harm);
-            record.set("grass_feature",feature);
-            success = Db.save("tr_diseases_grass",record);
-        }
-        if (success){
-            return Ret.ok("msg","添加成功");
-        }else {
-            return Ret.fail("errorMsg", "添加失败");
-        }
     }
 
     @Override

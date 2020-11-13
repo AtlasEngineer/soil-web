@@ -41,15 +41,10 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
     }
 
     @Override
-    public Ret searchDiseases(String type, String period) {
+    public Ret searchDiseases(String type, String period, String crop) {
         return null;
     }
-
-    @Override
-    public Ret searchDiseasesAdd(String type, String period, String name, String about, String feature, String way, String condition, String symptom, String grow, String harm, String methon) {
-        return null;
-    }
-
+    
     @Override
     public Ret searchDiseasesDel(String type, Integer id) {
         return null;
