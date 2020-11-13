@@ -25,6 +25,7 @@ import com.vividsolutions.jts.io.ParseException;
 import org.geotools.filter.text.cql2.CQLException;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author yangyong
@@ -51,12 +52,12 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
     }
 
     @Override
-    public Ret compoundQuery(Integer countyId, Integer type, String time[]) {
+    public Ret compoundQuery(Integer countyId,Integer type,String time[],String latlons,List<Integer> id) {
         return null;
     }
 
     @Override
-    public Ret compoundQueryBySpot(Double longitude, Double latitude) {
+    public Ret compoundQueryBySpot(Double longitude, Double latitude, List<Integer> id) {
         return null;
     }
 

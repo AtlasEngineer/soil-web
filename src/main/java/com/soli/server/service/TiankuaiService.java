@@ -64,7 +64,7 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
      */
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.compoundQuery",useLogin = false)
-    public Ret compoundQuery(Integer countyId,Integer type,String time[]);
+    public Ret compoundQuery(Integer countyId,Integer type,String time[],String latlons,List<Integer> id) throws ParseException, IOException, CQLException, java.text.ParseException;
 
 
 
@@ -78,7 +78,7 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
      */
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.compoundQuery.spot",useLogin = false)
-    public Ret compoundQueryBySpot(Double longitude, Double latitude) throws IOException, CQLException, ParseException;
+    public Ret compoundQueryBySpot(Double longitude, Double latitude,List<Integer> id) throws IOException, CQLException, ParseException;
 
 
 

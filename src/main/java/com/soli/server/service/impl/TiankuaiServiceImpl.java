@@ -40,6 +40,7 @@ import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.Filter;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.soli.server.utils.ReadTiffUtils.getTiffXY;
@@ -57,7 +58,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     private Tiankuai DAO = null;
 
     @Override
-	public Tiankuai dao() {
+    public Tiankuai dao() {
         if (DAO == null) {
             DAO = AopKit.singleton(Tiankuai.class);
         }
@@ -99,10 +100,10 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
         if ("草害".equals(type)) {
             select = "SELECT * from tr_diseases_grass ";
         }
-
         List<Record> page = Db.find( select+" where del=0 and type=? and period =? and crop = ? ORDER BY create_time desc",type,period,crop);
 
-        return Ret.ok("data",page);
+
+        return Ret.ok("data", page);
     }
 
     @Override
@@ -133,42 +134,103 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
 
 
     @Override
-    public Ret compoundQuery(Integer countyId, Integer type, String time[]) {
-        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
-        WKTReader reader = new WKTReader(geometryFactory);
-        List<Record> resultList = new ArrayList<>();
-        try {
-            Record first = Db.findFirst("SELECT st_astext(geom) as geom FROM tr_ch_county WHERE gid = " + countyId);
-            String geometryStr = first.getStr("geom");
-            Geometry countyGeom = reader.read(geometryStr);
-            /* shp  文件类型	  */
-            if (type == 0) {
-                List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type = 0 and time between '"+time[0]+"' and '"+time[1]+"' ");
-                for (Record record : records) {
-                    /* geometry 与  shp 比较 */
+    public Ret compoundQuery(Integer countyId, Integer type, String time[], String latlons, List<Integer> id) throws ParseException, IOException, CQLException, java.text.ParseException {
+        List<Object> resultList = new ArrayList<>();
+
+        if (id == null && id.size() == 0) {
+            return Ret.fail("errorMsg", "未选择数据");
+        }
+
+        if (time == null && time.length == 0) {
+            return Ret.fail("errorMsg", "时间不能为空");
+        }
+        String strDateFormat = "yyyy-MM-d";
+        SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+        if (type == 0) {
+            GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+            WKTReader reader = new WKTReader(geometryFactory);
+
+            try {
+                Record first = Db.findFirst("SELECT st_astext(geom) as geom FROM tr_ch_county WHERE gid = " + countyId);
+                String geometryStr = first.getStr("geom");
+                Geometry countyGeom = reader.read(geometryStr);
+                /* shp  文件类型	  */
+                List<DataEach> dataEachList = DataEach.service().dao().find(DataEach.sql().andDataIdIn(id).andTimeBetween(sdf.parse(time[0]), sdf.parse(time[1])).example());
+                for (DataEach record : dataEachList) {
                     String url = record.getStr("url");
+                    if (record.getType() == 0) {
+                        if (url.startsWith("d:")) {
+                            /* 截取 d: 后面的 文件名*/
+                            url = url.substring(2, url.length());
+                            String rootPath = PathKit.getWebRootPath() + "/d/";
+                            SimpleFeatureSource shpStore = readShp.getShpStore(rootPath + url + "/" + url + ".shp");
+                            /* 将tif 包围盒转成 一个面进行比较 */
+                            boolean flag = queryField(first, shpStore);
+                            if (flag) {
+                                resultList.add(record);
+                            }
+                        }
+                    }
+                    if (record.getType() == 1) {
+                        if (url.startsWith("d:")) {
+                            /* 截取 d: 后面的 文件名*/
+                            url = url.substring(2, url.length());
+                            String rootPath = PathKit.getWebRootPath() + "/d/";
+
+                            Kv tiffXY = getTiffXY(rootPath + url + "/" + url + ".tif");
+                            double minX = tiffXY.getNumber("minX").doubleValue();
+                            double minY = tiffXY.getNumber("minY").doubleValue();
+                            double maxX = tiffXY.getNumber("maxX").doubleValue();
+                            double maxY = tiffXY.getNumber("maxY").doubleValue();
+                            /* 将tif 包围盒转成 一个面进行比较 */
+                            String tifGeomStr = "POLYGON((" + minX + " " + maxY + "," + maxX + " " + maxY + "," + minX + " " + minY + "," + minX + " " + maxY + "," + minX + " " + maxY + "))";
+                            Geometry tifGeom = reader.read(tifGeomStr);
+                            /*	如果相交	  */
+                            if (countyGeom.intersects(tifGeom)) {
+                                resultList.add(record);
+                            }
+                        }
+                    }
+
+                    if (record.getType() == 3 || record.getType() == 4 || record.getType() == 5) {
+                        String tifGeomStr = "POLYGON((" + Double.valueOf(record.getStr("topLeftLongitude")) + " " + Double.valueOf(record.getStr("topLeftLatitude")) + "," + Double.valueOf(record.getStr("topRightLongitude")) + " " + Double.valueOf(record.getStr("topRightLatitude")) + "," + Double.valueOf(record.getStr("bottomRightLongitude")) + " " + Double.valueOf(record.getStr("bottomRightLatitude")) + "," + Double.valueOf(record.getStr("bottomLeftLongitude")) + " " + Double.valueOf(record.getStr("bottomLeftLatitude")) + "," + Double.valueOf(record.getStr("topLeftLongitude")) + " " + Double.valueOf(record.getStr("topLeftLatitude")) + "))";
+                        Geometry tifGeom = reader.read(tifGeomStr);
+                        Record record_tif_jpg = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326), st_geometryfromtext('" + countyGeom + "',4326)) as num");
+                        if (record_tif_jpg.getBoolean("num")) {
+                            resultList.add(record);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return Ret.ok("data", resultList);
+        } else {
+            List<DataEach> dataEachList = DataEach.service().dao().find(DataEach.sql().andDataIdIn(id).andTimeBetween(sdf.parse(time[0]), sdf.parse(time[1])).example());
+            GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+            WKTReader reader = new WKTReader(geometryFactory);
+            for (DataEach dataEach : dataEachList) {
+                String url = dataEach.getStr("url");
+                if (dataEach.getType() == 0) {
                     if (url.startsWith("d:")) {
                         /* 截取 d: 后面的 文件名*/
                         url = url.substring(2, url.length());
                         String rootPath = PathKit.getWebRootPath() + "/d/";
                         SimpleFeatureSource shpStore = readShp.getShpStore(rootPath + url + "/" + url + ".shp");
                         /* 将tif 包围盒转成 一个面进行比较 */
-                        boolean flag = queryFieldBy(first, shpStore);
+                        Record record = Db.findFirst("select st_astext(st_geometryfromtext('POLYGON ((" + latlons + "))',4326)) as geom");
+                        boolean flag = queryField(record, shpStore);
                         if (flag) {
-                            resultList.add(record);
+                            resultList.add(dataEach);
                         }
                     }
                 }
-            }
-            if (type == 1) {
-                List<Record> records = Db.find("SELECT * FROM tr_data_each WHERE type in (1,5) and time between '"+time[0]+"' and '"+time[1]+"' ");
-                for (Record record : records) {
-                    String url = record.getStr("url");
+                if (dataEach.getType() == 1) {
                     if (url.startsWith("d:")) {
                         /* 截取 d: 后面的 文件名*/
                         url = url.substring(2, url.length());
                         String rootPath = PathKit.getWebRootPath() + "/d/";
-
+                        /* 将tif 包围盒转成 一个面进行比较 */
                         Kv tiffXY = getTiffXY(rootPath + url + "/" + url + ".tif");
                         double minX = tiffXY.getNumber("minX").doubleValue();
                         double minY = tiffXY.getNumber("minY").doubleValue();
@@ -177,27 +239,36 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
                         /* 将tif 包围盒转成 一个面进行比较 */
                         String tifGeomStr = "POLYGON((" + minX + " " + maxY + "," + maxX + " " + maxY + "," + minX + " " + minY + "," + minX + " " + maxY + "," + minX + " " + maxY + "))";
                         Geometry tifGeom = reader.read(tifGeomStr);
-                        /*	如果相交	  */
-                        if (countyGeom.intersects(tifGeom)) {
-                            resultList.add(record);
+                        Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326),st_geometryfromtext('POLYGON ((" + latlons + "))',4326)) as num");
+                        if (record.getBoolean("num")) {
+                            resultList.add(dataEach);
                         }
                     }
                 }
-                return Ret.ok("data", resultList);
+                if (dataEach.getType() == 3 || dataEach.getType() == 4 || dataEach.getType() == 5) {
+                    String tifGeomStr = "POLYGON((" + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topRightLongitude")) + " " + Double.valueOf(dataEach.getStr("topRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomRightLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "))";
+                    Geometry tifGeom = reader.read(tifGeomStr);
+                    Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326), st_geometryfromtext('POLYGON ((" + latlons + "))',4326)) as num");
+                    if (record.getBoolean("num")) {
+                        resultList.add(dataEach);
+                    }
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            return Ret.ok("data", resultList);
         }
-        return Ret.ok("data", resultList);
+
     }
 
     @Override
-    public Ret compoundQueryBySpot(Double longitude, Double latitude) throws IOException, CQLException, ParseException {
+    public Ret compoundQueryBySpot(Double longitude, Double latitude, List<Integer> id) throws IOException, CQLException, ParseException {
+        if (id == null && id.size() == 0) {
+            return Ret.fail("errorMsg", "未选择数据");
+        }
         List<DataEach> dataEaches = new ArrayList<>();
-        List<DataEach> dataEachList=DataEach.service().dao().findAll();
+        List<DataEach> dataEachList = DataEach.service().dao().find(DataEach.sql().andDataIdIn(id).example());
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         WKTReader reader = new WKTReader(geometryFactory);
-        for (DataEach dataEach:dataEachList) {
+        for (DataEach dataEach : dataEachList) {
             String url = dataEach.getStr("url");
             if (dataEach.getType() == 0) {
                 if (url.startsWith("d:")) {
@@ -227,14 +298,14 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
                     String tifGeomStr = "POLYGON((" + minX + " " + maxY + "," + maxX + " " + maxY + "," + minX + " " + minY + "," + minX + " " + maxY + "," + minX + " " + maxY + "))";
                     Geometry tifGeom = reader.read(tifGeomStr);
                     Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326), st_geometryfromtext('POINT(" + longitude + " " + latitude + ")',4326)) as num");
-					if (record.getBoolean("num")) {
+                    if (record.getBoolean("num")) {
                         dataEaches.add(dataEach);
                     }
                 }
             }
-			if (dataEach.getType() == 3 || dataEach.getType() == 4 || dataEach.getType() == 5) {
-				String tifGeomStr = "POLYGON((" + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topRightLongitude")) + " " + Double.valueOf(dataEach.getStr("topRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomRightLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "))";
-				Geometry tifGeom = reader.read(tifGeomStr);
+            if (dataEach.getType() == 3 || dataEach.getType() == 4 || dataEach.getType() == 5) {
+                String tifGeomStr = "POLYGON((" + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topRightLongitude")) + " " + Double.valueOf(dataEach.getStr("topRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomRightLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "))";
+                Geometry tifGeom = reader.read(tifGeomStr);
                 Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326), st_geometryfromtext('POINT(" + longitude + " " + latitude + ")',4326)) as num");
                 if (record.getBoolean("num")) {
                     dataEaches.add(dataEach);
@@ -244,64 +315,64 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
         return Ret.ok("data", dataEaches);
     }
 
-	@Override
-	public Ret compoundQueryByNoodles(String latlons) throws IOException, CQLException, ParseException {
-		List<DataEach> dataEaches = new ArrayList<>();
-		List<DataEach> dataEachList=DataEach.service().dao().findAll();
-		GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
-		WKTReader reader = new WKTReader(geometryFactory);
-		for (DataEach dataEach:dataEachList) {
-			String url = dataEach.getStr("url");
-			if (dataEach.getType() == 0) {
-				if (url.startsWith("d:")) {
-					/* 截取 d: 后面的 文件名*/
-					url = url.substring(2, url.length());
-					String rootPath = PathKit.getWebRootPath() + "/d/";
-					SimpleFeatureSource shpStore = readShp.getShpStore(rootPath + url + "/" + url + ".shp");
-					/* 将tif 包围盒转成 一个面进行比较 */
-                    Record record=Db.findFirst("select st_astext(st_geometryfromtext('POLYGON (("+latlons+"))',4326)) as geom");
-					boolean flag = queryField(record,shpStore);
-					if (flag) {
-						dataEaches.add(dataEach);
-					}
-				}
-			}
-			if (dataEach.getType() == 1) {
-				if (url.startsWith("d:")) {
-					/* 截取 d: 后面的 文件名*/
-					url = url.substring(2, url.length());
-					String rootPath = PathKit.getWebRootPath() + "/d/";
-					/* 将tif 包围盒转成 一个面进行比较 */
-					Kv tiffXY = getTiffXY(rootPath + url + "/" + url + ".tif");
-					double minX = tiffXY.getNumber("minX").doubleValue();
-					double minY = tiffXY.getNumber("minY").doubleValue();
-					double maxX = tiffXY.getNumber("maxX").doubleValue();
-					double maxY = tiffXY.getNumber("maxY").doubleValue();
-					/* 将tif 包围盒转成 一个面进行比较 */
-					String tifGeomStr = "POLYGON((" + minX + " " + maxY + "," + maxX + " " + maxY + "," + minX + " " + minY + "," + minX + " " + maxY + "," + minX + " " + maxY + "))";
-					Geometry tifGeom = reader.read(tifGeomStr);
-					Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326),st_geometryfromtext('POLYGON (("+latlons+"))',4326)) as num");
-					if (record.getBoolean("num")) {
-						dataEaches.add(dataEach);
-					}
-				}
-			}
-			if (dataEach.getType() == 3 || dataEach.getType() == 4 || dataEach.getType() == 5) {
-				String tifGeomStr = "POLYGON((" + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topRightLongitude")) + " " + Double.valueOf(dataEach.getStr("topRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomRightLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "))";
-				Geometry tifGeom = reader.read(tifGeomStr);
-				Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326), st_geometryfromtext('POLYGON (("+latlons+"))',4326)) as num");
-				if (record.getBoolean("num")) {
-					dataEaches.add(dataEach);
-				}
-			}
-		}
-		return Ret.ok("data", dataEaches);
-	}
+    @Override
+    public Ret compoundQueryByNoodles(String latlons) throws IOException, CQLException, ParseException {
+        List<DataEach> dataEaches = new ArrayList<>();
+        List<DataEach> dataEachList = DataEach.service().dao().findAll();
+        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+        WKTReader reader = new WKTReader(geometryFactory);
+        for (DataEach dataEach : dataEachList) {
+            String url = dataEach.getStr("url");
+            if (dataEach.getType() == 0) {
+                if (url.startsWith("d:")) {
+                    /* 截取 d: 后面的 文件名*/
+                    url = url.substring(2, url.length());
+                    String rootPath = PathKit.getWebRootPath() + "/d/";
+                    SimpleFeatureSource shpStore = readShp.getShpStore(rootPath + url + "/" + url + ".shp");
+                    /* 将tif 包围盒转成 一个面进行比较 */
+                    Record record = Db.findFirst("select st_astext(st_geometryfromtext('POLYGON ((" + latlons + "))',4326)) as geom");
+                    boolean flag = queryField(record, shpStore);
+                    if (flag) {
+                        dataEaches.add(dataEach);
+                    }
+                }
+            }
+            if (dataEach.getType() == 1) {
+                if (url.startsWith("d:")) {
+                    /* 截取 d: 后面的 文件名*/
+                    url = url.substring(2, url.length());
+                    String rootPath = PathKit.getWebRootPath() + "/d/";
+                    /* 将tif 包围盒转成 一个面进行比较 */
+                    Kv tiffXY = getTiffXY(rootPath + url + "/" + url + ".tif");
+                    double minX = tiffXY.getNumber("minX").doubleValue();
+                    double minY = tiffXY.getNumber("minY").doubleValue();
+                    double maxX = tiffXY.getNumber("maxX").doubleValue();
+                    double maxY = tiffXY.getNumber("maxY").doubleValue();
+                    /* 将tif 包围盒转成 一个面进行比较 */
+                    String tifGeomStr = "POLYGON((" + minX + " " + maxY + "," + maxX + " " + maxY + "," + minX + " " + minY + "," + minX + " " + maxY + "," + minX + " " + maxY + "))";
+                    Geometry tifGeom = reader.read(tifGeomStr);
+                    Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326),st_geometryfromtext('POLYGON ((" + latlons + "))',4326)) as num");
+                    if (record.getBoolean("num")) {
+                        dataEaches.add(dataEach);
+                    }
+                }
+            }
+            if (dataEach.getType() == 3 || dataEach.getType() == 4 || dataEach.getType() == 5) {
+                String tifGeomStr = "POLYGON((" + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topRightLongitude")) + " " + Double.valueOf(dataEach.getStr("topRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomRightLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomRightLatitude")) + "," + Double.valueOf(dataEach.getStr("bottomLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("bottomLeftLatitude")) + "," + Double.valueOf(dataEach.getStr("topLeftLongitude")) + " " + Double.valueOf(dataEach.getStr("topLeftLatitude")) + "))";
+                Geometry tifGeom = reader.read(tifGeomStr);
+                Record record = Db.findFirst("select ST_Contains(st_geometryfromtext('" + tifGeom + "',4326), st_geometryfromtext('POLYGON ((" + latlons + "))',4326)) as num");
+                if (record.getBoolean("num")) {
+                    dataEaches.add(dataEach);
+                }
+            }
+        }
+        return Ret.ok("data", dataEaches);
+    }
 
     @Override
     public Ret uav() {
         List<DataEach> eachList = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(88).example().setOrderBy("data_time desc"));
-        return  Ret.ok("data",eachList);
+        return Ret.ok("data", eachList);
     }
 
     /**
@@ -315,7 +386,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
      */
     public static boolean queryField(Record latlons, SimpleFeatureSource featureSource) throws IOException, CQLException {
         //final Filter filter = CQL.toFilter( "area < 40" );
-        Filter filter = ECQL.toFilter("INTERSECTS(the_geom,"+latlons.getStr("geom")+")");
+        Filter filter = ECQL.toFilter("INTERSECTS(the_geom," + latlons.getStr("geom") + ")");
         SimpleFeatureCollection features = featureSource.getFeatures(filter);
         if (features.size() != 0) {
             return true;
@@ -323,6 +394,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             return false;
         }
     }
+
 
     /**
      * 面查询
@@ -335,7 +407,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
      */
     public static boolean queryFieldBy(Record latlons, SimpleFeatureSource featureSource) throws IOException, CQLException {
         //final Filter filter = CQL.toFilter( "area < 40" );
-        Filter filter = ECQL.toFilter("INTERSECTS(the_geom,"+latlons.getStr("geom")+")");
+        Filter filter = ECQL.toFilter("INTERSECTS(the_geom," + latlons.getStr("geom") + ")");
         SimpleFeatureCollection features = featureSource.getFeatures(filter);
         if (features.size() != 0) {
             return true;
@@ -345,11 +417,13 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     }
 
 
-
-
     /**
      * 点查询
      *
+<<<<<<< HEAD
+     * @param
+=======
+>>>>>>> cf9d197b7042057b16e7de64fa13f825b8f18c11
      * @param featureSource
      * @return
      * @throws IOException
