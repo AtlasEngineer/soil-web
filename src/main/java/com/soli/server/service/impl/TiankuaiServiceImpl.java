@@ -172,9 +172,12 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     }
 
     @Override
-    public Ret compoundQueryBySpot(Double longitude, Double latitude) throws IOException, CQLException, ParseException {
+    public Ret compoundQueryBySpot(Double longitude, Double latitude,List<Integer> id) throws IOException, CQLException, ParseException {
+        if(id.size()==0){
+            return Ret.fail("errorMsg", "未选择数据");
+        }
         List<DataEach> dataEaches = new ArrayList<>();
-        List<DataEach> dataEachList=DataEach.service().dao().findAll();
+        List<DataEach> dataEachList=DataEach.service().dao().find(DataEach.sql().andDataIdIn(id).example());
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         WKTReader reader = new WKTReader(geometryFactory);
         for (DataEach dataEach:dataEachList) {
@@ -330,7 +333,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     /**
      * 点查询
      *
-     * @param latlons
+     * @param
      * @param featureSource
      * @return
      * @throws IOException

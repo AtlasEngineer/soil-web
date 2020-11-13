@@ -72,7 +72,7 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
      */
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.compoundQuery.spot",useLogin = false)
-    public Ret compoundQueryBySpot(Double longitude, Double latitude) throws IOException, CQLException, ParseException;
+    public Ret compoundQueryBySpot(Double longitude, Double latitude,List<Integer> id) throws IOException, CQLException, ParseException;
 
 
 
