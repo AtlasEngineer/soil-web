@@ -41,17 +41,17 @@ public class UploadController extends LambkitController {
 
     @Clear
     @ApiOperation(url = "/upload/uploadProductExcel", tag = "/upload", httpMethod = "post", description = "上传数据")
-    public void uploadProductExcel(){
+    public void uploadProductExcel() {
         UploadFile uf = getFile();
         File file = uf.getFile();
         String name = file.getName();
-        if (file == null){
+        if (file == null) {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "未获取到excel")));
             return;
-        }else if ((!name.endsWith("xls"))&&(!name.endsWith("xlsx"))){
+        } else if ((!name.endsWith("xls")) && (!name.endsWith("xlsx"))) {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "只能导入excel格式数据")));
             return;
-        }else {
+        } else {
             try {
                 ExcelReaderUtils.productUpload(file);
             } catch (IOException e) {
@@ -185,6 +185,8 @@ public class UploadController extends LambkitController {
                 String dbfPath = null;
                 String prjPath = null;
                 String tifPath = null;
+                String tifAuxPath = null;
+                String tifDbfPath = null;
                 for (String y : fileList) {
                     File file2 = new File(s + "/" + y);
                     if (file2.isFile()) {
@@ -196,9 +198,16 @@ public class UploadController extends LambkitController {
                         String s1 = sb.toString().substring(0, sb.length() - 1);
                         File file01 = new File(root + "/d/" + name + "/" + name + "." + s1);
                         file2.renameTo(file01);
-
-                        if ("tif".equals(s1) || "tiff".equals(s1)) {
-                            tifPath = file01.getPath();
+                        if (type == 1) {
+                            if ("tif".equals(s1) || "tiff".equals(s1)) {
+                                tifPath = file01.getPath();
+                            }
+                            if ("tif.vat.dbf".equals(s1) || "tif.vat.dbf".equals(s1)) {
+                                tifDbfPath = file01.getPath();
+                            }
+                            if ("tif.aux.xml".equals(s1) || "tif.aux.xml".equals(s1)) {
+                                tifAuxPath = file01.getPath();
+                            }
                         } else if (type == 0) {
                             if ("shp".equals(s1)) {
                                 shpPath = file01.getPath();
@@ -246,7 +255,17 @@ public class UploadController extends LambkitController {
                     }
                     //发布tiff
                     try {
-                        kv = IssueTiffUtils.uploadTiff(tifPath, name);
+                        Integer sldType = 0;
+                        File sldParams = null;
+                        if (tifAuxPath != null) {
+                            sldType = 2;
+                            sldParams = new File("tifAuxPath");
+                        }
+                        if (tifDbfPath != null) {
+                            sldType = 1;
+                            sldParams = new File("tifAuxPath");
+                        }
+                        kv = IssueTiffUtils.uploadTiff(tifPath, name, sldType, sldParams);
                         if (kv.getInt("code") != 200) {
                             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", kv.get("msg"))));
                             return;
@@ -274,7 +293,7 @@ public class UploadController extends LambkitController {
                             Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_eroded", data_time, 0);
                             kv.set(readQwAndSd);
                         }
-                        if(id == 79 ||id == 44 ||id == 45||id == 30 ||id == 46 || id == 47 || id == 94 || id == 95||id == 28 || id == 48 || id == 92 || id == 48){
+                        if (id == 79 || id == 44 || id == 45 || id == 30 || id == 46 || id == 47 || id == 94 || id == 95 || id == 28 || id == 48 || id == 92 || id == 48) {
                             //气象数据重新生成sld、灌溉面积
                             Kv sld = IssueTiffUtils.createFixedSld(id, name);
                             if (sld.getInt("code") != 200) {

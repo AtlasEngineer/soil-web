@@ -44,14 +44,14 @@ import java.util.List;
 public class IssueTiffUtils {
 
 
-    public static Kv uploadTiff(String tifPath, String name) throws Exception {
+    public static Kv uploadTiff(String tifPath, String name, Integer sldType,File sldParam) throws Exception {
         GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
-        String geoserverUrl = config.getGeourl();
-        String geoserverUsername = config.getGeouser();
-        String geoserverPassword = config.getGeopsw();
-//        String geoserverUrl = "http://127.0.0.1:18999/geoserver";
-//        String geoserverUsername = "admin";
-//        String geoserverPassword = "geoserver";
+//        String geoserverUrl = config.getGeourl();
+//        String geoserverUsername = config.getGeouser();
+//        String geoserverPassword = config.getGeopsw();
+        String geoserverUrl = "http://127.0.0.1:18999/geoserver";
+        String geoserverUsername = "admin";
+        String geoserverPassword = "geoserver";
         GeoServerRESTPublisher geoServerRESTPublisher = new GeoServerRESTPublisher(geoserverUrl, geoserverUsername, geoserverPassword);
         GeoServerRESTReader geoServerRESTReader = new GeoServerRESTReader(geoserverUrl, geoserverUsername, geoserverPassword);
         String workspace = "d";
@@ -76,7 +76,16 @@ public class IssueTiffUtils {
 //        boolean result = geoServerRESTPublisher.publishGeoTIFF(workspace, name, tiffFile);
         System.out.println("发布耗时：" + (System.currentTimeMillis() - l) + "ms");
         if (result) {
-            Kv sld = createSld(tiffFile, name);
+            Kv sld;
+            if (sldType == 1) {
+                sld = createSldByDbf(sldParam, name);
+            } else {
+                if (sldType == 2) {
+                    sld = createSldByAux(tiffFile,sldParam, name);
+                } else {
+                    sld = createSld(tiffFile, name);
+                }
+            }
             if (sld.getInt("code") != 200) {
                 return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 409);
             } else {
@@ -100,7 +109,7 @@ public class IssueTiffUtils {
 
         String workspace = "d";
         String path = PathKit.getWebRootPath().replace("\\", "/") + filepath;
-        System.out.println("path:" + path);
+        System.out.println("path:" + filepath);
         File geotiff = new File(path);
 
         if (geotiff == null) {
@@ -144,11 +153,11 @@ public class IssueTiffUtils {
                 if ("tiff".equals(s1) || "tif".equals(s1)) {
                     tifPath = file01.getPath();
                 }
-                if (".tif.vat.dbf".equals(s1) || ".tif.vat.dbf".equals(s1)) {
+                if ("tif.vat.dbf".equals(s1) || "tif.vat.dbf".equals(s1)) {
                     existDbf = true;
                     tifDbfPath = file01.getPath();
                 }
-                if (".tif.aux.xml".equals(s1) || ".tif.aux.xml".equals(s1)) {
+                if ("tif.aux.xml".equals(s1) || "tif.aux.xml".equals(s1)) {
                     existAux = true;
                     tifAuxPath = file01.getPath();
                 }
@@ -179,7 +188,7 @@ public class IssueTiffUtils {
                     sld = createSldByDbf(new File(tifDbfPath), name);
                 } else {
                     if (existAux) {
-                        sld = createSldByAux(tiffFile,new File(tifAuxPath), name);
+                        sld = createSldByAux(tiffFile, new File(tifAuxPath), name);
                     } else {
                         sld = createSld(tiffFile, name);
                     }
@@ -228,10 +237,10 @@ public class IssueTiffUtils {
             double min = 0.0;
             for (Element element : mdi) {
                 String key = element.attributeValue("key");
-                if("STATISTICS_MINIMUM".equals(key)){
+                if ("STATISTICS_MINIMUM".equals(key)) {
                     min = Double.valueOf(element.getStringValue());
                 }
-                if("STATISTICS_MAXIMUM".equals(key)){
+                if ("STATISTICS_MAXIMUM".equals(key)) {
                     max = Double.valueOf(element.getStringValue());
                 }
             }
@@ -395,7 +404,7 @@ public class IssueTiffUtils {
     public static void main(String[] args) {
         try {
             uploadTiff("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif"
-                    , "ChinaEco100");
+                    , "ChinaEco100",2,new File("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif.aux.xml"));
         } catch (Exception e) {
             e.printStackTrace();
         }
