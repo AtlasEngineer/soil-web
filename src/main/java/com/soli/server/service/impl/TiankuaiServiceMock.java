@@ -48,7 +48,7 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
 
 
     @Override
-    public Ret compoundQuery(Integer countyId, Integer type, String time[]) {
+    public Ret compoundQuery(Integer countyId,Integer type,String time[],String latlons,List<Integer> id) {
         return null;
     }
 
