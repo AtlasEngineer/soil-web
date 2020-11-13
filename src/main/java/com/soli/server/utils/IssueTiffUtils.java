@@ -275,7 +275,7 @@ public class IssueTiffUtils {
             String[] colors = color.split(",");
             for (int i = 0; i < doubles.size(); i++) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", colors[i])
-                        .addAttribute("quantity", String.valueOf(doubles.get(i))).addAttribute("label", "values");
+                        .addAttribute("quantity", String.valueOf(doubles.get(i))).addAttribute("label", doubles.get(i).toString());
             }
             //生成style文件
             String rootPath = PathKit.getWebRootPath().replace("\\", "/");
@@ -402,7 +402,7 @@ public class IssueTiffUtils {
             String[] colors = color.split(",");
             for (int i = 0; i < aa.length; i++) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", colors[i])
-                        .addAttribute("quantity", String.valueOf(aa[i])).addAttribute("label", "values");
+                        .addAttribute("quantity", String.valueOf(aa[i])).addAttribute("label", String.valueOf(aa[i]));
             }
             //生成style文件
             String rootPath = PathKit.getWebRootPath().replace("\\", "/");
