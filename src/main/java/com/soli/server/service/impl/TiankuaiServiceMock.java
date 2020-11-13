@@ -42,10 +42,14 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
     }
 
     @Override
-    public Ret searchDiseases(String type,String period,Integer pageNum, Integer pageSize) {
+    public Ret searchDiseases(String type, String period, String crop) {
         return null;
     }
-
+    
+    @Override
+    public Ret searchDiseasesDel(String type, Integer id) {
+        return null;
+    }
 
     @Override
     public Ret compoundQuery(Integer countyId,Integer type,String time[],String latlons,List<Integer> id) {

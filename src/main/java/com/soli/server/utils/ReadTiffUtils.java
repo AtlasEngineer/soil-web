@@ -4,35 +4,490 @@ package com.soli.server.utils;
 import com.jfinal.kit.Kv;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.Record;
-import com.vividsolutions.jts.geom.*;
+import com.sun.media.jai.codec.*;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
+import it.geosolutions.jaiext.range.NoDataContainer;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.map.*;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoordinates2D;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.processing.Operations;
 import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.GeoTiffReader;
+import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.renderer.lite.StreamingRenderer;
+import org.geotools.resources.coverage.CoverageUtilities;
+import org.geotools.styling.*;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import javax.imageio.ImageIO;
+import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
+import java.awt.*;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import java.io.File;
-import java.io.IOException;
+import java.awt.image.renderable.ParameterBlock;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.List;
 
 import static java.lang.Math.pow;
 
 public class ReadTiffUtils {
+
+    public static void main(String[] args) {
+        try {
+//            makeThumbsFromTiff("C:/Users/xiaoxu/Desktop/landset/LC81240342020031BJC00/LC81240342020031BJC00_B4.TIF", "C:/Users/xiaoxu/Desktop/landset/LC81240342020031BJC00/LC81240342020031BJC00_B4.png");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static BufferedImage coverageImage(GridCoverage2D coverage) {
+        MapContent map = new MapContent();
+        GtsLayer gtsLayer = new GtsLayer("coverage");
+        gtsLayer.addCoverage(coverage);
+        int width = coverage.getRenderedImage().getWidth();
+        int height = coverage.getRenderedImage().getHeight();
+        map.addLayer(gtsLayer.getLayer());
+        ReferencedEnvelope mapArea = new ReferencedEnvelope(coverage.getEnvelope());
+        map.setViewport(new MapViewport(mapArea));
+        // 初始化输出图像
+        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics g = bi.getGraphics();
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        Rectangle rect = new Rectangle(0, 0, width, height);
+        if(map!=null) {
+            // 初始化渲染器
+            StreamingRenderer sr = new StreamingRenderer();
+            sr.setMapContent(map);
+            // 绘制地图
+            sr.paint((Graphics2D) g, rect, mapArea);
+        }
+        map.dispose();
+        return bi;
+    }
+
+    public static Style createStyle(int band, double min, double max) {
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
+        StyleFactory sf = CommonFactoryFinder.getStyleFactory();
+        RasterSymbolizer sym = sf.getDefaultRasterSymbolizer();
+        ColorMap cMap = sf.createColorMap();
+        ColorMapEntry start = sf.createColorMapEntry();
+        start.setColor(ff.literal("#ff0000"));
+        start.setQuantity(ff.literal(min));
+        ColorMapEntry end = sf.createColorMapEntry();
+        end.setColor(ff.literal("#0000ff"));
+        end.setQuantity(ff.literal(max));
+        cMap.addColorMapEntry(start);
+        cMap.addColorMapEntry(end);
+        sym.setColorMap(cMap);
+        Style style = SLD.wrapSymbolizers(sym);
+        return style;
+    }
+
+    /**
+     * 从tiff生成缩略图
+     *
+     * @param tifPath
+     * @param humbstPath
+     * @return
+     */
+    public static boolean makeThumbsFromTiff(String tifPath, String humbstPath) throws IOException {
+        GeoTiffReader reader = new GeoTiffReader(new File(tifPath));
+        GridCoverage2D coverage = reader.read(null);
+        GridCoverage2D outputCoverage = scaleCoverage(coverage, 0.5, 0.5);
+
+        File file = new File(humbstPath);
+        GeoTiffWriter writer = new GeoTiffWriter(file);
+        writer.write(outputCoverage, null);
+        writer.dispose();
+
+        BufferedImage bufferedImage = coverageImage(outputCoverage);
+        ImageIO.write(bufferedImage, "png", new File(humbstPath.replace("tif","png")));
+        return true;
+    }
+
+    public static void tif2Jpg(String fileAbsolutePath) {
+        if (fileAbsolutePath == null || "".equals(fileAbsolutePath.trim())) {
+            return;
+        }
+        if (!new File(fileAbsolutePath).exists()) {
+            return;
+        }
+        FileSeekableStream fileSeekStream = null;
+        try {
+            fileSeekStream = new FileSeekableStream(fileAbsolutePath);
+            TIFFEncodeParam tiffEncodeParam = new TIFFEncodeParam();
+            JPEGEncodeParam jpegEncodeParam = new JPEGEncodeParam();
+            ImageDecoder dec = ImageCodec.createImageDecoder("tiff", fileSeekStream, null);
+            int count = dec.getNumPages();
+            tiffEncodeParam.setCompression(TIFFEncodeParam.COMPRESSION_GROUP4);
+            tiffEncodeParam.setLittleEndian(false);
+            String filePathPrefix = fileAbsolutePath.substring(0, fileAbsolutePath.lastIndexOf("."));
+            for (int i = 0; i < count; i++) {
+                RenderedImage renderedImage = dec.decodeAsRenderedImage(i);
+                File imgFile = new File(filePathPrefix + "_" + i + ".jpg");
+                ParameterBlock pb = new ParameterBlock();
+                pb.addSource(renderedImage);
+                pb.add(imgFile.toString());
+                pb.add("JPEG");
+                pb.add(jpegEncodeParam);
+                RenderedOp renderedOp = JAI.create("filestore", pb);
+                renderedOp.dispose();
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } finally {
+            if (fileSeekStream != null) {
+                try {
+                    fileSeekStream.close();
+                } catch (IOException e) {
+                }
+                fileSeekStream = null;
+            }
+        }
+    }
+
+    public static void formatConverter(String tifFile, String jpgFile) {
+        try {
+            File input = new File(tifFile);
+            File output = new File(jpgFile);
+            BufferedImage image = ImageIO.read(input);
+            BufferedImage result = new BufferedImage(
+                    image.getWidth(),
+                    image.getHeight(),
+                    BufferedImage.TYPE_INT_ARGB);
+//            BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+//            Graphics g = result.getGraphics();
+//            ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//            ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+//                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+//            result.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
+            ImageIO.write(result, "png", output);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * 将 tiff 转换 jpg 格式
+     *
+     * @param filePath
+     * @return
+     */
+    public static String tiffTuanJPG(String filePath) {
+        String format = filePath.substring(filePath.lastIndexOf(".") + 1);
+        String turnJpgFile = filePath.replace("TIF", "jpg");
+        if (format.equals("TIF")) {
+            File fileTiff = new File(turnJpgFile);
+            if (fileTiff.exists()) {
+                System.out.println("该tiff文件已经转换为 JPG 文件：" + turnJpgFile);
+                return turnJpgFile;
+            }
+            RenderedOp rd = JAI.create("fileload", filePath);//读取iff文件
+            OutputStream ops = null;
+            try {
+                ops = new FileOutputStream(turnJpgFile);
+                //文件存储输出流
+                JPEGEncodeParam param = new JPEGEncodeParam();
+                ImageEncoder image = ImageCodec.createImageEncoder("JPEG", ops, param); //指定输出格式
+                image.encode(rd);
+                //解析输出流进行输出
+                ops.close();
+                System.out.println("tiff转换jpg成功:" + filePath);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return turnJpgFile;
+    }
+
+    public static Kv getFloatData(String latlons, File file, String writePath) throws Exception {
+        Hints tiffHints = new Hints();
+        tiffHints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE));
+        tiffHints.add(new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, CRS.decode("EPSG:32650")));
+        GeoTiffReader tifReader = new GeoTiffReader(file, tiffHints);
+        GridCoverage2D coverage = tifReader.read(null);
+        CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
+        List<Double> lons = new ArrayList<>();
+        List<Double> lats = new ArrayList<>();
+        String[] split = latlons.split(",");
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            lons.add(Double.parseDouble(s.split(" ")[0]));
+            lats.add(Double.parseDouble(s.split(" ")[1]));
+        }
+        Double min_lon = Collections.min(lons);
+        Double max_lon = Collections.max(lons);
+        Double min_lat = Collections.min(lats);
+        Double max_lat = Collections.max(lats);
+
+        // 通过地理坐标获取行列号
+        DirectPosition position1 = new DirectPosition2D(crs, max_lon, max_lat);
+        Point2D point2d1 = coverage.getGridGeometry().worldToGrid(position1);
+        int max_x = (int) point2d1.getX();
+        int max_y = (int) point2d1.getY();
+        DirectPosition position2 = new DirectPosition2D(crs, min_lon, min_lat);
+        Point2D point2d2 = coverage.getGridGeometry().worldToGrid(position2);
+        int min_x = (int) point2d2.getX();
+        int min_y = (int) point2d2.getY();
+        float[][] data = new float[min_y - max_y][max_x - min_x];
+//        for (int i = 0; i < data.length; i++) {
+//            for (int j = 0; j < data[i].length; j++) {
+//                data[i][j] = 1;
+//            }
+//        }
+//        //导出tiff
+        Point maxPoint = projectTransform(max_lat, max_lon, "EPSG:32650", "EPSG:4326");
+        Point minPoint = projectTransform(min_lat, min_lon, "EPSG:32650", "EPSG:4326");
+        CoordinateReferenceSystem crs84 = CRS.decode("EPSG:4326", false);
+        ReferencedEnvelope envelope = new ReferencedEnvelope(minPoint.getX(), maxPoint.getX(), minPoint.getY(), maxPoint.getY(), crs84);
+//        exportTIFF(writePath, data, envelope,0);
+        return Kv.by("data", data).set("envelope", envelope);
+    }
+
+    public static Double getNoDate(String path) throws IOException {
+        GeoTiffReader reader = new GeoTiffReader(new File(path));
+        GridCoverage2D coverage = reader.read(null);
+        GridSampleDimension sampleDimension = coverage.getSampleDimension(0);
+        double[] noDataValues = sampleDimension.getNoDataValues();
+        if (noDataValues == null) {
+            return null;
+        } else {
+            return noDataValues[0];
+        }
+    }
+
+    public static void writerTif(String latlons, float[][] data, String writePath, Double noDataValues) throws Exception {
+        List<Double> lons = new ArrayList<>();
+        List<Double> lats = new ArrayList<>();
+        String[] split = latlons.split(",");
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            lons.add(Double.parseDouble(s.split(" ")[0]));
+            lats.add(Double.parseDouble(s.split(" ")[1]));
+        }
+        Double min_lon = Collections.min(lons);
+        Double max_lon = Collections.max(lons);
+        Double min_lat = Collections.min(lats);
+        Double max_lat = Collections.max(lats);
+
+        Point maxPoint = projectTransform(max_lat, max_lon, "EPSG:32650", "EPSG:4326");
+        Point minPoint = projectTransform(min_lat, min_lon, "EPSG:32650", "EPSG:4326");
+
+        CoordinateReferenceSystem crs = CRS.decode("EPSG:4326", false);
+
+        //导出tiff
+        ReferencedEnvelope envelope = new ReferencedEnvelope(minPoint.getX(), maxPoint.getX(), minPoint.getY(), maxPoint.getY(), crs);
+        if (noDataValues == null) {
+            exportTIFF(writePath, data, envelope, 0);
+        } else {
+            exportTIFF(writePath, data, envelope, noDataValues.floatValue());
+        }
+    }
+
+    public static GridCoverage2D scaleCoverage(GridCoverage2D coverage, double xScale, double yScale) {
+        Operations ops = new Operations(null);
+        coverage = (GridCoverage2D) ops.scale(coverage, xScale, yScale, 0, 0);
+        return coverage;
+    }
+
+    public static void exportTIFF(String outputPath, float[][] data, org.opengis.geometry.Envelope env, float nodate) throws Exception {
+        GridCoverageFactory factory = new GridCoverageFactory();
+        HashMap properties = new HashMap<>();
+        CoverageUtilities.setNoDataProperty(properties, new NoDataContainer(nodate));
+        GridCoverage2D outputCoverage = factory.create("test", data, env);
+        GridCoverage2D nodata = factory.create("test", outputCoverage.getRenderedImage(), outputCoverage.getEnvelope(), outputCoverage.getSampleDimensions(), null, properties);
+
+        GeoTiffWriter writer = new GeoTiffWriter(new File(outputPath));
+        writer.write(nodata, null);
+        writer.dispose();
+    }
+
+    public static void exportTIFF(String outputPath, float[][] data, org.opengis.geometry.Envelope env) throws Exception {
+        GridCoverageFactory factory = new GridCoverageFactory();
+        GridCoverage2D outputCoverage = factory.create("test", data, env);
+        GeoTiffWriter writer = new GeoTiffWriter(new File(outputPath));
+        writer.write(outputCoverage, null);
+        writer.dispose();
+    }
+
+    /**
+     * 导出田块tiff
+     *
+     * @param outputPath
+     * @param coverage
+     * @throws Exception
+     */
+    public static void exportTkTIFF(String latlons, String outputPath, GridCoverage2D coverage) throws Exception {
+        GridCoverageFactory factory = new GridCoverageFactory();
+
+        List<Double> lons = new ArrayList<>();
+        List<Double> lats = new ArrayList<>();
+        String[] split = latlons.split(",");
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            lons.add(Double.parseDouble(s.split(" ")[0]));
+            lats.add(Double.parseDouble(s.split(" ")[1]));
+        }
+        Double min_lon = Collections.min(lons);
+        Double max_lon = Collections.max(lons);
+        Double min_lat = Collections.min(lats);
+        Double max_lat = Collections.max(lats);
+
+        Point maxPoint = projectTransform(max_lat, max_lon, "EPSG:32650", "EPSG:4326");
+        Point minPoint = projectTransform(min_lat, min_lon, "EPSG:32650", "EPSG:4326");
+
+        CoordinateReferenceSystem crs = CRS.decode("EPSG:4326", false);
+        //导出tiff
+        ReferencedEnvelope envelope = new ReferencedEnvelope(minPoint.getX(), maxPoint.getX(), minPoint.getY(), maxPoint.getY(), crs);
+        GridCoverage2D outputCoverage = factory.create("test", coverage.getRenderedImage(), envelope, null, null, null);
+
+        GeoTiffWriter writer = new GeoTiffWriter(new File(outputPath));
+        writer.write(outputCoverage, null);
+        writer.dispose();
+    }
+
+
+    public static Kv getNDVIParams(String latlons, File file) throws Exception {
+        Hints tiffHints = new Hints();
+        tiffHints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE));
+        tiffHints.add(new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, CRS.decode("EPSG:32650")));
+        GeoTiffReader tifReader = new GeoTiffReader(file, tiffHints);
+        GridCoverage2D coverage = tifReader.read(null);
+        CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
+        List<Double> lons = new ArrayList<>();
+        List<Double> lats = new ArrayList<>();
+        String[] split = latlons.split(",");
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            lons.add(Double.parseDouble(s.split(" ")[0]));
+            lats.add(Double.parseDouble(s.split(" ")[1]));
+        }
+        Double min_lon = Collections.min(lons);
+        Double max_lon = Collections.max(lons);
+        Double min_lat = Collections.min(lats);
+        Double max_lat = Collections.max(lats);
+//        Point maxPoint = projectTransform(max_lat, max_lon, "EPSG:4326", "EPSG:32650");
+//        Point minPoint = projectTransform(min_lat, min_lon, "EPSG:4326", "EPSG:32650");
+        // 通过地理坐标获取行列号
+        //获取影像长宽
+        int iwidth = coverage.getRenderedImage().getWidth();
+        int iheight = coverage.getRenderedImage().getHeight();
+
+        DirectPosition position1 = new DirectPosition2D(crs, max_lon, max_lat);
+        Point2D point2d1 = coverage.getGridGeometry().worldToGrid(position1);
+        int max_x = (int) point2d1.getX();
+        int max_y = (int) point2d1.getY();
+        DirectPosition position2 = new DirectPosition2D(crs, min_lon, min_lat);
+        Point2D point2d2 = coverage.getGridGeometry().worldToGrid(position2);
+        int min_x = (int) point2d2.getX();
+        int min_y = (int) point2d2.getY();
+//        if (min_y < 0 && max_x < 0 && max_y > iheight) {
+//            return Kv.by("data", null).set("intersec", false);
+//        }
+        if (max_y < 0) {
+            max_y = 0;
+        }
+        if (min_x < 0) {
+            min_x = 0;
+        }
+        if (min_y > iheight) {
+            min_y = iheight;
+        }
+        if (max_x > iwidth) {
+            max_x = iwidth;
+        }
+        float[][] data = new float[min_y - max_y][max_x - min_x];
+        Map properties = coverage.getProperties();
+        Double noDataValues = (Double) properties.get(NoDataContainer.GC_NODATA);
+        if (max_x == min_x && max_y == min_y) {
+            //田块在一个像素里
+            data = new float[1][1];
+            float[] sss = (float[]) coverage.evaluate(position1);
+            data[0][0] = sss[0];
+        } else {
+            for (int i = min_x; i < max_x; i++) {
+                for (int j = max_y; j < min_y; j++) {
+                    GridCoordinates2D coord = new GridCoordinates2D(i, j);
+                    DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
+                    double lon = tmpPos.getCoordinate()[0];
+                    double lat = tmpPos.getCoordinate()[1];
+                    boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))", 32650);
+                    if (iscontains) {
+                        //面内，赋值像素值
+                        int[] sss = (int[]) coverage.evaluate(tmpPos);
+                        int s = sss[0];
+                        if (noDataValues == null || Math.abs(s - noDataValues) > 1e-6) {
+                            data[j - max_y][i - min_x] = s;
+                        } else {
+                            if (noDataValues != null) {
+                                data[j - max_y][i - min_x] = noDataValues.floatValue();
+                            }
+                        }
+                    } else {
+                        if (noDataValues != null) {
+                            data[j - max_y][i - min_x] = noDataValues.floatValue();
+                        }
+                    }
+                }
+            }
+        }
+        return Kv.by("data", data).set("intersec", true);
+    }
+
+
+    /**
+     * 投影转换， lon=经度，lat=纬度，ESPG格式（例）：EPSG:4610
+     */
+    public static Point projectTransform(double lon, double lat,
+                                         String epsgSource, String epsgTarget) throws FactoryException,
+            MismatchedDimensionException, TransformException {
+        // 原始坐标点
+        // PS:通常逻辑上理解经度应该是横坐标x，纬度是y，可是这里经度要填到y，纬度x，否则会报错
+        Point sourcePoint = JtsHelper.createPoint(lat, lon, epsgSource);
+
+        // 定义转换前和转换后的投影，可以用ESPG或者wkt
+        // "PROJCS[\"Xian_1980_3_Degree_GK_CM_111E\",GEOGCS[\"GCS_Xian_1980\",DATUM[\"D_Xian_1980\",SPHEROID[\"Xian_1980\",6378140.0,298.257]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Gauss_Kruger\"],PARAMETER[\"False_Easting\",500000.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",111.0],PARAMETER[\"Scale_Factor\",1.0],PARAMETER[\"Latitude_Of_Origin\",0.0],UNIT[\"Meter\",1.0]]";
+        // CoordinateReferenceSystem mercatroCRS = CRS.parseWKT(strWKTMercator);
+        CoordinateReferenceSystem crsSource = CRS.decode(epsgSource);
+        CoordinateReferenceSystem crsTarget = CRS.decode(epsgTarget);
+        // 投影转换
+        MathTransform transform = CRS.findMathTransform(crsSource, crsTarget);
+        Point pointTarget = (Point) JTS.transform(sourcePoint, transform);
+
+        return pointTarget;
+    }
 
     /**
      * 点查询指定URl 的 tif

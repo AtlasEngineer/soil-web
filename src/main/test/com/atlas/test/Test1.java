@@ -1,41 +1,165 @@
 package com.atlas.test;
 
 import com.alibaba.fastjson.JSONObject;
-import com.vividsolutions.jts.geom.Coordinate;
+import com.soli.server.utils.GeometryRelated;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import it.geosolutions.jaiext.range.NoDataContainer;
+import org.geotools.coverage.GridSampleDimension;
+import org.geotools.coverage.grid.GridCoordinates2D;
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.data.FeatureWriter;
-import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.gce.geotiff.GeoTiffFormat;
+import org.geotools.gce.geotiff.GeoTiffReader;
+import org.geotools.gce.geotiff.GeoTiffWriter;
+import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.GeometryBuilder;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.resources.coverage.CoverageUtilities;
 import org.junit.Test;
+import org.opengis.coverage.ColorInterpretation;
+import org.opengis.coverage.PaletteInterpretation;
+import org.opengis.coverage.SampleDimension;
+import org.opengis.coverage.SampleDimensionType;
+import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.Name;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.Envelope;
+import org.opengis.parameter.GeneralParameterValue;
+import org.opengis.parameter.ParameterValue;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.CoordinateSystem;
+import org.opengis.util.InternationalString;
 
+import javax.measure.unit.Unit;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.TiledImage;
+import java.awt.*;
+import java.awt.geom.Point2D;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 public class Test1 {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    @Test
+    public void testTif() throws Exception {
+        String path = "C:\\Users\\xiaoxu\\Desktop\\1002\\GST010_7E3797.tif";
+        String writePath = "C:\\Users\\xiaoxu\\Desktop\\1002\\writePath.tif";
+        String latlons = "111 33,119 33,117 30,110 30,111 33";
+
+        GeoTiffReader reader = new GeoTiffReader(new File(path));
+        GridCoverage2D coverage = reader.read(null);
+        RenderedImage sourceImage = coverage.getRenderedImage();
+        TiledImage tiledImage = new TiledImage(sourceImage, true);
+        Raster sourceRaster = sourceImage.getData();
+//            WritableRaster writableRaster = tiledImage.copyData();
+        GridSampleDimension sampleDimension = coverage.getSampleDimension(0);
+        // 获取坐标系
+        CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
+        //波段数量
+        int numBands = sourceRaster.getNumBands();
+        List<Double> lons = new ArrayList<>();
+        List<Double> lats = new ArrayList<>();
+
+        String[] split = latlons.split(",");
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            lons.add(Double.parseDouble(s.split(" ")[0]));
+            lats.add(Double.parseDouble(s.split(" ")[1]));
+        }
+        Double min_lon = Collections.min(lons);
+        Double max_lon = Collections.max(lons);
+        Double min_lat = Collections.min(lats);
+        Double max_lat = Collections.max(lats);
+        // 通过地理坐标获取行列号
+        DirectPosition position1 = new DirectPosition2D(crs, max_lon, max_lat);
+        Point2D point2d1 = coverage.getGridGeometry().worldToGrid(position1);
+        int max_x = (int) point2d1.getX();
+        int max_y = (int) point2d1.getY();
+        DirectPosition position2 = new DirectPosition2D(crs, min_lon, min_lat);
+        Point2D point2d2 = coverage.getGridGeometry().worldToGrid(position2);
+        int min_x = (int) point2d2.getX();
+        int min_y = (int) point2d2.getY();
+
+        Map<?, ?> props = coverage.getProperties();
+        NoDataContainer nodata = (NoDataContainer) props.get(NoDataContainer.GC_NODATA);
+
+        //获取float[][] data
+        Double noDataValues = sampleDimension.getNoDataValues()[0];
+        System.out.println(noDataValues);
+        System.out.println(max_x - min_x);
+        System.out.println(min_y - max_y);
+        float[][] data = new float[min_y - max_y][max_x - min_x];
+        for (int i = min_x; i < max_x; i++) {
+            for (int j = max_y; j < min_y; j++) {
+                GridCoordinates2D coord = new GridCoordinates2D(i, j);
+                DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
+                double lon = tmpPos.getCoordinate()[0];
+                double lat = tmpPos.getCoordinate()[1];
+                boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))");
+                if (iscontains) {
+                    //面内，赋值像素值
+                    float[] sss = (float[]) coverage.evaluate(tmpPos);
+                    float s = sss[0];
+                    if (Math.abs(s - noDataValues.floatValue()) > 1e-6) {
+                        data[j - max_y][i - min_x] = s;
+                    } else {
+                        data[j - max_y][i - min_x] = noDataValues.floatValue();
+                    }
+                } else {
+                    data[j - max_y][i - min_x] = noDataValues.floatValue();
+                }
+            }
+        }
+        //导出tiff
+        ReferencedEnvelope envelope = new ReferencedEnvelope(min_lon, max_lon, min_lat, max_lat, crs);
+        exportTIFF(writePath, data, envelope, noDataValues.floatValue());
+    }
+
+    private void exportTIFF(String outputPath, float[][] data, Envelope env, float nodate) throws Exception {
+        GridCoverageFactory factory = new GridCoverageFactory();
+        HashMap properties = new HashMap<>();
+        CoverageUtilities.setNoDataProperty(properties, new NoDataContainer(nodate));
+        GridCoverage2D outputCoverage = factory.create("test", data, env);
+        GridCoverage2D nodata = factory.create("test", outputCoverage.getRenderedImage(), outputCoverage.getEnvelope(), outputCoverage.getSampleDimensions(), null, properties);
+
+        GeoTiffWriter writer = new GeoTiffWriter(new File(outputPath));
+        writer.write(nodata, null);
+        writer.dispose();
+    }
+
+
+    @Test
+    public void testABS() {
+        float a = (float) 1.0E36;
+        float b = (float) 9.999999616903162E35;
+        if (Math.abs(a - b) < 1e-6) {
+            System.out.println(true);
+        }
+    }
 
     @Test
     public void testbe() throws ParseException {

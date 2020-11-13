@@ -22,6 +22,8 @@ import com.lambkit.common.service.BaseServiceMock;
 import com.soli.server.model.Data;
 import com.soli.server.service.DataService;
 
+import java.util.List;
+
 /**
  * @author yangyong 
  * @website: www.lambkit.com
@@ -31,6 +33,16 @@ import com.soli.server.service.DataService;
  * @since 1.0
  */
 public class DataServiceMock extends BaseServiceMock<Data> implements DataService {
+
+    @Override
+    public Ret updateNDVI2(List<Integer> ids) {
+        return null;
+    }
+
+    @Override
+    public Ret updateNDVI(List<Integer> ids) {
+        return null;
+    }
 
     @Override
     public Ret getTkRemoteData(Integer id) {

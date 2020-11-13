@@ -25,6 +25,7 @@ import com.lambkit.core.api.route.ApiRenderJFinalJson;
 import com.soli.server.model.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author yangyong 
@@ -35,6 +36,22 @@ import java.util.Date;
  * @since 1.0
  */
 public interface DataService extends LambkitService<Data> {
+
+    /**
+     * 更新ndvi ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.updateNDVItwo",useLogin = false)
+    public Ret updateNDVI2(List<Integer> ids);
+
+    /**
+     * 更新ndvi ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.updateNDVI",useLogin = false)
+    public Ret updateNDVI(List<Integer> ids);
 
     /**
      * 获取田块相关的遥感数据

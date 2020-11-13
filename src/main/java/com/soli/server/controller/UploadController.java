@@ -19,12 +19,14 @@ import com.soli.server.model.Data;
 import com.soli.server.model.DataEach;
 import com.soli.server.service.impl.DataEachServiceImpl;
 import com.soli.server.utils.*;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +37,33 @@ import static com.soli.server.utils.CodePageUtils.getUserEntity;
 
 @Clear(JwtTokenInterceptor.class)
 public class UploadController extends LambkitController {
+
+
+    @Clear
+    @ApiOperation(url = "/upload/uploadProductExcel", tag = "/upload", httpMethod = "post", description = "上传数据")
+    public void uploadProductExcel(){
+        UploadFile uf = getFile();
+        File file = uf.getFile();
+        String name = file.getName();
+        if (file == null){
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "未获取到excel")));
+            return;
+        }else if ((!name.endsWith("xls"))&&(!name.endsWith("xlsx"))){
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "只能导入excel格式数据")));
+            return;
+        }else {
+            try {
+                ExcelReaderUtils.productUpload(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InvalidFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        renderJson(Co.ok("data", Co.by("state", "ok").set("msg", "保存成功")));
+        return;
+    }
+
 
     /**
      * @return void
@@ -117,7 +146,7 @@ public class UploadController extends LambkitController {
                 if (id == 82) {
                     //landset
                     filename = "landset-" + filename;
-                }else{
+                } else {
                     filename = "SB1-" + filename;
                 }
             } else if (type == 6) {
@@ -169,7 +198,6 @@ public class UploadController extends LambkitController {
                         file2.renameTo(file01);
 
                         if ("tif".equals(s1) || "tiff".equals(s1)) {
-                            type = 1;
                             tifPath = file01.getPath();
                         } else if (type == 0) {
                             if ("shp".equals(s1)) {
@@ -219,6 +247,10 @@ public class UploadController extends LambkitController {
                     //发布tiff
                     try {
                         kv = IssueTiffUtils.uploadTiff(tifPath, name);
+                        if (kv.getInt("code") != 200) {
+                            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", kv.get("msg"))));
+                            return;
+                        }
                         if ("无人机数据".equals(data.getName())) {
                             //添加最大最小坐标
                             Kv tiffXY = ReadTiffUtils.getTiffXY(tifPath);
@@ -242,13 +274,20 @@ public class UploadController extends LambkitController {
                             Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_eroded", data_time, 0);
                             kv.set(readQwAndSd);
                         }
+                        if(id == 79 ||id == 44 ||id == 45||id == 30 ||id == 46 || id == 47 || id == 94 || id == 95||id == 28 || id == 48 || id == 92 || id == 48){
+                            //气象数据重新生成sld、灌溉面积
+                            Kv sld = IssueTiffUtils.createFixedSld(id, name);
+                            if (sld.getInt("code") != 200) {
+                                kv = Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 409);
+                            } else {
+                                kv = Kv.by("msg", "发布成功").set("code", 200).set("sld", sld.get("msg"));
+                            }
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
+                        renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请检查数据坐标系等信息").set("code", 409)));
+                        return;
                     }
-                }
-                if (kv.getInt("code") != 200) {
-                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", kv.get("msg"))));
-                    return;
                 }
             } else if (type == 2) {
                 //发布表格到数据库
