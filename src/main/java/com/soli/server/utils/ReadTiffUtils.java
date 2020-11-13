@@ -66,10 +66,19 @@ public class ReadTiffUtils {
         }
     }
 
-    public static BufferedImage coverageImage(GridCoverage2D coverage) {
+    public static BufferedImage coverageImage(float[][] data, GridCoverage2D coverage) {
+        ArrayList<Float> list = new ArrayList<>();
+        for (int i = 0; i < data.length; i++) {
+            for (int j = 0; j < data[i].length; j++) {
+                float d1 =  data[i][j];
+                list.add(d1);
+            }
+        }
+        Float min = Collections.min(list);
+        Float max = Collections.max(list);
         MapContent map = new MapContent();
         GtsLayer gtsLayer = new GtsLayer("coverage");
-        gtsLayer.addCoverage(coverage);
+        gtsLayer.addCoverage(coverage, max, min);
         int width = coverage.getRenderedImage().getWidth();
         int height = coverage.getRenderedImage().getHeight();
         map.addLayer(gtsLayer.getLayer());
@@ -81,7 +90,7 @@ public class ReadTiffUtils {
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         Rectangle rect = new Rectangle(0, 0, width, height);
-        if(map!=null) {
+        if (map != null) {
             // 初始化渲染器
             StreamingRenderer sr = new StreamingRenderer();
             sr.setMapContent(map);
@@ -98,10 +107,10 @@ public class ReadTiffUtils {
         RasterSymbolizer sym = sf.getDefaultRasterSymbolizer();
         ColorMap cMap = sf.createColorMap();
         ColorMapEntry start = sf.createColorMapEntry();
-        start.setColor(ff.literal("#ff0000"));
+        start.setColor(ff.literal("#fff000"));
         start.setQuantity(ff.literal(min));
         ColorMapEntry end = sf.createColorMapEntry();
-        end.setColor(ff.literal("#0000ff"));
+        end.setColor(ff.literal("#000fff"));
         end.setQuantity(ff.literal(max));
         cMap.addColorMapEntry(start);
         cMap.addColorMapEntry(end);
@@ -117,18 +126,18 @@ public class ReadTiffUtils {
      * @param humbstPath
      * @return
      */
-    public static boolean makeThumbsFromTiff(String tifPath, String humbstPath) throws IOException {
+    public static boolean makeThumbsFromTiff(float[][] data, String tifPath, String humbstPath) throws IOException {
         GeoTiffReader reader = new GeoTiffReader(new File(tifPath));
         GridCoverage2D coverage = reader.read(null);
-        GridCoverage2D outputCoverage = scaleCoverage(coverage, 0.5, 0.5);
+//        GridCoverage2D outputCoverage = scaleCoverage(coverage, 0.8, 0.8);
 
-        File file = new File(humbstPath);
-        GeoTiffWriter writer = new GeoTiffWriter(file);
-        writer.write(outputCoverage, null);
-        writer.dispose();
+//        File file = new File(humbstPath);
+//        GeoTiffWriter writer = new GeoTiffWriter(file);
+//        writer.write(outputCoverage, null);
+//        writer.dispose();
 
-        BufferedImage bufferedImage = coverageImage(outputCoverage);
-        ImageIO.write(bufferedImage, "png", new File(humbstPath.replace("tif","png")));
+        BufferedImage bufferedImage = coverageImage(data, coverage);
+        ImageIO.write(bufferedImage, "png", new File(humbstPath.replace("tif", "png")));
         return true;
     }
 

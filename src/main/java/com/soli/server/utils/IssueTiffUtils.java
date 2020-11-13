@@ -13,11 +13,9 @@ import it.geosolutions.geoserver.rest.decoder.RESTDataStoreList;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.jaiext.range.NoDataContainer;
 import it.geosolutions.jaiext.range.Range;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.dom4j.Namespace;
+import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
+import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoordinates2D;
@@ -30,11 +28,14 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.TiledImage;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,12 +46,12 @@ public class IssueTiffUtils {
 
     public static Kv uploadTiff(String tifPath, String name) throws Exception {
         GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
-        String geoserverUrl = config.getGeourl();
-        String geoserverUsername = config.getGeouser();
-        String geoserverPassword = config.getGeopsw();
-//        String geoserverUrl = "http://127.0.0.1:18999/geoserver";
-//        String geoserverUsername = "admin";
-//        String geoserverPassword = "geoserver";
+//        String geoserverUrl = config.getGeourl();
+//        String geoserverUsername = config.getGeouser();
+//        String geoserverPassword = config.getGeopsw();
+        String geoserverUrl = "http://127.0.0.1:18999/geoserver";
+        String geoserverUsername = "admin";
+        String geoserverPassword = "geoserver";
         GeoServerRESTPublisher geoServerRESTPublisher = new GeoServerRESTPublisher(geoserverUrl, geoserverUsername, geoserverPassword);
         GeoServerRESTReader geoServerRESTReader = new GeoServerRESTReader(geoserverUrl, geoserverUsername, geoserverPassword);
         String workspace = "d";
@@ -70,8 +71,10 @@ public class IssueTiffUtils {
 //        boolean storeNull = !datastoreNameList.contains(name);
 //        if (storeNull) {
         //发布tiff
+        long l = System.currentTimeMillis();
         boolean result = geoServerRESTPublisher.publishExternalGeoTIFF(workspace, name, tiffFile, name, "EPSG:4326", GSResourceEncoder.ProjectionPolicy.REPROJECT_TO_DECLARED, "tif_custom");
 //        boolean result = geoServerRESTPublisher.publishGeoTIFF(workspace, name, tiffFile);
+        System.out.println("发布耗时：" + (System.currentTimeMillis() - l) + "ms");
         if (result) {
             Kv sld = createSld(tiffFile, name);
             if (sld.getInt("code") != 200) {
@@ -116,7 +119,9 @@ public class IssueTiffUtils {
         File files = new File(s);
         String tifPath = null;
         boolean existDbf = false;
+        boolean existAux = false;
         String tifDbfPath = null;
+        String tifAuxPath = null;
         String[] fileList = files.list();
         List<String> list = new ArrayList<>();
         for (String y : fileList) {
@@ -142,6 +147,10 @@ public class IssueTiffUtils {
                 if (".tif.vat.dbf".equals(s1) || ".tif.vat.dbf".equals(s1)) {
                     existDbf = true;
                     tifDbfPath = file01.getPath();
+                }
+                if (".tif.aux.xml".equals(s1) || ".tif.aux.xml".equals(s1)) {
+                    existAux = true;
+                    tifAuxPath = file01.getPath();
                 }
             }
         }
@@ -169,7 +178,11 @@ public class IssueTiffUtils {
                 if (existDbf) {
                     sld = createSldByDbf(new File(tifDbfPath), name);
                 } else {
-                    sld = createSld(tiffFile, name);
+                    if (existAux) {
+                        sld = createSldByAux(tiffFile,new File(tifAuxPath), name);
+                    } else {
+                        sld = createSld(tiffFile, name);
+                    }
                 }
 //                Integer code = sld.getInt("code");
 //                if (code == 200) {
@@ -182,6 +195,96 @@ public class IssueTiffUtils {
             }
         } else {
             return Kv.by("msg", "该数据已存在").set("code", 400);
+        }
+    }
+
+    private static Kv createSldByAux(File tiffile, File auxfile, String name) {
+        try {
+            GeoTiffReader reader = new GeoTiffReader(tiffile);
+            GridCoverage2D coverage = reader.read(null);
+            RenderedImage sourceImage = coverage.getRenderedImage();
+            Raster sourceRaster = sourceImage.getData();
+            //波段数量
+            int numBands = sourceRaster.getNumBands();
+            if (numBands != 1) {
+                return Kv.by("msg", "波段数量:" + numBands).set("code", "400");
+            }
+            //读取aux
+            SAXReader auxReader = new SAXReader();
+            Document doc = null;
+            try {
+                doc = auxReader.read(auxfile);
+            } catch (DocumentException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            // 读取指定标签
+            Element PAMRasterBand = doc.getRootElement().element("PAMRasterBand");
+            Element metadata = PAMRasterBand.element("Metadata");
+            List<Element> mdi = metadata.elements("MDI");
+            System.out.println(mdi.size());
+            double max = 0.0;
+            double min = 0.0;
+            for (Element element : mdi) {
+                String key = element.attributeValue("key");
+                if("STATISTICS_MINIMUM".equals(key)){
+                    min = Double.valueOf(element.getStringValue());
+                }
+                if("STATISTICS_MAXIMUM".equals(key)){
+                    max = Double.valueOf(element.getStringValue());
+                }
+            }
+            System.out.println("max:" + max + "---min:" + min);
+            double cha = max - min;
+            double ji = Arith.div(cha, 4, 2);
+            double[] aa = new double[5];
+            for (int i = 0; i < 5; i++) {
+                if (i == 0) {
+                    aa[i] = min;
+                } else {
+                    aa[i] = aa[i - 1] + ji;
+                }
+            }
+            System.out.println("像元值分五级每级差值:" + ji);
+            //生成sld
+            System.out.println("create new sld...");
+            Document document = DocumentHelper.createDocument();
+            Element root = document.addElement("StyledLayerDescriptor");
+            root.addAttribute("version", "1.0.0");
+            root.addAttribute("xmlns", "http://www.opengis.net/sld");
+//            root.add(new Namespace("sld", "http://www.opengis.net/sld"));
+            root.add(new Namespace("ogc", "http://www.opengis.net/ogc"));
+            root.add(new Namespace("xlink", "http://www.w3.org/1999/xlink"));
+            root.add(new Namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance"));
+            root.add(new Namespace("schemaLocation", "http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd"));
+//            root.add(new Namespace("schemaLocation", "http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd"));
+
+            Element row_nl = root.addElement("NamedLayer");
+            row_nl.addElement("Name").addText("d:" + name);
+            Element row_nl_us = row_nl.addElement("UserStyle");
+            row_nl_us.addElement("Name").addText("default");
+            Element row_nl_us_f = row_nl_us.addElement("FeatureTypeStyle");
+            Element row_nl_us_r = row_nl_us_f.addElement("Rule");
+
+            Element row_nl_us_r_p = row_nl_us_r.addElement("RasterSymbolizer");
+            // <Opacity>1.0</Opacity>
+            row_nl_us_r_p.addElement("Opacity").addText("1.0");
+            Element row_nl_us_r_c_p = row_nl_us_r_p.addElement("ColorMap");
+            String color = "#AAFFAA,#00FF00,#FFFF00,#FF7F00,#BF7F3F,#000000,#AAFFAA,#00FF00,#FFFF00,#FF7F00,#BF7F3F,#000000";
+            String[] colors = color.split(",");
+            for (int i = 0; i < aa.length; i++) {
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", colors[i])
+                        .addAttribute("quantity", String.valueOf(aa[i])).addAttribute("label", String.valueOf(aa[i]));
+            }
+            //生成style文件
+            String rootPath = PathKit.getWebRootPath().replace("\\", "/");
+            String path = rootPath + "/sld/" + name + ".sld";
+            saveDocument(document, path, "UTF-8");
+            return Kv.by("msg", "生成sld成功:" + path).set("code", 200).set("path", path);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Kv.by("msg", "生成sld失败:" + e.getMessage()).set("code", 400).set("Exception", e.getMessage());
         }
     }
 
@@ -292,7 +395,7 @@ public class IssueTiffUtils {
     public static void main(String[] args) {
         try {
             uploadTiff("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif"
-                    ,"ChinaEco100");
+                    , "ChinaEco100");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -343,9 +446,8 @@ public class IssueTiffUtils {
             System.out.println("宽：" + iwidth + "----长：" + iheight);
             //获取行列对应的像元值
             float[] adsaf = {0};
-            double max = 0;
-            double min = 0;
             List<Float> count = new ArrayList();
+            long l = System.currentTimeMillis();
             for (int i = 0; i < iwidth; i++) {
                 for (int j = 0; j < iheight; j++) {
 //                    GridCoordinates2D coord = new GridCoordinates2D(i, j);
@@ -353,15 +455,15 @@ public class IssueTiffUtils {
 //                    float[] sss = (float[]) coverage.evaluate(tmpPos);
 //                    Float v = sss[0];
                     sourceRaster.getPixel(i, j, adsaf);
-                    float v = adsaf[0];
-                    if (Math.abs(v - noData.floatValue()) < 1e-6) {
+                    if (Math.abs(adsaf[0] - noData.floatValue()) < 1e-6) {
                         continue;
                     }
-                    count.add(v);
+                    count.add(adsaf[0]);
                 }
             }
-            max = Collections.max(count);
-            min = Collections.min(count);
+            System.out.println("遍历耗时：" + (System.currentTimeMillis() - l) + "ms");
+            double max = Collections.max(count);
+            double min = Collections.min(count);
             System.out.println("max:" + max + "---min:" + min);
             double cha = max - min;
             double ji = Arith.div(cha, 4, 2);

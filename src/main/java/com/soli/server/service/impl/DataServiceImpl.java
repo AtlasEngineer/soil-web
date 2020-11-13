@@ -79,7 +79,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         return DAO;
     }
 
-    public Ret updateNDVI2(List<Integer> ids) {
+    public Ret updateNDVI(List<Integer> ids) {
         if (ids.size() == 0) {
             return Ret.fail("errorMsg", "请选择更新的数据");
         }
@@ -120,7 +120,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     " where e.id = '" + dataEach.getId() + "' and T.del = 0 ");
             for (Record tk : tks) {
                 //获取wkt
-                String writePath = "/ndvi/" + tk.getInt("gid") + "_" + sdf.format(dataEach.getDataTime()) +directory.getName()+".tif";
+                String writePath = "/ndvi/" + tk.getInt("gid") + "_" + sdf.format(dataEach.getDataTime()) + directory.getName() + ".tif";
                 String geom = tk.getStr("geom");
                 if (geom.contains("MULTIPOLYGON")) {
                     geom = geom.substring(15, geom.length() - 3);
@@ -151,7 +151,12 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                             double add = Arith.add(b5, b4);
                             if (add != 0) {
                                 Double div = Arith.div(Arith.sub(b5, b4), add);
-                                data[i][j] = div.floatValue();
+                                if (div == -1 || div == 1) {
+                                    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                                    data[i][j] = 0;
+                                }else{
+                                    data[i][j] = div.floatValue();
+                                }
                             } else {
                                 data[i][j] = 0;
                             }
@@ -203,7 +208,12 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                             } else {
                                 //取平均值
                                 Double div = Arith.div(Arith.add(d1, d2), 2);
-                                data[i][j] = div.floatValue();
+                                if (div == -1 || div == 1) {
+                                    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                                    data[i][j] = 0;
+                                }else{
+                                    data[i][j] = div.floatValue();
+                                }
                             }
                         }
                     }
@@ -220,7 +230,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 String s = rootPath + ndviModel.getPath();
                 String[] split = s.split(".tif");
                 String s1 = split[0] + "_thumbs.tif";
-                ReadTiffUtils.makeThumbsFromTiff(s,s1);
+                ReadTiffUtils.makeThumbsFromTiff(data, s, s1);
                 //生成缩略图
             } catch (Exception e) {
                 e.printStackTrace();
@@ -231,7 +241,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
-    public Ret updateNDVI(List<Integer> ids) {
+    public Ret updateNDVI2(List<Integer> ids) {
         if (ids.size() == 0) {
             return Ret.fail("errorMsg", "请选择更新的数据");
         }

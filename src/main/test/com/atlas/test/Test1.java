@@ -5,6 +5,10 @@ import com.soli.server.utils.GeometryRelated;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import it.geosolutions.jaiext.range.NoDataContainer;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoordinates2D;
 import org.geotools.coverage.grid.GridCoverage2D;
@@ -55,6 +59,7 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -63,6 +68,38 @@ import java.util.List;
 public class Test1 {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    @Test
+    public void testXml(){
+        //读取aux
+        SAXReader auxReader = new SAXReader();
+        Document doc = null;
+        try {
+            doc = auxReader.read(new File("C:\\Users\\xiaoxu\\Desktop\\ChinaEco100\\ChinaEco100.tif.aux.xml"));
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        // 读取指定标签
+        Element PAMRasterBand = doc.getRootElement().element("PAMRasterBand");
+        Element metadata = PAMRasterBand.element("Metadata");
+        List<Element> mdi = metadata.elements("MDI");
+        System.out.println(mdi.size());
+        double max = 0.0;
+        double min = 0.0;
+        for (Element element : mdi) {
+            String key = element.attributeValue("key");
+            if("STATISTICS_MINIMUM".equals(key)){
+                min = Double.valueOf(element.getStringValue());
+            }
+            if("STATISTICS_MAXIMUM".equals(key)){
+                max = Double.valueOf(element.getStringValue());
+            }
+        }
+        System.out.println(min);
+        System.out.println(max);
+    }
 
     @Test
     public void testTif() throws Exception {
