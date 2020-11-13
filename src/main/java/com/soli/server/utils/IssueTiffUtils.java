@@ -46,12 +46,12 @@ public class IssueTiffUtils {
 
     public static Kv uploadTiff(String tifPath, String name) throws Exception {
         GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
-//        String geoserverUrl = config.getGeourl();
-//        String geoserverUsername = config.getGeouser();
-//        String geoserverPassword = config.getGeopsw();
-        String geoserverUrl = "http://127.0.0.1:18999/geoserver";
-        String geoserverUsername = "admin";
-        String geoserverPassword = "geoserver";
+        String geoserverUrl = config.getGeourl();
+        String geoserverUsername = config.getGeouser();
+        String geoserverPassword = config.getGeopsw();
+//        String geoserverUrl = "http://127.0.0.1:18999/geoserver";
+//        String geoserverUsername = "admin";
+//        String geoserverPassword = "geoserver";
         GeoServerRESTPublisher geoServerRESTPublisher = new GeoServerRESTPublisher(geoserverUrl, geoserverUsername, geoserverPassword);
         GeoServerRESTReader geoServerRESTReader = new GeoServerRESTReader(geoserverUrl, geoserverUsername, geoserverPassword);
         String workspace = "d";
