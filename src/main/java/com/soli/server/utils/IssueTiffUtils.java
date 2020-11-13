@@ -10,6 +10,7 @@ import com.soli.lambkit.start.GeoServerConfig;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.GeoServerRESTReader;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStoreList;
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.jaiext.range.NoDataContainer;
 import it.geosolutions.jaiext.range.Range;
 import org.dom4j.Document;
@@ -41,11 +42,15 @@ import java.util.List;
 
 public class IssueTiffUtils {
 
+
     public static Kv uploadTiff(String tifPath, String name) throws Exception {
         GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
         String geoserverUrl = config.getGeourl();
         String geoserverUsername = config.getGeouser();
         String geoserverPassword = config.getGeopsw();
+//        String geoserverUrl = "http://127.0.0.1:18999/geoserver";
+//        String geoserverUsername = "admin";
+//        String geoserverPassword = "geoserver";
         GeoServerRESTPublisher geoServerRESTPublisher = new GeoServerRESTPublisher(geoserverUrl, geoserverUsername, geoserverPassword);
         GeoServerRESTReader geoServerRESTReader = new GeoServerRESTReader(geoserverUrl, geoserverUsername, geoserverPassword);
         String workspace = "d";
@@ -65,7 +70,8 @@ public class IssueTiffUtils {
 //        boolean storeNull = !datastoreNameList.contains(name);
 //        if (storeNull) {
         //发布tiff
-        boolean result = geoServerRESTPublisher.publishGeoTIFF(workspace, name, tiffFile);
+        boolean result = geoServerRESTPublisher.publishExternalGeoTIFF(workspace, name, tiffFile, name, "EPSG:4326", GSResourceEncoder.ProjectionPolicy.REPROJECT_TO_DECLARED, "tif_custom");
+//        boolean result = geoServerRESTPublisher.publishGeoTIFF(workspace, name, tiffFile);
         if (result) {
             Kv sld = createSld(tiffFile, name);
             if (sld.getInt("code") != 200) {
@@ -284,14 +290,19 @@ public class IssueTiffUtils {
 
 
     public static void main(String[] args) {
+        try {
+            uploadTiff("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif"
+                    ,"ChinaEco100");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-
-        double dis = 1e-6;
-        double d1 = 0.0000001d;
-        double d2 = 0d;
-        System.out.println(d1 == d2); //直接判断为flase
-        System.out.println(Math.abs(d1 - d2) < dis);    //允许一定的误差范围，判断结果为true
-        createSld(new File("C:\\Users\\xiaoxu\\Desktop\\1002\\GST010_7E3797.tif"), "aaaa");
+//        double dis = 1e-6;
+//        double d1 = 0.0000001d;
+//        double d2 = 0d;
+//        System.out.println(d1 == d2); //直接判断为flase
+//        System.out.println(Math.abs(d1 - d2) < dis);    //允许一定的误差范围，判断结果为true
+//        createSld(new File("C:\\Users\\xiaoxu\\Desktop\\1002\\GST010_7E3797.tif"), "aaaa");
     }
 
     /**
