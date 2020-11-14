@@ -259,11 +259,11 @@ public class UploadController extends LambkitController {
                         File sldParams = null;
                         if (tifAuxPath != null) {
                             sldType = 2;
-                            sldParams = new File("tifAuxPath");
+                            sldParams = new File(tifAuxPath);
                         }
                         if (tifDbfPath != null) {
                             sldType = 1;
-                            sldParams = new File("tifAuxPath");
+                            sldParams = new File(tifDbfPath);
                         }
                         kv = IssueTiffUtils.uploadTiff(tifPath, name, sldType, sldParams);
                         if (kv.getInt("code") != 200) {
