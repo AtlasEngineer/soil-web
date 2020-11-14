@@ -588,6 +588,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     file = new File(webRootPath + dataEach.getUrl());
                 } else if (dataEach.getType() == 0 || dataEach.getType() == 1 || dataEach.getType() == 5) {
                     publisher.removeLayer("d", dataEach.getUrl().split(":")[1]);
+                    publisher.removeDatastore("d",dataEach.getUrl().split(":")[1]);
                     file = new File(webRootPath + "/d/" + dataEach.getUrl().split(":")[1]);
                 } else {
                     File file1 = new File(webRootPath + dataEach.getUrl());
