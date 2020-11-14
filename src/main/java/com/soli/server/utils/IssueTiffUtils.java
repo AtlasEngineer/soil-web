@@ -44,7 +44,7 @@ import java.util.List;
 public class IssueTiffUtils {
 
 
-    public static Kv uploadTiff(String tifPath, String name, Integer sldType,File sldParam) throws Exception {
+    public static Kv uploadTiff(String tifPath, String name, Integer sldType, File sldParam) throws Exception {
         GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
         String geoserverUrl = config.getGeourl();
         String geoserverUsername = config.getGeouser();
@@ -81,7 +81,7 @@ public class IssueTiffUtils {
                 sld = createSldByDbf(sldParam, name);
             } else {
                 if (sldType == 2) {
-                    sld = createSldByAux(tiffFile,sldParam, name);
+                    sld = createSldByAux(tiffFile, sldParam, name);
                 } else {
                     sld = createSld(tiffFile, name);
                 }
@@ -403,8 +403,10 @@ public class IssueTiffUtils {
 
     public static void main(String[] args) {
         try {
+//            uploadTiff("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif"
+//                    , "ChinaEco100",2,new File("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif.aux.xml"));
             uploadTiff("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif"
-                    , "ChinaEco100",2,new File("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif.aux.xml"));
+                    , "ChinaEco100", 0, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -455,24 +457,34 @@ public class IssueTiffUtils {
             System.out.println("宽：" + iwidth + "----长：" + iheight);
             //获取行列对应的像元值
             float[] adsaf = {0};
-            List<Float> count = new ArrayList();
+//            List<Float> count = new ArrayList();
+            double max = 0;
+            double min = 0;
             long l = System.currentTimeMillis();
             for (int i = 0; i < iwidth; i++) {
                 for (int j = 0; j < iheight; j++) {
-//                    GridCoordinates2D coord = new GridCoordinates2D(i, j);
-//                    DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
-//                    float[] sss = (float[]) coverage.evaluate(tmpPos);
-//                    Float v = sss[0];
                     sourceRaster.getPixel(i, j, adsaf);
-                    if (Math.abs(adsaf[0] - noData.floatValue()) < 1e-6) {
+                    float v = adsaf[0];
+                    if (Math.abs(v - noData.floatValue()) < 1e-6) {
                         continue;
                     }
-                    count.add(adsaf[0]);
+                    if (max == 0 && min == 0) {
+                        max = v;
+                        min = v;
+                    }else{
+                        if (max < v) {
+                            max = v;
+                        }
+                        if (min > v) {
+                            min = v;
+                        }
+                    }
+//                    count.add(adsaf[0]);
                 }
             }
             System.out.println("遍历耗时：" + (System.currentTimeMillis() - l) + "ms");
-            double max = Collections.max(count);
-            double min = Collections.min(count);
+//            double max = Collections.max(count);
+//            double min = Collections.min(count);
             System.out.println("max:" + max + "---min:" + min);
             double cha = max - min;
             double ji = Arith.div(cha, 4, 2);
