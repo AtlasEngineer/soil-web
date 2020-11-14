@@ -390,8 +390,8 @@ public class IssueTiffUtils {
             // <Opacity>1.0</Opacity>
             row_nl_us_r_p.addElement("Opacity").addText("1.0");
             Element row_nl_us_r_c_p = row_nl_us_r_p.addElement("ColorMap");
-            row_nl_us_r_c_p.addAttribute("type", "values");
-            String color = "#ff2626,#ff6c2b,#ffa82b,#ffda2b,#d5ff2b,#a8ff2b,#4eff2b,#2bff9e,#2bffda,#2bf3ff,#2bd5ff,#2bb2ff,#2b8fff,#2b49ff,#762bff,#b22bff,#e42bff,#ff2be9,#ff2bb7,#ff2b76";
+            String color = "#AAFFAA,#00FF00,#FFFF00,#FF7F00,#BF7F3F,#000000,#AAFFAA,#00FF00,#FFFF00,#FF7F00,#BF7F3F,#000000";
+//            String color = "#ff2626,#ff6c2b,#ffa82b,#ffda2b,#d5ff2b,#a8ff2b,#4eff2b,#2bff9e,#2bffda,#2bf3ff,#2bd5ff,#2bb2ff,#2b8fff,#2b49ff,#762bff,#b22bff,#e42bff,#ff2be9,#ff2bb7,#ff2b76";
             String[] colors = color.split(",");
             for (int i = 0; i < aa.length; i++) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", colors[i])
