@@ -49,9 +49,9 @@ public class IssueTiffUtils {
         String geoserverUrl = config.getGeourl();
         String geoserverUsername = config.getGeouser();
         String geoserverPassword = config.getGeopsw();
-//        String geoserverUrl = "http://127.0.0.1:18999/geoserver";
-//        String geoserverUsername = "admin";
-//        String geoserverPassword = "geoserver";
+//        geoserverUrl = "http://127.0.0.1:18999/geoserver";
+//        geoserverUsername = "admin";
+//        geoserverPassword = "geoserver";
         GeoServerRESTPublisher geoServerRESTPublisher = new GeoServerRESTPublisher(geoserverUrl, geoserverUsername, geoserverPassword);
         GeoServerRESTReader geoServerRESTReader = new GeoServerRESTReader(geoserverUrl, geoserverUsername, geoserverPassword);
         String workspace = "d";
@@ -84,8 +84,8 @@ public class IssueTiffUtils {
             return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 409);
         }
         //发布tiff
-        boolean result = geoServerRESTPublisher.publishExternalGeoTIFF(workspace, name, tiffFile, name, "EPSG:4326", GSResourceEncoder.ProjectionPolicy.REPROJECT_TO_DECLARED, "tif_custom");
-//        boolean result = geoServerRESTPublisher.publishGeoTIFF(workspace, name, tiffFile);
+//        boolean result = geoServerRESTPublisher.publishExternalGeoTIFF(workspace, name, tiffFile, name, "EPSG:4326", null, "raster");
+        boolean result = geoServerRESTPublisher.publishGeoTIFF(workspace, name, tiffFile);
         if (result) {
             return Kv.by("msg", "发布成功").set("code", 200).set("sld", sld.get("msg"));
         } else {
@@ -395,7 +395,7 @@ public class IssueTiffUtils {
             String[] colors = color.split(",");
             for (int i = 0; i < aa.length; i++) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", colors[i])
-                        .addAttribute("quantity", String.valueOf(aa[i])).addAttribute("label", doubles.get(i).toString());
+                        .addAttribute("quantity", String.valueOf(aa[i])).addAttribute("label", String.valueOf(aa[i]));
             }
             //生成style文件
             String rootPath = PathKit.getWebRootPath().replace("\\", "/");
