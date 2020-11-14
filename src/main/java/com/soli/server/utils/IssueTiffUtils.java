@@ -401,10 +401,10 @@ public class IssueTiffUtils {
             String rootPath = PathKit.getWebRootPath().replace("\\", "/");
             String path = rootPath + "/sld/" + storename + ".sld";
             saveDocument(document, path, "UTF-8");
-            return Kv.by("msg", "生成sld成功:" + path).set("code", "200").set("path", path);
+            return Kv.by("msg", "生成sld成功:" + path).set("code", 200).set("path", path);
         } catch (Exception e) {
             e.printStackTrace();
-            return Kv.by("msg", "生成sld失败:" + e.getMessage()).set("code", "500").set("Exception", e.getMessage());
+            return Kv.by("msg", "生成sld失败:" + e.getMessage()).set("code", 200).set("Exception", e.getMessage());
         }
     }
 
@@ -447,7 +447,7 @@ public class IssueTiffUtils {
             //波段数量
             int numBands = sourceRaster.getNumBands();
             if (numBands != 1) {
-                return Kv.by("msg", "波段数量:" + numBands).set("code", "400");
+                return Kv.by("msg", "波段数量:" + numBands).set("code", 400);
             }
 
             NoDataContainer noDataProperty = CoverageUtilities.getNoDataProperty(coverage);
