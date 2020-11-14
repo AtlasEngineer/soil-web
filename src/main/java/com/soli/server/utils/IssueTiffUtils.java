@@ -46,12 +46,12 @@ public class IssueTiffUtils {
 
     public static Kv uploadTiff(String tifPath, String name, Integer sldType, File sldParam) throws Exception {
         GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
-        String geoserverUrl = config.getGeourl();
-        String geoserverUsername = config.getGeouser();
-        String geoserverPassword = config.getGeopsw();
-//        String geoserverUrl = "http://127.0.0.1:18999/geoserver";
-//        String geoserverUsername = "admin";
-//        String geoserverPassword = "geoserver";
+//        String geoserverUrl = config.getGeourl();
+//        String geoserverUsername = config.getGeouser();
+//        String geoserverPassword = config.getGeopsw();
+        String geoserverUrl = "http://127.0.0.1:18999/geoserver";
+        String geoserverUsername = "admin";
+        String geoserverPassword = "geoserver";
         GeoServerRESTPublisher geoServerRESTPublisher = new GeoServerRESTPublisher(geoserverUrl, geoserverUsername, geoserverPassword);
         GeoServerRESTReader geoServerRESTReader = new GeoServerRESTReader(geoserverUrl, geoserverUsername, geoserverPassword);
         String workspace = "d";
@@ -70,33 +70,27 @@ public class IssueTiffUtils {
 //        List<String> datastoreNameList = datastoresList.getNames();
 //        boolean storeNull = !datastoreNameList.contains(name);
 //        if (storeNull) {
+        Kv sld;
+        if (sldType == 1) {
+            sld = createSldByDbf(sldParam, name);
+        } else {
+            if (sldType == 2) {
+                sld = createSldByAux(tiffFile, sldParam, name);
+            } else {
+                sld = createSld(tiffFile, name);
+            }
+        }
+        if (sld.getInt("code") != 200) {
+            return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 409);
+        }
         //发布tiff
-        long l = System.currentTimeMillis();
         boolean result = geoServerRESTPublisher.publishExternalGeoTIFF(workspace, name, tiffFile, name, "EPSG:4326", GSResourceEncoder.ProjectionPolicy.REPROJECT_TO_DECLARED, "tif_custom");
 //        boolean result = geoServerRESTPublisher.publishGeoTIFF(workspace, name, tiffFile);
-        System.out.println("发布耗时：" + (System.currentTimeMillis() - l) + "ms");
         if (result) {
-            Kv sld;
-            if (sldType == 1) {
-                sld = createSldByDbf(sldParam, name);
-            } else {
-                if (sldType == 2) {
-                    sld = createSldByAux(tiffFile, sldParam, name);
-                } else {
-                    sld = createSld(tiffFile, name);
-                }
-            }
-            if (sld.getInt("code") != 200) {
-                return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 409);
-            } else {
-                return Kv.by("msg", "发布成功").set("code", 200).set("sld", sld.get("msg"));
-            }
+            return Kv.by("msg", "发布成功").set("code", 200).set("sld", sld.get("msg"));
         } else {
             return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 400);
         }
-//        else {
-//            return Kv.by("msg", "该数据已存在").set("code", 400);
-//        }
     }
 
     public static Kv uploadTiff(String filepath) throws Exception {
@@ -356,6 +350,20 @@ public class IssueTiffUtils {
     public static Kv createSldByDbf(File tifFile, String storename) {
         try {
             List<Double> doubles = readDBF(tifFile);
+            double max = Collections.max(doubles);
+            double min = Collections.min(doubles);
+            System.out.println("max:" + max + "---min:" + min);
+            double cha = max - min;
+            double ji = Arith.div(cha, 4, 2);
+            double[] aa = new double[5];
+            for (int i = 0; i < 5; i++) {
+                if (i == 0) {
+                    aa[i] = min;
+                } else {
+                    aa[i] = aa[i - 1] + ji;
+                }
+            }
+            System.out.println("像元值分五级每级差值:" + ji);
             //排序
             Collections.sort(doubles);
             //生成sld
@@ -385,9 +393,9 @@ public class IssueTiffUtils {
             row_nl_us_r_c_p.addAttribute("type", "values");
             String color = "#ff2626,#ff6c2b,#ffa82b,#ffda2b,#d5ff2b,#a8ff2b,#4eff2b,#2bff9e,#2bffda,#2bf3ff,#2bd5ff,#2bb2ff,#2b8fff,#2b49ff,#762bff,#b22bff,#e42bff,#ff2be9,#ff2bb7,#ff2b76";
             String[] colors = color.split(",");
-            for (int i = 0; i < doubles.size(); i++) {
+            for (int i = 0; i < aa.length; i++) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", colors[i])
-                        .addAttribute("quantity", String.valueOf(doubles.get(i))).addAttribute("label", doubles.get(i).toString());
+                        .addAttribute("quantity", String.valueOf(aa[i])).addAttribute("label", doubles.get(i).toString());
             }
             //生成style文件
             String rootPath = PathKit.getWebRootPath().replace("\\", "/");
@@ -471,7 +479,7 @@ public class IssueTiffUtils {
                     if (max == 0 && min == 0) {
                         max = v;
                         min = v;
-                    }else{
+                    } else {
                         if (max < v) {
                             max = v;
                         }
