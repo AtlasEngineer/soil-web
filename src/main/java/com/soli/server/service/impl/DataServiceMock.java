@@ -40,6 +40,11 @@ public class DataServiceMock extends BaseServiceMock<Data> implements DataServic
     }
 
     @Override
+    public Ret getProvince(Double lat, Double lon) {
+        return null;
+    }
+
+    @Override
     public Ret updateNDVI(List<Integer> ids) {
         return null;
     }

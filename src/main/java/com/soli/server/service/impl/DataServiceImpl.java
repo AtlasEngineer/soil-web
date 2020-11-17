@@ -79,6 +79,12 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         return DAO;
     }
 
+    @Override
+    public Ret getProvince(Double lat, Double lon) {
+        Record first = Db.findFirst("select * from tr_ch_county where ST_Contains(geom,st_geometryfromtext('POINT(" + lon + " " + lat + ")',4326))");
+        return Ret.ok("data",first);
+    }
+
     public Ret updateNDVI(List<Integer> ids) {
         if (ids.size() == 0) {
             return Ret.fail("errorMsg", "请选择更新的数据");
@@ -141,8 +147,10 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
 
                     Kv floatData = ReadTiffUtils.getFloatData(geom, b4File, rootPath + writePath);
                     float[][] data = (float[][]) floatData.get("data");
-                    ReferencedEnvelope envelope = (ReferencedEnvelope) floatData.get("envelope");
-
+//                    ReferencedEnvelope envelope = (ReferencedEnvelope) floatData.get("envelope");
+//                    int x = 0;
+//                    int y = 0;
+//                    int z = 0;
                     //ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
                     for (int i = 0; i < ndviParams.length; i++) {
                         for (int j = 0; j < ndviParams[i].length; j++) {
@@ -152,16 +160,22 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                             if (add != 0) {
                                 Double div = Arith.div(Arith.sub(b5, b4), add);
                                 if (div == -1 || div == 1) {
-                                    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+//                                    x++;
                                     data[i][j] = 0;
                                 }else{
+//                                    z++;
                                     data[i][j] = div.floatValue();
                                 }
                             } else {
+//                                y++;
+//                                System.out.println(b4+"    "+b5);
                                 data[i][j] = 0;
                             }
                         }
                     }
+//                    System.out.println("+-1的数量:"+x);
+//                    System.out.println("0的数量:"+y);
+//                    System.out.println("value的数量:"+z);
                     NDVIModel ndviModel = new NDVIModel();
                     ndviModel.setName(directory.getName());
                     ndviModel.setData(data);
@@ -170,12 +184,11 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     ndviModel.setPath(writePath);
                     ndviModel.setData_time(dataEach.getDataTime());
                     ndviModels.add(ndviModel);
-
-                    try {
-                        ReadTiffUtils.writerTif(ndviModel.getGeom(), data, rootPath + "/ndvi2" + ndviModel.getPath(), ndviModel.getNoData());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        ReadTiffUtils.writerTif(ndviModel.getGeom(), data, rootPath + "/ndvi2" + ndviModel.getPath(), ndviModel.getNoData());
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -209,7 +222,6 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                                 //取平均值
                                 Double div = Arith.div(Arith.add(d1, d2), 2);
                                 if (div == -1 || div == 1) {
-                                    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
                                     data[i][j] = 0;
                                 }else{
                                     data[i][j] = div.floatValue();
@@ -224,18 +236,21 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 }
             }
             //生成tiff
-            try {
+            File file = new File(rootPath + ndviModel.getPath());
+            try{
                 ReadTiffUtils.writerTif(ndviModel.getGeom(), data, rootPath + ndviModel.getPath(), 0.0);
                 //生成缩略tiff
                 String s = rootPath + ndviModel.getPath();
                 String[] split = s.split(".tif");
-                String s1 = split[0] + "_thumbs.tif";
-                ReadTiffUtils.makeThumbsFromTiff(data, s, s1);
+                String s1 = split[0] + ".tif";
                 //生成缩略图
+                ReadTiffUtils.makeThumbsFromTiff(data, s, s1);
+                //发布tiff
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,url) values('" + ndviModel.getTk_id() + "','" + ndviModel.getData_time() + "','" + ndviModel.getPath() + "')");
+            Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,path,url) values('" + ndviModel.getTk_id() + "','" + ndviModel.getData_time() + "','" + ndviModel.getPath() + "','d:"+file.getName().split(".tif")[0]+"')");
         }
         return Ret.ok();
     }

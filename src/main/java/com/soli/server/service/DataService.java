@@ -38,6 +38,14 @@ import java.util.List;
 public interface DataService extends LambkitService<Data> {
 
     /**
+     * 根据经纬度获取省市区
+     * @param lat
+     * @param lon
+     * @return
+     */
+    public Ret getProvince(Double lat,Double lon);
+
+    /**
      * 更新ndvi ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
      * @return
      */

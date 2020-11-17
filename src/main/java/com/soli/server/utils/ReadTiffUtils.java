@@ -70,7 +70,7 @@ public class ReadTiffUtils {
         ArrayList<Float> list = new ArrayList<>();
         for (int i = 0; i < data.length; i++) {
             for (int j = 0; j < data[i].length; j++) {
-                float d1 =  data[i][j];
+                float d1 = data[i][j];
                 list.add(d1);
             }
         }
@@ -106,14 +106,44 @@ public class ReadTiffUtils {
         StyleFactory sf = CommonFactoryFinder.getStyleFactory();
         RasterSymbolizer sym = sf.getDefaultRasterSymbolizer();
         ColorMap cMap = sf.createColorMap();
-        ColorMapEntry start = sf.createColorMapEntry();
-        start.setColor(ff.literal("#fff000"));
-        start.setQuantity(ff.literal(min));
-        ColorMapEntry end = sf.createColorMapEntry();
-        end.setColor(ff.literal("#000fff"));
-        end.setQuantity(ff.literal(max));
-        cMap.addColorMapEntry(start);
-        cMap.addColorMapEntry(end);
+
+        ColorMapEntry color1 = sf.createColorMapEntry();
+        color1.setColor(ff.literal("#f20000"));
+        color1.setQuantity(ff.literal(-1));
+        ColorMapEntry color2 = sf.createColorMapEntry();
+        color2.setColor(ff.literal("#f57300"));
+        color2.setQuantity(ff.literal(-0.75));
+        ColorMapEntry color3 = sf.createColorMapEntry();
+        color3.setColor(ff.literal("#f4a100"));
+        color3.setQuantity(ff.literal(-0.5));
+        ColorMapEntry color4 = sf.createColorMapEntry();
+        color4.setColor(ff.literal("#f4c900"));
+        color4.setQuantity(ff.literal(-0.25));
+        ColorMapEntry color5 = sf.createColorMapEntry();
+        color5.setColor(ff.literal("#daf400"));
+        color5.setQuantity(ff.literal(0));
+        ColorMapEntry color6 = sf.createColorMapEntry();
+        color6.setColor(ff.literal("#9fe900"));
+        color6.setQuantity(ff.literal(0.25));
+        ColorMapEntry color7 = sf.createColorMapEntry();
+        color7.setColor(ff.literal("#71c000"));
+        color7.setQuantity(ff.literal(0.5));
+        ColorMapEntry color8 = sf.createColorMapEntry();
+        color8.setColor(ff.literal("#509b00"));
+        color8.setQuantity(ff.literal(0.75));
+        ColorMapEntry color9 = sf.createColorMapEntry();
+        color9.setColor(ff.literal("#317400"));
+        color9.setQuantity(ff.literal(1));
+
+        cMap.addColorMapEntry(color1);
+        cMap.addColorMapEntry(color2);
+        cMap.addColorMapEntry(color3);
+        cMap.addColorMapEntry(color4);
+        cMap.addColorMapEntry(color5);
+        cMap.addColorMapEntry(color6);
+        cMap.addColorMapEntry(color7);
+        cMap.addColorMapEntry(color8);
+        cMap.addColorMapEntry(color9);
         sym.setColorMap(cMap);
         Style style = SLD.wrapSymbolizers(sym);
         return style;
@@ -136,6 +166,7 @@ public class ReadTiffUtils {
 //        writer.write(outputCoverage, null);
 //        writer.dispose();
 
+        //生成缩略图土壤
         BufferedImage bufferedImage = coverageImage(data, coverage);
         ImageIO.write(bufferedImage, "png", new File(humbstPath.replace("tif", "png")));
         return true;
@@ -438,6 +469,9 @@ public class ReadTiffUtils {
             max_x = iwidth;
         }
         float[][] data = new float[min_y - max_y][max_x - min_x];
+        System.out.println(Arith.mul((min_y - max_y), (max_x - min_x)));
+//        int x = 0;
+//        int y = 0;
         Map properties = coverage.getProperties();
         Double noDataValues = (Double) properties.get(NoDataContainer.GC_NODATA);
         if (max_x == min_x && max_y == min_y) {
@@ -452,12 +486,18 @@ public class ReadTiffUtils {
                     DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
                     double lon = tmpPos.getCoordinate()[0];
                     double lat = tmpPos.getCoordinate()[1];
+                    if (i == min_x && j == max_y) {
+                        System.out.println(lon+"-"+lat);
+                    }
                     boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))", 32650);
                     if (iscontains) {
                         //面内，赋值像素值
                         int[] sss = (int[]) coverage.evaluate(tmpPos);
                         int s = sss[0];
                         if (noDataValues == null || Math.abs(s - noDataValues) > 1e-6) {
+//                            if (s == 0) {
+//                                y++;
+//                            }
                             data[j - max_y][i - min_x] = s;
                         } else {
                             if (noDataValues != null) {
@@ -465,6 +505,7 @@ public class ReadTiffUtils {
                             }
                         }
                     } else {
+//                        x++;
                         if (noDataValues != null) {
                             data[j - max_y][i - min_x] = noDataValues.floatValue();
                         }
@@ -472,6 +513,8 @@ public class ReadTiffUtils {
                 }
             }
         }
+//        System.out.println("面内不是nodata的数量:" + y);
+//        System.out.println("不在面内的数量:" + x);
         return Kv.by("data", data).set("intersec", true);
     }
 
