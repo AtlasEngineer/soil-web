@@ -375,7 +375,7 @@ public class UploadController extends LambkitController {
             dataEach.setDataTime(data_time);
             dataEach.setTime(new Date());
             dataEach.setUserid(user.getUserId().intValue());
-            if (type == 0 || type == 1) {
+            if (type == 0 || type == 1 || type == 5) {
                 dataEach.setUrl("d:" + name);
             } else if (type == 2) {
                 dataEach.setUrl("/upload/datafile/" + filename);
