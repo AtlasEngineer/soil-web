@@ -43,6 +43,7 @@ import org.opengis.referencing.operation.TransformException;
 import javax.imageio.ImageIO;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
+import javax.media.jai.TiledImage;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -418,6 +419,111 @@ public class ReadTiffUtils {
         writer.dispose();
     }
 
+    public static Kv getNDVIData(String latlons, File file) throws Exception {
+        Hints tiffHints = new Hints();
+        tiffHints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE));
+        tiffHints.add(new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, DefaultGeographicCRS.WGS84));
+        GeoTiffReader tifReader = new GeoTiffReader(file, tiffHints);
+        GridCoverage2D coverage = tifReader.read(null);
+        CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
+        List<Double> lons = new ArrayList<>();
+        List<Double> lats = new ArrayList<>();
+        String[] split = latlons.split(",");
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            lons.add(Double.parseDouble(s.split(" ")[0]));
+            lats.add(Double.parseDouble(s.split(" ")[1]));
+        }
+        Double min_lon = Collections.min(lons);
+        Double max_lon = Collections.max(lons);
+        Double min_lat = Collections.min(lats);
+        Double max_lat = Collections.max(lats);
+//        RenderedImage sourceImage = coverage.getRenderedImage();
+//        Raster sourceRaster = sourceImage.getData();
+//        Rectangle bounds = sourceRaster.getBounds();
+//
+//        //波段数量
+//        int numBands = sourceRaster.getNumBands();
+//        if (numBands != 1) {
+//            return Kv.by("msg", "波段数量:" + numBands).set("code", 400);
+//        }
+
+        // 通过地理坐标获取行列号
+        //获取影像长宽
+        int iwidth = coverage.getRenderedImage().getWidth();
+        int iheight = coverage.getRenderedImage().getHeight();
+
+        DirectPosition position1 = new DirectPosition2D(crs, max_lon, max_lat);
+        Point2D point2d1 = coverage.getGridGeometry().worldToGrid(position1);
+        int max_x = (int) point2d1.getX();
+        int max_y = (int) point2d1.getY();
+        DirectPosition position2 = new DirectPosition2D(crs, min_lon, min_lat);
+        Point2D point2d2 = coverage.getGridGeometry().worldToGrid(position2);
+        int min_x = (int) point2d2.getX();
+        int min_y = (int) point2d2.getY();
+        if (max_y < 0) {
+            max_y = 0;
+        }
+        if (min_x < 0) {
+            min_x = 0;
+        }
+        if (min_y > iheight) {
+            min_y = iheight;
+        }
+        if (max_x > iwidth) {
+            max_x = iwidth;
+        }
+        float[][] data = new float[min_y - max_y][max_x - min_x];
+        System.out.println(Arith.mul((min_y - max_y), (max_x - min_x)));
+        Map properties = coverage.getProperties();
+        Double noDataValues = (Double) properties.get(NoDataContainer.GC_NODATA);
+        if (max_x == min_x && max_y == min_y) {
+            //田块在一个像素里
+            data = new float[1][1];
+            float[] sss = (float[]) coverage.evaluate(position1);
+            data[0][0] = sss[0];
+        } else {
+            for (int i = min_x; i < max_x; i++) {
+                for (int j = max_y; j < min_y; j++) {
+                    GridCoordinates2D coord = new GridCoordinates2D(i, j);
+                    DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
+                    double lon = tmpPos.getCoordinate()[0];
+                    double lat = tmpPos.getCoordinate()[1];
+                    boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))");
+                    if (iscontains) {
+                        //面内，赋值像素值\
+                        float[] sss = (float[]) coverage.evaluate(tmpPos);
+                        float b4 = sss[3];//红
+                        float b5 = sss[4];//近红
+                        if (noDataValues == null || Math.abs(b4 - noDataValues) > 1e-6) {
+                            //ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
+                            double add = Arith.add(b5, b4);
+                            if (add == 0) {
+                                data[i][j] = 0;
+                            }else{
+                                Double div = Arith.div(Arith.sub(b5, b4), add);
+                                if (div == -1 || div == 1) {
+                                    data[i][j] = 0;
+                                } else {
+                                    data[i][j] = div.floatValue();
+                                }
+                            }
+                        } else {
+                            if (noDataValues != null) {
+                                data[j - max_y][i - min_x] = noDataValues.floatValue();
+                            }
+                        }
+                    } else {
+                        if (noDataValues != null) {
+                            data[j - max_y][i - min_x] = noDataValues.floatValue();
+                        }
+                    }
+                }
+            }
+        }
+        return Kv.by("data", data).set("intersec", true);
+    }
+
 
     public static Kv getNDVIParams(String latlons, File file) throws Exception {
         Hints tiffHints = new Hints();
@@ -487,7 +593,7 @@ public class ReadTiffUtils {
                     double lon = tmpPos.getCoordinate()[0];
                     double lat = tmpPos.getCoordinate()[1];
                     if (i == min_x && j == max_y) {
-                        System.out.println(lon+"-"+lat);
+                        System.out.println(lon + "-" + lat);
                     }
                     boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))", 32650);
                     if (iscontains) {

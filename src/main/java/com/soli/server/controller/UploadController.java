@@ -198,7 +198,7 @@ public class UploadController extends LambkitController {
                         String s1 = sb.toString().substring(0, sb.length() - 1);
                         File file01 = new File(root + "/d/" + name + "/" + name + "." + s1);
                         file2.renameTo(file01);
-                        if (type == 1) {
+                        if (type == 1 || type == 5) {
                             if ("tif".equals(s1) || "tiff".equals(s1)) {
                                 tifPath = file01.getPath();
                             }
@@ -265,7 +265,7 @@ public class UploadController extends LambkitController {
                             sldType = 1;
                             sldParams = new File(tifDbfPath);
                         }
-                        kv = IssueTiffUtils.uploadTiff(tifPath, name, sldType, sldParams);
+                        kv = IssueTiffUtils.uploadTiff(tifPath, name, sldType, sldParams, data.getId());
                         if (kv.getInt("code") != 200) {
                             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", kv.get("msg"))));
                             return;
