@@ -43,6 +43,8 @@ public interface DataService extends LambkitService<Data> {
      * @param lon
      * @return
      */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.getProvince",useLogin = false)
     public Ret getProvince(Double lat,Double lon);
 
     /**
