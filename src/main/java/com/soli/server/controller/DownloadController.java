@@ -190,7 +190,7 @@ public class DownloadController extends LambkitController {
             //空间数据
             Calendar c = Calendar.getInstance();
             c.setTime(time);
-            c.add(Calendar.DAY_OF_MONTH,-1);     //利用Calendar 实现 Date日期+1天
+            c.add(Calendar.DAY_OF_MONTH,1);     //利用Calendar 实现 Date日期+1天
             List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataTimeBetween(time,c.getTime()).andDataIdEqualTo(id).example());
             if (dataEaches.size() == 0) {
                 renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "没有当前当前时间的数据")));
