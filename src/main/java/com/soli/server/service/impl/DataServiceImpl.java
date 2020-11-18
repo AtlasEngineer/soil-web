@@ -703,7 +703,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         List<Record> typesArea = Db.find("SELECT type,sum(st_area(ST_Transform(geom,4527)))*0.0015 as area from tr_tiankuai where del=0 GROUP BY type");
         return Ret.ok("typesNum", typesNum).set("typesArea", typesArea)
                 .set("numCount", numCount.getDouble("count"))
-                .set("areaCount", areaCount.getDouble("count") * 0.0015);
+                .set("areaCount", areaCount.getDouble("count"));
     }
 
     @Override
