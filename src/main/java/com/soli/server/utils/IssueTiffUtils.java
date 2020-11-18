@@ -44,7 +44,7 @@ import java.util.List;
 public class IssueTiffUtils {
 
 
-    public static Kv uploadTiff(String tifPath, String name, Integer sldType, File sldParam) throws Exception {
+    public static Kv uploadTiff(String tifPath, String name, Integer sldType, File sldParam, Integer data_id) throws Exception {
         GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
         String geoserverUrl = config.getGeourl();
         String geoserverUsername = config.getGeouser();
@@ -80,12 +80,16 @@ public class IssueTiffUtils {
                 sld = createSld(tiffFile, name);
             }
         }
-        if (sld.getInt("code") != 200) {
-            return Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 409);
-        }
+//        if (sld.getInt("code") != 200) {
+//            Kv.by("msg", "发布失败，请检查数据坐标系等信息").set("code", 409);
+//        }
         //发布tiff
-//        boolean result = geoServerRESTPublisher.publishExternalGeoTIFF(workspace, name, tiffFile, name, "EPSG:4326", null, "raster");
-        boolean result = geoServerRESTPublisher.publishGeoTIFF(workspace, name, tiffFile);
+        boolean result;
+        if (data_id == 79) {
+            result = geoServerRESTPublisher.publishExternalGeoTIFF(workspace, name, tiffFile, name, "EPSG:4326", GSResourceEncoder.ProjectionPolicy.NONE, "ggmj");
+        } else {
+            result = geoServerRESTPublisher.publishGeoTIFF(workspace, name, tiffFile);
+        }
         if (result) {
             return Kv.by("msg", "发布成功").set("code", 200).set("sld", sld.get("msg"));
         } else {
@@ -210,7 +214,7 @@ public class IssueTiffUtils {
             //波段数量
             int numBands = sourceRaster.getNumBands();
             if (numBands != 1) {
-                return Kv.by("msg", "波段数量:" + numBands).set("code", "400");
+                return Kv.by("msg", "波段数量:" + numBands).set("code", 400);
             }
             //读取aux
             SAXReader auxReader = new SAXReader();
@@ -414,7 +418,7 @@ public class IssueTiffUtils {
 //            uploadTiff("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif"
 //                    , "ChinaEco100",2,new File("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif.aux.xml"));
             uploadTiff("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif"
-                    , "ChinaEco100", 0, null);
+                    , "ChinaEco100", 0, null,0);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -590,11 +594,11 @@ public class IssueTiffUtils {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#fa0200").addAttribute("quantity", String.valueOf(2000)).addAttribute("label", "2000");
             }
             if (id == 28 || id == 48 || id == 92 || id == 48) {
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(240)).addAttribute("label", "240");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(260)).addAttribute("label", "260");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(280)).addAttribute("label", "280");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(300)).addAttribute("label", "300");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(320)).addAttribute("label", "320");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(234.15)).addAttribute("label", "234.15");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(254.15)).addAttribute("label", "254.15");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(274.15)).addAttribute("label", " 274.15");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(294.15)).addAttribute("label", "294.15");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(314.15)).addAttribute("label", "314.15");
             }
             if (id == 47 || id == 94) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(0.0)).addAttribute("label", "0.0");
@@ -612,10 +616,10 @@ public class IssueTiffUtils {
             }
             if (id == 30) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#afff14").addAttribute("quantity", String.valueOf(0)).addAttribute("label", "0");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(50)).addAttribute("label", "50");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(100)).addAttribute("label", "100");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#44b6ff").addAttribute("quantity", String.valueOf(150)).addAttribute("label", "150");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(200)).addAttribute("label", "200");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(10)).addAttribute("label", "10");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(20)).addAttribute("label", "20");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#44b6ff").addAttribute("quantity", String.valueOf(30)).addAttribute("label", "30");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(40)).addAttribute("label", "40");
             }
             if (id == 44) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1483ff").addAttribute("quantity", String.valueOf(10)).addAttribute("label", "10");
@@ -627,10 +631,10 @@ public class IssueTiffUtils {
             }
             if (id == 45) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(0)).addAttribute("label", "0");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(30)).addAttribute("label", "30");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(50)).addAttribute("label", "50");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(70)).addAttribute("label", "70");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(100)).addAttribute("label", "100");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(0.01)).addAttribute("label", "0.01");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(0.02)).addAttribute("label", "0.02");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(0.03)).addAttribute("label", "0.03");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(0.04)).addAttribute("label", "0.04");
             }
             //生成style文件
             String rootPath = PathKit.getWebRootPath().replace("\\", "/");

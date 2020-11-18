@@ -43,6 +43,7 @@ import org.opengis.referencing.operation.TransformException;
 import javax.imageio.ImageIO;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
+import javax.media.jai.TiledImage;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -70,7 +71,7 @@ public class ReadTiffUtils {
         ArrayList<Float> list = new ArrayList<>();
         for (int i = 0; i < data.length; i++) {
             for (int j = 0; j < data[i].length; j++) {
-                float d1 =  data[i][j];
+                float d1 = data[i][j];
                 list.add(d1);
             }
         }
@@ -106,14 +107,44 @@ public class ReadTiffUtils {
         StyleFactory sf = CommonFactoryFinder.getStyleFactory();
         RasterSymbolizer sym = sf.getDefaultRasterSymbolizer();
         ColorMap cMap = sf.createColorMap();
-        ColorMapEntry start = sf.createColorMapEntry();
-        start.setColor(ff.literal("#fff000"));
-        start.setQuantity(ff.literal(min));
-        ColorMapEntry end = sf.createColorMapEntry();
-        end.setColor(ff.literal("#000fff"));
-        end.setQuantity(ff.literal(max));
-        cMap.addColorMapEntry(start);
-        cMap.addColorMapEntry(end);
+
+        ColorMapEntry color1 = sf.createColorMapEntry();
+        color1.setColor(ff.literal("#f20000"));
+        color1.setQuantity(ff.literal(-1));
+        ColorMapEntry color2 = sf.createColorMapEntry();
+        color2.setColor(ff.literal("#f57300"));
+        color2.setQuantity(ff.literal(-0.75));
+        ColorMapEntry color3 = sf.createColorMapEntry();
+        color3.setColor(ff.literal("#f4a100"));
+        color3.setQuantity(ff.literal(-0.5));
+        ColorMapEntry color4 = sf.createColorMapEntry();
+        color4.setColor(ff.literal("#f4c900"));
+        color4.setQuantity(ff.literal(-0.25));
+        ColorMapEntry color5 = sf.createColorMapEntry();
+        color5.setColor(ff.literal("#daf400"));
+        color5.setQuantity(ff.literal(0));
+        ColorMapEntry color6 = sf.createColorMapEntry();
+        color6.setColor(ff.literal("#9fe900"));
+        color6.setQuantity(ff.literal(0.25));
+        ColorMapEntry color7 = sf.createColorMapEntry();
+        color7.setColor(ff.literal("#71c000"));
+        color7.setQuantity(ff.literal(0.5));
+        ColorMapEntry color8 = sf.createColorMapEntry();
+        color8.setColor(ff.literal("#509b00"));
+        color8.setQuantity(ff.literal(0.75));
+        ColorMapEntry color9 = sf.createColorMapEntry();
+        color9.setColor(ff.literal("#317400"));
+        color9.setQuantity(ff.literal(1));
+
+        cMap.addColorMapEntry(color1);
+        cMap.addColorMapEntry(color2);
+        cMap.addColorMapEntry(color3);
+        cMap.addColorMapEntry(color4);
+        cMap.addColorMapEntry(color5);
+        cMap.addColorMapEntry(color6);
+        cMap.addColorMapEntry(color7);
+        cMap.addColorMapEntry(color8);
+        cMap.addColorMapEntry(color9);
         sym.setColorMap(cMap);
         Style style = SLD.wrapSymbolizers(sym);
         return style;
@@ -136,6 +167,7 @@ public class ReadTiffUtils {
 //        writer.write(outputCoverage, null);
 //        writer.dispose();
 
+        //生成缩略图土壤
         BufferedImage bufferedImage = coverageImage(data, coverage);
         ImageIO.write(bufferedImage, "png", new File(humbstPath.replace("tif", "png")));
         return true;
@@ -387,6 +419,111 @@ public class ReadTiffUtils {
         writer.dispose();
     }
 
+    public static Kv getNDVIData(String latlons, File file) throws Exception {
+        Hints tiffHints = new Hints();
+        tiffHints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE));
+        tiffHints.add(new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, DefaultGeographicCRS.WGS84));
+        GeoTiffReader tifReader = new GeoTiffReader(file, tiffHints);
+        GridCoverage2D coverage = tifReader.read(null);
+        CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
+        List<Double> lons = new ArrayList<>();
+        List<Double> lats = new ArrayList<>();
+        String[] split = latlons.split(",");
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            lons.add(Double.parseDouble(s.split(" ")[0]));
+            lats.add(Double.parseDouble(s.split(" ")[1]));
+        }
+        Double min_lon = Collections.min(lons);
+        Double max_lon = Collections.max(lons);
+        Double min_lat = Collections.min(lats);
+        Double max_lat = Collections.max(lats);
+//        RenderedImage sourceImage = coverage.getRenderedImage();
+//        Raster sourceRaster = sourceImage.getData();
+//        Rectangle bounds = sourceRaster.getBounds();
+//
+//        //波段数量
+//        int numBands = sourceRaster.getNumBands();
+//        if (numBands != 1) {
+//            return Kv.by("msg", "波段数量:" + numBands).set("code", 400);
+//        }
+
+        // 通过地理坐标获取行列号
+        //获取影像长宽
+        int iwidth = coverage.getRenderedImage().getWidth();
+        int iheight = coverage.getRenderedImage().getHeight();
+
+        DirectPosition position1 = new DirectPosition2D(crs, max_lon, max_lat);
+        Point2D point2d1 = coverage.getGridGeometry().worldToGrid(position1);
+        int max_x = (int) point2d1.getX();
+        int max_y = (int) point2d1.getY();
+        DirectPosition position2 = new DirectPosition2D(crs, min_lon, min_lat);
+        Point2D point2d2 = coverage.getGridGeometry().worldToGrid(position2);
+        int min_x = (int) point2d2.getX();
+        int min_y = (int) point2d2.getY();
+        if (max_y < 0) {
+            max_y = 0;
+        }
+        if (min_x < 0) {
+            min_x = 0;
+        }
+        if (min_y > iheight) {
+            min_y = iheight;
+        }
+        if (max_x > iwidth) {
+            max_x = iwidth;
+        }
+        float[][] data = new float[min_y - max_y][max_x - min_x];
+        System.out.println(Arith.mul((min_y - max_y), (max_x - min_x)));
+        Map properties = coverage.getProperties();
+        Double noDataValues = (Double) properties.get(NoDataContainer.GC_NODATA);
+        if (max_x == min_x && max_y == min_y) {
+            //田块在一个像素里
+            data = new float[1][1];
+            float[] sss = (float[]) coverage.evaluate(position1);
+            data[0][0] = sss[0];
+        } else {
+            for (int i = min_x; i < max_x; i++) {
+                for (int j = max_y; j < min_y; j++) {
+                    GridCoordinates2D coord = new GridCoordinates2D(i, j);
+                    DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
+                    double lon = tmpPos.getCoordinate()[0];
+                    double lat = tmpPos.getCoordinate()[1];
+                    boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))");
+                    if (iscontains) {
+                        //面内，赋值像素值\
+                        float[] sss = (float[]) coverage.evaluate(tmpPos);
+                        float b4 = sss[3];//红
+                        float b5 = sss[4];//近红
+                        if (noDataValues == null || Math.abs(b4 - noDataValues) > 1e-6) {
+                            //ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
+                            double add = Arith.add(b5, b4);
+                            if (add == 0) {
+                                data[i][j] = 0;
+                            }else{
+                                Double div = Arith.div(Arith.sub(b5, b4), add);
+                                if (div == -1 || div == 1) {
+                                    data[i][j] = 0;
+                                } else {
+                                    data[i][j] = div.floatValue();
+                                }
+                            }
+                        } else {
+                            if (noDataValues != null) {
+                                data[j - max_y][i - min_x] = noDataValues.floatValue();
+                            }
+                        }
+                    } else {
+                        if (noDataValues != null) {
+                            data[j - max_y][i - min_x] = noDataValues.floatValue();
+                        }
+                    }
+                }
+            }
+        }
+        return Kv.by("data", data).set("intersec", true);
+    }
+
 
     public static Kv getNDVIParams(String latlons, File file) throws Exception {
         Hints tiffHints = new Hints();
@@ -438,6 +575,9 @@ public class ReadTiffUtils {
             max_x = iwidth;
         }
         float[][] data = new float[min_y - max_y][max_x - min_x];
+        System.out.println(Arith.mul((min_y - max_y), (max_x - min_x)));
+//        int x = 0;
+//        int y = 0;
         Map properties = coverage.getProperties();
         Double noDataValues = (Double) properties.get(NoDataContainer.GC_NODATA);
         if (max_x == min_x && max_y == min_y) {
@@ -452,12 +592,18 @@ public class ReadTiffUtils {
                     DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
                     double lon = tmpPos.getCoordinate()[0];
                     double lat = tmpPos.getCoordinate()[1];
+                    if (i == min_x && j == max_y) {
+                        System.out.println(lon + "-" + lat);
+                    }
                     boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))", 32650);
                     if (iscontains) {
                         //面内，赋值像素值
                         int[] sss = (int[]) coverage.evaluate(tmpPos);
                         int s = sss[0];
                         if (noDataValues == null || Math.abs(s - noDataValues) > 1e-6) {
+//                            if (s == 0) {
+//                                y++;
+//                            }
                             data[j - max_y][i - min_x] = s;
                         } else {
                             if (noDataValues != null) {
@@ -465,6 +611,7 @@ public class ReadTiffUtils {
                             }
                         }
                     } else {
+//                        x++;
                         if (noDataValues != null) {
                             data[j - max_y][i - min_x] = noDataValues.floatValue();
                         }
@@ -472,6 +619,8 @@ public class ReadTiffUtils {
                 }
             }
         }
+//        System.out.println("面内不是nodata的数量:" + y);
+//        System.out.println("不在面内的数量:" + x);
         return Kv.by("data", data).set("intersec", true);
     }
 
