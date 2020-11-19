@@ -231,7 +231,7 @@ public class DownloadController extends LambkitController {
             //调用压缩
             ZipCompressor zc = new ZipCompressor(zipTempFilePath);
             zc.compress(sourceFilePaths);
-            renderJson(Co.ok("data", Co.by("state", "ok").set("path", zipTempFilePath)));
+            renderJson(Co.ok("data", Co.by("state", "ok").set("path", "/d/数据提取记录/" + System.currentTimeMillis() + ".zip")));
             return;
         }
     }
