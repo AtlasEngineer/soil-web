@@ -201,6 +201,9 @@ public class DownloadController extends LambkitController {
             //打包压缩
             String webRootPath = PathKit.getWebRootPath();
             List<String> sourceFilePaths = new ArrayList<String>();
+            if(data.getType() == 346){
+
+            }
             for (DataEach dataEach : dataEaches) {
                 sourceFilePaths.add(webRootPath + "/d/" + dataEach.getUrl().split(":")[1]);
             }
@@ -209,7 +212,7 @@ public class DownloadController extends LambkitController {
             //调用压缩
             ZipCompressor zc = new ZipCompressor(zipTempFilePath);
             zc.compress(sourceFilePaths);
-            renderFile(new File(zipTempFilePath));
+            renderJson(Co.ok("data", Co.by("state", "ok").set("path", zipTempFilePath)));
             return;
         }
     }
