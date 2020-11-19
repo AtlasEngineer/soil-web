@@ -82,7 +82,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     @Override
     public Ret getProvince(Double lat, Double lon) {
         Record first = Db.findFirst("select * from tr_ch_county where ST_Contains(geom,st_geometryfromtext('POINT(" + lon + " " + lat + ")',4326))");
-        return Ret.ok("data",first);
+        return Ret.ok("data", first);
     }
 
     public Ret updateNDVI(List<Integer> ids) {
@@ -95,9 +95,9 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         String rootPath = PathKit.getWebRootPath().replace("\\", "/");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (DataEach dataEach : dataEachs) {
-            File tiff1 = new File(rootPath + dataEach.getUrl().replace(".jpg","-1.tiff"));
-            File tiff2 = new File(rootPath + dataEach.getUrl().replace(".jpg","-2.tiff"));
-            File tiff3 = new File(rootPath + dataEach.getUrl().replace(".jpg","-3.tiff"));
+            File tiff1 = new File(rootPath + dataEach.getUrl().replace(".jpg", "-1.tiff"));
+            File tiff2 = new File(rootPath + dataEach.getUrl().replace(".jpg", "-2.tiff"));
+            File tiff3 = new File(rootPath + dataEach.getUrl().replace(".jpg", "-3.tiff"));
             //获取与当前landset数据相交地的包围盒
 //        List<Record> tks = Db.find("SELECT gid,st_astext(geom) FROM tr_tiankuai ORDER BY gid");
             List<Record> tks = Db.find("SELECT T.gid,st_astext(T.geom) as geom FROM " +
@@ -111,7 +111,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     " where e.id = '" + dataEach.getId() + "' and T.del = 0 ");
             for (Record tk : tks) {
                 //获取wkt
-                String writePath = "/ndvi/" + tk.getInt("gid") + "_" + sdf.format(dataEach.getDataTime()) +".tif";
+                String writePath = "/ndvi/" + tk.getInt("gid") + "_" + sdf.format(dataEach.getDataTime()) + ".tif";
                 String geom = tk.getStr("geom");
                 if (geom.contains("MULTIPOLYGON")) {
                     geom = geom.substring(15, geom.length() - 3);
@@ -170,7 +170,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                                 Double div = Arith.div(Arith.add(d1, d2), 2);
                                 if (div == -1 || div == 1) {
                                     data[i][j] = 0;
-                                }else{
+                                } else {
                                     data[i][j] = div.floatValue();
                                 }
                             }
@@ -184,7 +184,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             }
             //生成tiff
             File file = new File(rootPath + ndviModel.getPath());
-            try{
+            try {
                 ReadTiffUtils.writerTif(ndviModel.getGeom(), data, rootPath + ndviModel.getPath(), 0.0);
                 //生成缩略tiff
                 String s = rootPath + ndviModel.getPath();
@@ -197,7 +197,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,path,url) values('" + ndviModel.getTk_id() + "','" + ndviModel.getData_time() + "','" + ndviModel.getPath() + "','d:"+file.getName().split(".tif")[0]+"')");
+            Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,path,url) values('" + ndviModel.getTk_id() + "','" + ndviModel.getData_time() + "','" + ndviModel.getPath() + "','d:" + file.getName().split(".tif")[0] + "')");
         }
         return Ret.ok();
     }
@@ -452,7 +452,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 min_lat = Collections.min(lat);
                 max_lat = Collections.max(lat);
             }
-            if (data_time_desc == null) {
+            if (data_time_desc == null || data_time_desc.size() == 0) {
                 return Ret.fail("errorMsg", "暂无数据");
             } else {
                 return Ret.ok("data", data_time_desc).set("min_lon", min_lon).set("max_lon", max_lon).set("min_lat", min_lat).set("max_lat", max_lat);
@@ -550,7 +550,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     file = new File(webRootPath + dataEach.getUrl());
                 } else if (dataEach.getType() == 0 || dataEach.getType() == 1 || dataEach.getType() == 5) {
                     publisher.removeLayer("d", dataEach.getUrl().split(":")[1]);
-                    publisher.removeDatastore("d",dataEach.getUrl().split(":")[1]);
+                    publisher.removeDatastore("d", dataEach.getUrl().split(":")[1]);
                     file = new File(webRootPath + "/d/" + dataEach.getUrl().split(":")[1]);
                 } else {
                     File file1 = new File(webRootPath + dataEach.getUrl());
@@ -605,7 +605,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择数据");
         }
         Data data1 = Data.service().dao().findById(id);
-        if (data1.getType() != 0 && data1.getType() != 1 && data1.getType() != 5 && data1.getType() != 3 && data1.getType() != 4) {
+        if (data1.getType() != 0 && data1.getType() != 1 && data1.getType() != 5 && data1.getType() != 3 && data1.getType() != 4 && data1.getType() != 6) {
             return Ret.fail("errorMsg", "该数据没有期数列表");
         }
         List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(id).example().setOrderBy("data_time desc"));
