@@ -192,8 +192,8 @@ public class DownloadController extends LambkitController {
             //空间数据
             Calendar c = Calendar.getInstance();
             c.setTime(time);
-            c.add(Calendar.DAY_OF_MONTH,1);     //利用Calendar 实现 Date日期+1天
-            List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataTimeBetween(time,c.getTime()).andDataIdEqualTo(id).example());
+            c.add(Calendar.DAY_OF_MONTH, 1);     //利用Calendar 实现 Date日期+1天
+            List<DataEach> dataEaches = DataEach.service().dao().find(DataEach.sql().andDataTimeBetween(time, c.getTime()).andDataIdEqualTo(id).example());
             if (dataEaches.size() == 0) {
                 renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "没有当前时间的数据")));
                 return;
@@ -201,37 +201,38 @@ public class DownloadController extends LambkitController {
             //打包压缩
             String webRootPath = PathKit.getWebRootPath();
             List<String> sourceFilePaths = new ArrayList<String>();
-            if(data.getId() == 82){
+            if (data.getId() == 82) {
                 //landset
                 for (DataEach dataEach : dataEaches) {
                     sourceFilePaths.add(webRootPath + dataEach.getUrl());
                 }
-            }else if(data.getType() == 3){
+            } else if (data.getType() == 3) {
                 //高分
                 for (DataEach dataEach : dataEaches) {
                     sourceFilePaths.add(new File(webRootPath + dataEach.getUrl()).getParent());
                 }
-            }else if(data.getType() == 4){
+            } else if (data.getType() == 4) {
                 //哨兵一
                 for (DataEach dataEach : dataEaches) {
                     sourceFilePaths.add(webRootPath + dataEach.getUrl().split("/preview/map-overlay.kml"));
                 }
-            }else if(data.getType() == 6){
+            } else if (data.getType() == 6) {
                 //哨兵二/INSPIRE.xml
                 for (DataEach dataEach : dataEaches) {
                     sourceFilePaths.add(webRootPath + dataEach.getUrl().split("/INSPIRE.xml"));
                 }
-            }else{
+            } else {
                 for (DataEach dataEach : dataEaches) {
                     sourceFilePaths.add(webRootPath + "/d/" + dataEach.getUrl().split(":")[1]);
                 }
             }
             //指定打包到哪个zip（绝对路径）如果压缩包创建出来了，但是里面没有文件，是因为数据库有数据，但是没有该数据的文件file
-            String zipTempFilePath = webRootPath + "/d/数据提取记录/" + System.currentTimeMillis() + ".zip";
+            String path = "/d/数据提取记录/" + System.currentTimeMillis() + ".zip";
+            String zipTempFilePath = webRootPath + path;
             //调用压缩
             ZipCompressor zc = new ZipCompressor(zipTempFilePath);
             zc.compress(sourceFilePaths);
-            renderJson(Co.ok("data", Co.by("state", "ok").set("path", "/d/数据提取记录/" + System.currentTimeMillis() + ".zip")));
+            renderJson(Co.ok("data", Co.by("state", "ok").set("path", path)));
             return;
         }
     }
