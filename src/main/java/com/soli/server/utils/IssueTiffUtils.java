@@ -418,7 +418,7 @@ public class IssueTiffUtils {
 //            uploadTiff("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif"
 //                    , "ChinaEco100",2,new File("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif.aux.xml"));
             uploadTiff("D:\\tools\\apache-tomcat-8.5.41-windows-x64\\apache-tomcat-8.5.41\\webapps\\geoserver\\data\\data\\d\\ChinaEco100\\ChinaEco100.tif"
-                    , "ChinaEco100", 0, null,0);
+                    , "ChinaEco100", 0, null, 0);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -607,14 +607,14 @@ public class IssueTiffUtils {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(0.7)).addAttribute("label", "0.7");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(1.0)).addAttribute("label", "1.0");
             }
-            if (id == 95) {
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#afff14").addAttribute("quantity", String.valueOf(0)).addAttribute("label", "0");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(500)).addAttribute("label", "500");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(1000)).addAttribute("label", "1000");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#44b6ff").addAttribute("quantity", String.valueOf(1500)).addAttribute("label", "1500");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(2000)).addAttribute("label", "2000");
-            }
-            if (id == 30) {
+//            if (id == 95) {
+//                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#afff14").addAttribute("quantity", String.valueOf(0)).addAttribute("label", "0");
+//                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(500)).addAttribute("label", "500");
+//                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(1000)).addAttribute("label", "1000");
+//                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#44b6ff").addAttribute("quantity", String.valueOf(1500)).addAttribute("label", "1500");
+//                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(2000)).addAttribute("label", "2000");
+//            }
+            if (id == 30 || id == 95) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#afff14").addAttribute("quantity", String.valueOf(0)).addAttribute("label", "0");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(10)).addAttribute("label", "10");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(20)).addAttribute("label", "20");

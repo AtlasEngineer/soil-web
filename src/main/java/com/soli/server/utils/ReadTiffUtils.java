@@ -1,6 +1,8 @@
 
 package com.soli.server.utils;
 
+import com.drew.imaging.tiff.TiffMetadataReader;
+import com.drew.metadata.Metadata;
 import com.jfinal.kit.Kv;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.Record;
@@ -61,7 +63,8 @@ public class ReadTiffUtils {
 
     public static void main(String[] args) {
         try {
-//            makeThumbsFromTiff("C:/Users/xiaoxu/Desktop/landset/LC81240342020031BJC00/LC81240342020031BJC00_B4.TIF", "C:/Users/xiaoxu/Desktop/landset/LC81240342020031BJC00/LC81240342020031BJC00_B4.png");
+            String latlons = "116.940049242731 36.0735916625155,116.938546823689 36.0683884682009,116.938460971172 36.0558300083306,116.938933160014 36.0555177558914,116.941508735516 36.0555871454294,116.946187697678 36.0562463429891,116.949879355897 36.056662675445,116.954815875609 36.0564892038561,116.955202211935 36.0575300276542,116.956017810844 36.0575300276542,116.955889032069 36.0583973703037,116.955974884585 36.0610687255982,116.956146589619 36.0633930778457,116.955545622002 36.0671049606815,116.943526269659 36.0677640617532,116.944256016051 36.0737304096521,116.943612122176 36.0741119630158,116.940049242731 36.0735916625155";
+            getNDVIData(latlons,new File("Z:\\00-项目资料库\\2020年项目\\2020-029-C-土壤数据管理智能平台\\04数据\\高分数据GF6\\GF6_WFV_E117.5_N35.8_20201007_L1A1120041548\\GF6_WFV_E117.5_N35.8_20201007_L1A1120041548-1.tiff"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -419,11 +422,14 @@ public class ReadTiffUtils {
         writer.dispose();
     }
 
+
     public static Kv getNDVIData(String latlons, File file) throws Exception {
         Hints tiffHints = new Hints();
         tiffHints.add(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE));
-        tiffHints.add(new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, DefaultGeographicCRS.WGS84));
-        GeoTiffReader tifReader = new GeoTiffReader(file, tiffHints);
+        tiffHints.add(new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, CRS.decode("EPSG:4326")));
+
+        GeoTiffReader tifReader = new GeoTiffReader(file,tiffHints);
+
         GridCoverage2D coverage = tifReader.read(null);
         CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
         List<Double> lons = new ArrayList<>();
@@ -438,17 +444,23 @@ public class ReadTiffUtils {
         Double max_lon = Collections.max(lons);
         Double min_lat = Collections.min(lats);
         Double max_lat = Collections.max(lats);
-//        RenderedImage sourceImage = coverage.getRenderedImage();
-//        Raster sourceRaster = sourceImage.getData();
-//        Rectangle bounds = sourceRaster.getBounds();
-//
-//        //波段数量
-//        int numBands = sourceRaster.getNumBands();
-//        if (numBands != 1) {
-//            return Kv.by("msg", "波段数量:" + numBands).set("code", 400);
-//        }
+//        GridCoordinates2D coord = new GridCoordinates2D(5000, 5000);
+//        DirectPosition tmpPos = coverage.getGridGeometry().gridToWorld(coord);
+//        int[] sss = (int[]) coverage.evaluate(tmpPos);
+//        float b4 = sss[3];//红
+//        float b5 = sss[4];//近红
 
-        // 通过地理坐标获取行列号
+        RenderedImage sourceImage = coverage.getRenderedImage();
+        Raster sourceRaster = sourceImage.getData();
+        Rectangle bounds = sourceRaster.getBounds();
+
+        //波段数量
+        int numBands = sourceRaster.getNumBands();
+        if (numBands != 1) {
+            return Kv.by("msg", "波段数量:" + numBands).set("code", 400);
+        }
+
+        //通过地理坐标获取行列号
         //获取影像长宽
         int iwidth = coverage.getRenderedImage().getWidth();
         int iheight = coverage.getRenderedImage().getHeight();
@@ -522,6 +534,7 @@ public class ReadTiffUtils {
             }
         }
         return Kv.by("data", data).set("intersec", true);
+//        return null;
     }
 
 

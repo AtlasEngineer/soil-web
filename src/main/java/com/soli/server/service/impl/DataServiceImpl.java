@@ -90,12 +90,14 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择更新的数据");
         }
         //获取最新的landset
-        List<DataEach> dataEachs = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(85).andIdIn(ids).example().setOrderBy("data_time desc"));
+        List<DataEach> dataEachs = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(86).andIdIn(ids).example().setOrderBy("data_time desc"));
         List<NDVIModel> ndviModels = new ArrayList<>();
         String rootPath = PathKit.getWebRootPath().replace("\\", "/");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (DataEach dataEach : dataEachs) {
-            File tiff = new File(rootPath + dataEach.getUrl().replace("jpg","tiff"));
+            File tiff1 = new File(rootPath + dataEach.getUrl().replace(".jpg","-1.tiff"));
+            File tiff2 = new File(rootPath + dataEach.getUrl().replace(".jpg","-2.tiff"));
+            File tiff3 = new File(rootPath + dataEach.getUrl().replace(".jpg","-3.tiff"));
             //获取与当前landset数据相交地的包围盒
 //        List<Record> tks = Db.find("SELECT gid,st_astext(geom) FROM tr_tiankuai ORDER BY gid");
             List<Record> tks = Db.find("SELECT T.gid,st_astext(T.geom) as geom FROM " +
@@ -119,10 +121,10 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 //获取田块与landset相同分辨率的tif
                 try {
                     //获取ndvi
-                    Kv kv = ReadTiffUtils.getNDVIData(geom, tiff);
+                    Kv kv = ReadTiffUtils.getNDVIData(geom, tiff1);
                     float[][] ndviParams = (float[][]) kv.get("data");
                     NDVIModel ndviModel = new NDVIModel();
-                    ndviModel.setName(tiff.getName());
+                    ndviModel.setName(tiff1.getName());
                     ndviModel.setData(ndviParams);
                     ndviModel.setGeom(geom);
                     ndviModel.setTk_id(tk.getInt("gid"));
