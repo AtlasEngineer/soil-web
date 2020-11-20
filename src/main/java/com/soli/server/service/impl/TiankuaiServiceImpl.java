@@ -155,7 +155,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
                 String geometryStr = first.getStr("geom");
                 Geometry countyGeom = reader.read(geometryStr);
                 /* shp  文件类型	  */
-                List<DataEach> dataEachList = DataEach.service().dao().find(DataEach.sql().andDataIdIn(id).andTimeBetween(sdf.parse(time[0]), sdf.parse(time[1])).example());
+                List<DataEach> dataEachList = DataEach.service().dao().find(DataEach.sql().andDataIdIn(id).andDataTimeBetween(sdf.parse(time[0]), sdf.parse(time[1])).example());
                 for (DataEach record : dataEachList) {
                     String url = record.getStr("url");
                     if (record.getType() == 0) {
@@ -206,7 +206,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             }
             return Ret.ok("data", resultList);
         } else {
-            List<DataEach> dataEachList = DataEach.service().dao().find(DataEach.sql().andDataIdIn(id).andTimeBetween(sdf.parse(time[0]), sdf.parse(time[1])).example());
+            List<DataEach> dataEachList = DataEach.service().dao().find(DataEach.sql().andDataIdIn(id).andDataTimeBetween(sdf.parse(time[0]), sdf.parse(time[1])).example());
             GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
             WKTReader reader = new WKTReader(geometryFactory);
             for (DataEach dataEach : dataEachList) {
