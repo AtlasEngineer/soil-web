@@ -38,6 +38,7 @@ import com.soli.server.model.Data;
 import com.soli.server.utils.*;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.WKTReader;
+import groovy.util.logging.Log4j;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import org.apache.poi.ss.formula.functions.T;
 import org.dom4j.Document;
@@ -90,14 +91,11 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             return Ret.fail("errorMsg", "请选择更新的数据");
         }
         //获取最新的landset
-        List<DataEach> dataEachs = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(86).andIdIn(ids).example().setOrderBy("data_time desc"));
+        List<DataEach> dataEachs = DataEach.service().dao().find(DataEach.sql().andDataIdEqualTo(85).andIdIn(ids).example().setOrderBy("data_time desc"));
         List<NDVIModel> ndviModels = new ArrayList<>();
         String rootPath = PathKit.getWebRootPath().replace("\\", "/");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (DataEach dataEach : dataEachs) {
-            File tiff1 = new File(rootPath + dataEach.getUrl().replace(".jpg", "-1.tiff"));
-            File tiff2 = new File(rootPath + dataEach.getUrl().replace(".jpg", "-2.tiff"));
-            File tiff3 = new File(rootPath + dataEach.getUrl().replace(".jpg", "-3.tiff"));
             //获取与当前landset数据相交地的包围盒
 //        List<Record> tks = Db.find("SELECT gid,st_astext(geom) FROM tr_tiankuai ORDER BY gid");
             List<Record> tks = Db.find("SELECT T.gid,st_astext(T.geom) as geom FROM " +
@@ -109,6 +107,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     " concat_ws ( ' ', e.\"bottomLeftLongitude\", e.\"bottomLeftLatitude\" ), " +
                     " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )),'))'), 4326 ))" +
                     " where e.id = '" + dataEach.getId() + "' and T.del = 0 ");
+            File tiff = new File(rootPath + dataEach.getUrl().replace("jpg", "tiff"));
             for (Record tk : tks) {
                 //获取wkt
                 String writePath = "/ndvi/" + tk.getInt("gid") + "_" + sdf.format(dataEach.getDataTime()) + ".tif";
@@ -121,21 +120,20 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 //获取田块与landset相同分辨率的tif
                 try {
                     //获取ndvi
-                    Kv kv = ReadTiffUtils.getNDVIData(geom, tiff1);
+                    Kv kv = GdalUtils.getGF1Data(geom, tiff.getAbsolutePath());
+                    if (kv.getInt("code") != 200) {
+                        System.out.println(kv.getStr("errorMsg"));
+                        continue;
+                    }
                     float[][] ndviParams = (float[][]) kv.get("data");
                     NDVIModel ndviModel = new NDVIModel();
-                    ndviModel.setName(tiff1.getName());
+                    ndviModel.setName(tiff.getName());
                     ndviModel.setData(ndviParams);
                     ndviModel.setGeom(geom);
                     ndviModel.setTk_id(tk.getInt("gid"));
                     ndviModel.setPath(writePath);
                     ndviModel.setData_time(dataEach.getDataTime());
                     ndviModels.add(ndviModel);
-//                    try {
-//                        ReadTiffUtils.writerTif(ndviModel.getGeom(), data, rootPath + "/ndvi2" + ndviModel.getPath(), ndviModel.getNoData());
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -151,6 +149,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             float[][] data = new float[data1.length][data1[0].length];
             for (NDVIModel ndviModel2 : ndviModels) {
                 if (ndviModel == ndviModel2) {
+                    data = data1;
                     list.add(ndviModel2.getTk_id());
                     continue;
                 }
@@ -179,13 +178,13 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                     ndviModel.setPath("/ndvi/ndvi_" + sdf.format(ndviModel.getData_time()) + "_" + ndviModel.getTk_id() + ndviModel.getName() + "_" + ndviModel2.getName() + ".tif");
                     list.add(ndviModel2.getTk_id());
                 } else {
-                    data = ndviModel.getData();
+                    data = data1;
                 }
             }
             //生成tiff
             File file = new File(rootPath + ndviModel.getPath());
             try {
-                ReadTiffUtils.writerTif(ndviModel.getGeom(), data, rootPath + ndviModel.getPath(), 0.0);
+                ReadTiffUtils.writerTif(ndviModel.getGeom(), data, rootPath + ndviModel.getPath(), 2.0);
                 //生成缩略tiff
                 String s = rootPath + ndviModel.getPath();
                 String[] split = s.split(".tif");
