@@ -346,15 +346,15 @@ public class ReadTiffUtils {
         Double min_lat = Collections.min(lats);
         Double max_lat = Collections.max(lats);
 
-        Point maxPoint = projectTransform(max_lat, max_lon, "EPSG:32650", "EPSG:4326");
-        Point minPoint = projectTransform(min_lat, min_lon, "EPSG:32650", "EPSG:4326");
-
         CoordinateReferenceSystem crs = CRS.decode("EPSG:4326", false);
 
+        System.out.println("min:"+min_lon+"  -  "+min_lat);
+        System.out.println("max:"+max_lon+"  -  "+max_lat);
         //导出tiff
-        ReferencedEnvelope envelope = new ReferencedEnvelope(minPoint.getX(), maxPoint.getX(), minPoint.getY(), maxPoint.getY(), crs);
+        ReferencedEnvelope envelope = new ReferencedEnvelope(min_lon, max_lon, min_lat, max_lat, crs);
+
         if (noDataValues == null) {
-            exportTIFF(writePath, data, envelope, 0);
+            exportTIFF(writePath, data, envelope, 2);
         } else {
             exportTIFF(writePath, data, envelope, noDataValues.floatValue());
         }
@@ -368,6 +368,7 @@ public class ReadTiffUtils {
 
     public static void exportTIFF(String outputPath, float[][] data, org.opengis.geometry.Envelope env, float nodate) throws Exception {
         GridCoverageFactory factory = new GridCoverageFactory();
+
         HashMap properties = new HashMap<>();
         CoverageUtilities.setNoDataProperty(properties, new NoDataContainer(nodate));
         GridCoverage2D outputCoverage = factory.create("test", data, env);
@@ -503,7 +504,7 @@ public class ReadTiffUtils {
                     double lat = tmpPos.getCoordinate()[1];
                     boolean iscontains = GeometryRelated.withinGeo(lon, lat, "POLYGON((" + latlons + "))");
                     if (iscontains) {
-                        //面内，赋值像素值\
+                        //面内，赋值像素值
                         float[] sss = (float[]) coverage.evaluate(tmpPos);
                         float b4 = sss[3];//红
                         float b5 = sss[4];//近红
@@ -511,13 +512,13 @@ public class ReadTiffUtils {
                             //ndvi = B5-B4/B5+B4   B4是红，B5是近红 正常结果范围在-1到1之间
                             double add = Arith.add(b5, b4);
                             if (add == 0) {
-                                data[i][j] = 0;
+                                data[j - max_y][i - min_x] = 0;
                             }else{
                                 Double div = Arith.div(Arith.sub(b5, b4), add);
                                 if (div == -1 || div == 1) {
-                                    data[i][j] = 0;
+                                    data[j - max_y][i - min_x] = 0;
                                 } else {
-                                    data[i][j] = div.floatValue();
+                                    data[j - max_y][i - min_x] = div.floatValue();
                                 }
                             }
                         } else {
