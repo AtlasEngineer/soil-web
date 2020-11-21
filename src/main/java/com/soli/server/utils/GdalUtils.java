@@ -16,16 +16,18 @@ public class GdalUtils {
 
     public static void main(String[] args) {
         long l = System.currentTimeMillis();
-        String fileName_tif = "D:\\IdeaWorkSpace\\soil-web\\src\\main\\webapp\\upload\\crawlers_gf\\GF1_WFV3_E117.1_N35.6_20200927_L1A0005092063\\GF1_WFV3_E117.1_N35.6_20200927_L1A0005092063.tiff";
+        String gf1Path = "D:\\IdeaWorkSpace\\soil-web\\src\\main\\webapp\\upload\\crawlers_gf\\GF1_WFV3_E117.1_N35.6_20200927_L1A0005092063\\GF1_WFV3_E117.1_N35.6_20200927_L1A0005092063.tiff";
         try {
-            Kv gf1Data = getGF1Data("113.999 36,114 36,114 35.999,113.999 35.999,113.999 36", fileName_tif);
-        } catch (ParseException e) {
+            //116.944 36.066
+//            getPix(gf1Path);
+            Kv gf1Data = getGF1Data("113.999 36,114 36,114 35.999,113.999 35.999,113.999 36", gf1Path);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         System.out.println("耗时:" + (System.currentTimeMillis() - l) + "ms");
     }
 
-    public static Kv getPix(String gf1Path) {
+    public static void getPix(String gf1Path) {
         gdal.AllRegister();
 
         Dataset dataset = gdal.Open(gf1Path, gdalconstConstants.GA_ReadOnly);
@@ -36,23 +38,22 @@ public class GdalUtils {
         File tiff = new File(gf1Path);
         String new_tiff = tiff.getParent() + "/warp.tif";
         Dataset hDataset = gdal.Warp(new_tiff, src_array, warpOptions);
-        if (StringUtils.isBlank(hDataset.GetProjectionRef())) {
-            return Kv.by("errorMsg", "获取不到数据坐标系").set("code", 400);
-        }
-
-        if (hDataset == null) {
-            System.err.println(gdal.GetLastErrorMsg());
-            return Kv.by("errorMsg", "GDALOpen failed - " + gdal.GetLastErrorNo()).set("code", 400);
-        }
 
         Driver hDriver = hDataset.GetDriver();
         System.out.println("Driver: " + hDriver.getShortName() + "/" + hDriver.getLongName());
-        int iXSize = hDataset.getRasterXSize();
-        int iYSize = hDataset.getRasterYSize();
+        double[] dGeoTrans = hDataset.GetGeoTransform();
 
-        Band band4 = hDataset.GetRasterBand(3);//红
-//        band4.ReadRaster(min_x, min_y, iXSize, 1, buf4);
-        return null;
+        int[] maxRowCol = Projection2ImageRowCol(dGeoTrans, 116.944, 36.066);
+        int max_x = (int) maxRowCol[0];
+        int max_y = (int) maxRowCol[1];
+
+        int bandSize = hDataset.GetRasterCount();
+        for (int i = 1; i < bandSize; i++) {
+            Band band = hDataset.GetRasterBand(i);//红
+            int buf[] = new int[1];
+            band.ReadRaster(max_x, max_y, 1, 1, buf);
+            System.out.println(buf[0]);
+        }
     }
 
     public static Kv getGF1Data(String latlons, String gf1Path) throws ParseException {
@@ -122,6 +123,8 @@ public class GdalUtils {
             max_x = iXSize;
         }
         //获取数据
+        System.out.println("x:"+min_x+"到"+max_x);
+        System.out.println("y:"+max_y+"到"+min_y);
         System.out.println("x:" + (max_x - min_x));
         System.out.println("y:" + (min_y - max_y));
         float[][] data = new float[min_y - max_y][max_x - min_x];
@@ -171,6 +174,9 @@ public class GdalUtils {
                                 data[j - max_y][i - min_x] = 2;
                             } else {
                                 Double div = Arith.div(Arith.sub(b5, b4), add);
+                                if (div == 0) {
+                                    System.out.println(lon+" "+lat);
+                                }
                                 if (div > 1) {
                                     data[j - max_y][i - min_x] = 1;
                                 } else if (div < -1) {
@@ -182,7 +188,7 @@ public class GdalUtils {
                         } else {
                             data[j - max_y][i - min_x] = 2;
                         }
-//                        System.out.print(data[j - max_y][i - min_x]+", ");
+//                        System.out.print(data[j - max_y][i - min_x] + ", ");
                     } else {
                         data[j - max_y][i - min_x] = 2;
                     }
