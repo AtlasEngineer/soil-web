@@ -24,6 +24,7 @@ import com.lambkit.core.api.route.ApiRenderJFinalJson;
 import com.soli.server.model.Tiankuai;
 import com.vividsolutions.jts.io.ParseException;
 import org.geotools.filter.text.cql2.CQLException;
+import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
 import java.util.List;
@@ -64,7 +65,7 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
      */
     @ApiBody(ApiRenderJFinalJson.class)
     @ApiMapping(value = "search.compoundQuery",useLogin = false)
-    public Ret compoundQuery(Integer countyId,Integer type,String time[],String latlons,List<Integer> id) throws ParseException, IOException, CQLException, java.text.ParseException;
+    public Ret compoundQuery(Integer countyId,Integer type,String time[],String latlons,List<Integer> id) throws ParseException, IOException, CQLException, java.text.ParseException, TransformException;
 
 
 
