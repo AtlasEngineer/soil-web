@@ -640,8 +640,8 @@ public class UploadController extends LambkitController {
                 renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确,压缩包必须为一级目录")));
                 return;
             }
-            if (fileList.length > 7) {
-                renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确,文件数量不对")));
+            if (fileList.length > 3) {
+                renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确,文件数量不对,必须文件:.shp、.shx、.dbf")));
                 return;
             }
             List<String> list = new ArrayList<>();
@@ -672,9 +672,6 @@ public class UploadController extends LambkitController {
                     if ("dbf".equals(s1)) {
                         dbfPath = file01.getPath();
                     }
-                    if ("prj".equals(s1)) {
-                        prjPath = file01.getPath();
-                    }
                 }
             }
             if (shpPath == null) {
@@ -693,12 +690,6 @@ public class UploadController extends LambkitController {
                 files.delete();
                 fileZip.delete();
                 this.renderJson(Co.ok("data", Ret.fail("errorMsg", "上传压缩文件没有dbf")));
-                return;
-            }
-            if (prjPath == null) {
-                files.delete();
-                fileZip.delete();
-                this.renderJson(Co.ok("data", Ret.fail("errorMsg", "上传压缩文件没有prj")));
                 return;
             }
             //发布shp

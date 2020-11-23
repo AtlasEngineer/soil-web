@@ -100,14 +100,14 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
 //        List<Record> tks = Db.find("SELECT gid,st_astext(geom) FROM tr_tiankuai ORDER BY gid");
             List<Record> tks = Db.find("SELECT T.gid,st_astext(T.geom) as geom FROM " +
                     " tr_data_each e LEFT JOIN tr_tiankuai T ON ST_Intersects ( T.geom,st_geometryfromtext (concat_ws ( '','POLYGON((', " +
-                    "  concat_ws ( ',', " +
+                    " concat_ws ( ',', " +
                     " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" ), " +
                     " concat_ws ( ' ', e.\"topRightLongitude\", e.\"topRightLatitude\" ), " +
                     " concat_ws ( ' ', e.\"bottomRightLongitude\", e.\"bottomRightLatitude\" ), " +
                     " concat_ws ( ' ', e.\"bottomLeftLongitude\", e.\"bottomLeftLatitude\" ), " +
                     " concat_ws ( ' ', e.\"topLeftLongitude\", e.\"topLeftLatitude\" )),'))'), 4326 ))" +
                     " where e.id = '" + dataEach.getId() + "' and T.del = 0 ");
-            File tiff = new File(rootPath + dataEach.getUrl().replace("jpg", "tiff"));
+            File tiff = new File(rootPath + dataEach.getUrl().replace("jpg", "tif"));
             for (Record tk : tks) {
                 //获取wkt
                 String writePath = "/ndvi/" + tk.getInt("gid") + "_" + sdf.format(dataEach.getDataTime()) + ".tif";
@@ -117,6 +117,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 } else if (geom.contains("POLYGON")) {
                     geom = geom.substring(9, geom.length() - 2);
                 }
+//                String geom = "115 37,118 37,118 34,115 34,115 37";
                 //获取田块与landset相同分辨率的tif
                 try {
                     //获取ndvi
