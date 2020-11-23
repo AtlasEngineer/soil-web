@@ -56,6 +56,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -78,6 +79,14 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             DAO = AopKit.singleton(Data.class);
         }
         return DAO;
+    }
+
+    @Override
+    public Ret getArea(String latlons) {
+        Record first = Db.findFirst("SELECT st_area(ST_Transform(ST_SetSRID(st_geometryfromtext('polygon (( " + latlons + " )) ',4326) ,4326),4527)) as area");
+        double area = Arith.div(first.getDouble("area"), 1000);
+        DecimalFormat df = new DecimalFormat("0.00");
+        return Ret.ok("area", df.format(area));
     }
 
     @Override

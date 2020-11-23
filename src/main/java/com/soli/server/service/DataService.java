@@ -38,6 +38,15 @@ import java.util.List;
 public interface DataService extends LambkitService<Data> {
 
     /**
+     * 计算面积
+     * @param latlons
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.getArea",useLogin = false)
+    public Ret getArea(String latlons);
+
+    /**
      * 根据经纬度获取省市区
      * @param lat
      * @param lon

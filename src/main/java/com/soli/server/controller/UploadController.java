@@ -634,10 +634,9 @@ public class UploadController extends LambkitController {
             String shpPath = null;
             String shxPath = null;
             String dbfPath = null;
-            String prjPath = null;
             String[] fileList = files.list();
             if (fileList == null || fileList.length == 0) {
-                renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确,压缩包必须为一级目录")));
+                renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确,压缩文件必须为一级目录")));
                 return;
             }
             if (fileList.length < 3) {
