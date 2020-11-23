@@ -153,10 +153,6 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
         if (id == null && id.size() == 0) {
             return Ret.fail("errorMsg", "未选择数据");
         }
-        Record records = Db.findFirst("select * from tr_ch_city where ST_Intersects(geom, st_geometryfromtext('polygon ((" + latlons + "))',4326)) = 't'");
-        if(records==null){
-            return Ret.fail("errorMsg", "暂无数据");
-        }
 
         if (time == null && time.length == 0) {
             return Ret.fail("errorMsg", "时间不能为空");
@@ -223,6 +219,10 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
             }
             return Ret.ok("data", resultList);
         } else {
+            Record records = Db.findFirst("select * from tr_ch_city where ST_Intersects(geom, st_geometryfromtext('polygon ((" + latlons + "))',4326)) = 't'");
+            if(records==null){
+                return Ret.fail("errorMsg", "暂无数据");
+            }
             List<DataEach> dataEachList = DataEach.service().dao().find(DataEach.sql().andDataIdIn(id).andDataTimeBetween(sdf.parse(time[0]), sdf.parse(time[1])).example());
             GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
             WKTReader reader = new WKTReader(geometryFactory);
