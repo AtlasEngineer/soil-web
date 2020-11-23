@@ -84,3 +84,4 @@ src/main/webapp/d/
 hs_err_pid*
 /src/test
 /aaaa
+/src/main/test/com/atlas/test/GDALTest.java
