@@ -640,7 +640,7 @@ public class UploadController extends LambkitController {
                 renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确,压缩包必须为一级目录")));
                 return;
             }
-            if (fileList.length > 3) {
+            if (fileList.length < 3) {
                 renderJson(Co.ok("data", Ret.fail("errorMsg", "文件格式不正确,文件数量不对,必须文件:.shp、.shx、.dbf")));
                 return;
             }
