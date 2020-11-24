@@ -84,7 +84,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     @Override
     public Ret getArea(String latlons) {
         Record first = Db.findFirst("SELECT st_area(ST_Transform(st_geometryfromtext('polygon (( " + latlons + " )) ',4326),4527)) as area");
-        double area = Arith.div(first.getDouble("area"), 1000);
+        double area = Arith.div(first.getDouble("area"), 1000000);
         DecimalFormat df = new DecimalFormat("0.00");
         return Ret.ok("area", df.format(area));
     }
