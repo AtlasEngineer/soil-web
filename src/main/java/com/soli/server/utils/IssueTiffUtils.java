@@ -593,18 +593,30 @@ public class IssueTiffUtils {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f1ff14").addAttribute("quantity", String.valueOf(1000)).addAttribute("label", "1000");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#fa0200").addAttribute("quantity", String.valueOf(2000)).addAttribute("label", "2000");
             }
-            if (id == 28 || id == 48 || id == 92 || id == 48) {
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(234.15)).addAttribute("label", "234.15");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(254.15)).addAttribute("label", "254.15");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(274.15)).addAttribute("label", " 274.15");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(294.15)).addAttribute("label", "294.15");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(314.15)).addAttribute("label", "314.15");
+            if (id == 28 || id == 48 || id == 92 ) {
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(230)).addAttribute("label", "230");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1a56ff").addAttribute("quantity", String.valueOf(240)).addAttribute("label", "240");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14b2ff").addAttribute("quantity", String.valueOf(250)).addAttribute("label", "250");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(260)).addAttribute("label", "260");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#9cff14").addAttribute("quantity", String.valueOf(270)).addAttribute("label", "270");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(275)).addAttribute("label", "275");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#9cff14").addAttribute("quantity", String.valueOf(280)).addAttribute("label", "280");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(290)).addAttribute("label", "290");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ffb410").addAttribute("quantity", String.valueOf(300)).addAttribute("label", "300");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff500b").addAttribute("quantity", String.valueOf(310)).addAttribute("label", "310");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(320)).addAttribute("label", "320");
             }
             if (id == 47 || id == 94) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(0.0)).addAttribute("label", "0.0");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff500b").addAttribute("quantity", String.valueOf(0.1)).addAttribute("label", "0.1");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ffb410").addAttribute("quantity", String.valueOf(0.2)).addAttribute("label", "0.2");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(0.3)).addAttribute("label", "0.3");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#9cff14").addAttribute("quantity", String.valueOf(0.4)).addAttribute("label", "0.4");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(0.5)).addAttribute("label", "0.5");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#9cff14").addAttribute("quantity", String.valueOf(0.6)).addAttribute("label", "0.6");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(0.7)).addAttribute("label", "0.7");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14b2ff").addAttribute("quantity", String.valueOf(0.8)).addAttribute("label", "0.8");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1a56ff").addAttribute("quantity", String.valueOf(0.9)).addAttribute("label", "0.9");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(1.0)).addAttribute("label", "1.0");
             }
 //            if (id == 95) {
@@ -616,25 +628,42 @@ public class IssueTiffUtils {
 //            }
             if (id == 30 || id == 95) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#afff14").addAttribute("quantity", String.valueOf(0)).addAttribute("label", "0");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#78ff14").addAttribute("quantity", String.valueOf(5)).addAttribute("label", "5");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(10)).addAttribute("label", "10");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1dff8a").addAttribute("quantity", String.valueOf(15)).addAttribute("label", "15");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(20)).addAttribute("label", "20");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#2adcff").addAttribute("quantity", String.valueOf(25)).addAttribute("label", "25");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#44b6ff").addAttribute("quantity", String.valueOf(30)).addAttribute("label", "30");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(40)).addAttribute("label", "40");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3f8bff").addAttribute("quantity", String.valueOf(35)).addAttribute("label", "35");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#315fff").addAttribute("quantity", String.valueOf(40)).addAttribute("label", "40");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#2634ff").addAttribute("quantity", String.valueOf(45)).addAttribute("label", "45");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(50)).addAttribute("label", "50");
             }
             if (id == 44) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1483ff").addAttribute("quantity", String.valueOf(10)).addAttribute("label", "10");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14bcff").addAttribute("quantity", String.valueOf(20)).addAttribute("label", "20");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(40)).addAttribute("label", "40");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14ff8b").addAttribute("quantity", String.valueOf(60)).addAttribute("label", "60");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1fff14").addAttribute("quantity", String.valueOf(80)).addAttribute("label", "80");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#8bff14").addAttribute("quantity", String.valueOf(100)).addAttribute("label", "100");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(120)).addAttribute("label", "120");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff850d").addAttribute("quantity", String.valueOf(140)).addAttribute("label", "140");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(160)).addAttribute("label", "160");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#b30707").addAttribute("quantity", String.valueOf(180)).addAttribute("label", "180");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#640909").addAttribute("quantity", String.valueOf(200)).addAttribute("label", "200");
             }
             if (id == 45) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff0707").addAttribute("quantity", String.valueOf(0)).addAttribute("label", "0");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(0.01)).addAttribute("label", "0.01");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(0.02)).addAttribute("label", "0.02");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(0.03)).addAttribute("label", "0.03");
-                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(0.04)).addAttribute("label", "0.04");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ff500b").addAttribute("quantity", String.valueOf(0.005)).addAttribute("label", "0.005");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#ffb410").addAttribute("quantity", String.valueOf(0.01)).addAttribute("label", "0.01");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f7ff14").addAttribute("quantity", String.valueOf(0.015)).addAttribute("label", "0.015");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#9cff14").addAttribute("quantity", String.valueOf(0.02)).addAttribute("label", "0.02");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#3bff14").addAttribute("quantity", String.valueOf(0.025)).addAttribute("label", "0.025");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#9cff14").addAttribute("quantity", String.valueOf(0.03)).addAttribute("label", "0.03");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14f7ff").addAttribute("quantity", String.valueOf(0.035)).addAttribute("label", "0.035");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14b2ff").addAttribute("quantity", String.valueOf(0.04)).addAttribute("label", "0.04");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1a56ff").addAttribute("quantity", String.valueOf(0.045)).addAttribute("label", "0.045");
+                row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(0.05)).addAttribute("label", "0.05");
             }
             //生成style文件
             String rootPath = PathKit.getWebRootPath().replace("\\", "/");
