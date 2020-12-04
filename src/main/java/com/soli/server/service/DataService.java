@@ -37,6 +37,28 @@ import java.util.List;
  */
 public interface DataService extends LambkitService<Data> {
 
+
+    /**
+     * 分年份获取指定地块的所有ndvi缩略图
+     * @param id
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.getNdviByTiankuai",useLogin = false)
+    public Ret getNdviByTiankuai(Integer id);
+
+    /**
+     * 上传ndvi
+     * @param id
+     * @param title
+     * @param time
+     * @param path
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.issueNdvi",useLogin = false)
+    public Ret issueNdvi(Integer id,String title,String time,String path);
+
     /**
      * 计算面积
      * @param latlons

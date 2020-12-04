@@ -33,6 +33,7 @@ import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
 import com.soli.lambkit.start.GeoServerConfig;
 import com.soli.server.model.DataEach;
+import com.soli.server.model.Tiankuai;
 import com.soli.server.service.DataService;
 import com.soli.server.model.Data;
 import com.soli.server.utils.*;
@@ -51,14 +52,18 @@ import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 import static com.soli.server.utils.CodePageUtils.getUserEntity;
 
@@ -79,6 +84,93 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             DAO = AopKit.singleton(Data.class);
         }
         return DAO;
+    }
+
+    @Override
+    public Ret getNdviByTiankuai(Integer id) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择查询的田块");
+        }
+        Tiankuai tiankuai = Tiankuai.service().dao().findById(id);
+        if (tiankuai == null) {
+            return Ret.fail("errorMsg", "找不到该田块");
+        }
+        //按年份返回 缩略图
+        //过去一年
+        SimpleDateFormat format = new SimpleDateFormat("yyyy");
+        Calendar c = Calendar.getInstance();
+        Date date = new Date();
+        c.setTime(date);
+        String year = format.format(date);
+        c.add(Calendar.YEAR, -1);
+        Date y1 = c.getTime();
+        String year1 = format.format(y1);
+        c.add(Calendar.YEAR, -1);
+        Date y2 = c.getTime();
+        String year2 = format.format(y2);
+        List<Record> records = Db.find("select * from tr_tiankuai_ndvi where tk_id = ? and to_char(data_time,'yyyy') = ? ", id, year);
+        for (Record record :records) {
+            record.set("path",record.getStr("path").replace("tif","png"));
+        }
+        List<Record> records1 = Db.find("select * from tr_tiankuai_ndvi where tk_id = ? and to_char(data_time,'yyyy') = ? ", id, year1);
+        for (Record record :records1) {
+            record.set("path",record.getStr("path").replace("tif","png"));
+        }
+        List<Record> records2 = Db.find("select * from tr_tiankuai_ndvi where tk_id = ? and to_char(data_time,'yyyy') = ? ", id, year2);
+        for (Record record :records2) {
+            record.set("path",record.getStr("path").replace("tif","png"));
+        }
+        return Ret.ok(year, records).set(year1, records1).set(year2, records2);
+    }
+
+    @Override
+    public Ret issueNdvi(Integer id, String title, String time, String path) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择要上传的田块");
+        }
+        if (StringUtils.isBlank(title)) {
+            return Ret.fail("errorMsg", "请填写ndvi名称");
+        }
+        if (StringUtils.isBlank(time)) {
+            return Ret.fail("errorMsg", "请填写数据时间");
+        }
+        if (StringUtils.isBlank(path)) {
+            return Ret.fail("errorMsg", "请上传ndvi数据");
+        }
+        Tiankuai tiankuai = Tiankuai.service().dao().findById(id);
+        if (tiankuai == null) {
+            return Ret.fail("errorMsg", "找不到该田块");
+        }
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            String rootPath = PathKit.getWebRootPath().replace("\\", "/");
+            File file = new File(rootPath + path);
+            String name = file.getName().split(".tif")[0];
+            Date parse = simpleDateFormat.parse(time);
+            //发布tif
+            Kv kv = IssueTiffUtils.uploadTiff(path, name, 0, null, null);
+            if (kv.getInt("code") != 200) {
+                return Ret.fail("errorMsg", kv.get("msg"));
+            }
+            //生成缩略图
+            GeoTiffReader reader = new GeoTiffReader(file);
+            GridCoverage2D coverage = reader.read(null);
+            BufferedImage bufferedImage = ReadTiffUtils.coverageImage(coverage);
+            ImageIO.write(bufferedImage, "png", new File(file.getAbsolutePath().replace("tif", "png")));
+            Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,path,url,time) values('" + id + "','" + parse + "','" + path + "','d:" + name + "','" + new Date() + "')");
+        } catch (ParseException e) {
+            return Ret.fail("errorMsg", "时间格式错误");
+        } catch (DataSourceException e) {
+            e.printStackTrace();
+            return Ret.fail("errorMsg", "资源不存在");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Ret.fail("errorMsg", "读取文件失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Ret.fail("errorMsg", "发布失败");
+        }
+        return null;
     }
 
     @Override

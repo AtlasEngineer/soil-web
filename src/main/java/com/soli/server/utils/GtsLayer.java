@@ -45,16 +45,16 @@ public class GtsLayer {
     /**
      * 加入栅格图层
      */
-    public void addCoverage(GridCoverage2D coverage,double max,double min) {
-        addCoverage(coverage, createDefaultRasterStyle(max,min));
+    public void addCoverage(GridCoverage2D coverage) {
+        addCoverage(coverage, createDefaultRasterStyle());
     }
 
     public void addCoverage(GridCoverage2D coverage, Style style) {
         this.layer = new GridCoverageLayer(coverage, style);
     }
 
-    private Style createDefaultRasterStyle(double max,double min) {
-        Style style = ReadTiffUtils.createStyle(1, min, max);
+    private Style createDefaultRasterStyle() {
+        Style style = ReadTiffUtils.createStyle();
 //        StyleFactory sf = CommonFactoryFinder.getStyleFactory();
 //        RasterSymbolizer sym = sf.getDefaultRasterSymbolizer();
 //        Style style = SLD.wrapSymbolizers(sym);

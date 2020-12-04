@@ -40,6 +40,16 @@ public class DataServiceMock extends BaseServiceMock<Data> implements DataServic
     }
 
     @Override
+    public Ret getNdviByTiankuai(Integer id) {
+        return null;
+    }
+
+    @Override
+    public Ret issueNdvi(Integer id, String title, String time, String path) {
+        return null;
+    }
+
+    @Override
     public Ret getArea(String latlons) {
         return null;
     }

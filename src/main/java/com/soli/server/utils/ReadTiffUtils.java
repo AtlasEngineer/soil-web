@@ -70,19 +70,10 @@ public class ReadTiffUtils {
         }
     }
 
-    public static BufferedImage coverageImage(float[][] data, GridCoverage2D coverage) {
-        ArrayList<Float> list = new ArrayList<>();
-        for (int i = 0; i < data.length; i++) {
-            for (int j = 0; j < data[i].length; j++) {
-                float d1 = data[i][j];
-                list.add(d1);
-            }
-        }
-        Float min = Collections.min(list);
-        Float max = Collections.max(list);
+    public static BufferedImage coverageImage(GridCoverage2D coverage) {
         MapContent map = new MapContent();
         GtsLayer gtsLayer = new GtsLayer("coverage");
-        gtsLayer.addCoverage(coverage, max, min);
+        gtsLayer.addCoverage(coverage);
         int width = coverage.getRenderedImage().getWidth();
         int height = coverage.getRenderedImage().getHeight();
         map.addLayer(gtsLayer.getLayer());
@@ -105,7 +96,7 @@ public class ReadTiffUtils {
         return bi;
     }
 
-    public static Style createStyle(int band, double min, double max) {
+    public static Style createStyle() {
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
         StyleFactory sf = CommonFactoryFinder.getStyleFactory();
         RasterSymbolizer sym = sf.getDefaultRasterSymbolizer();
@@ -171,7 +162,7 @@ public class ReadTiffUtils {
 //        writer.dispose();
 
         //生成缩略图土壤
-        BufferedImage bufferedImage = coverageImage(data, coverage);
+        BufferedImage bufferedImage = coverageImage(coverage);
         ImageIO.write(bufferedImage, "png", new File(humbstPath.replace("tif", "png")));
         return true;
     }

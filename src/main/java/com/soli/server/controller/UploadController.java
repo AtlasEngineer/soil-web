@@ -458,6 +458,66 @@ public class UploadController extends LambkitController {
 
 
     /**
+     * @Description: 上传tiff压缩文件
+     * @Author: yangxueyang
+     * @Date: 2019/8/28
+     */
+    public void uploadTifZip() {
+        UploadFile uf = getFile();
+        File file = uf.getFile();
+        String root = PathKit.getWebRootPath().replace("\\", "/");
+        String fileext = PathUtils.getExtensionName(file.getName());
+        String name = UUID.randomUUID().toString();
+        String filename = name + "." + "zip";
+        if (!"zip".equals(fileext)) {
+            renderJson(Co.ok("data", Co.fail("errorMsg", "压缩包只支持zip格式")));
+            file.delete();
+            return;
+        } else {
+            File newfile = new File(root + "/upload/" + filename);
+            boolean b = file.renameTo(newfile);
+            if (!b) {
+                renderJson(Co.ok("data", Co.fail("errorMsg", "重命名失败")));
+            } else {
+                //解压后文件夹
+                String s = root + "/d/" + name;
+                try {
+                    ZipUtils.decompress(newfile.getPath(), s);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "解压错误")));
+                    return;
+                }
+                File files = new File(s);
+                String[] fileList = files.list();
+                String tifPath = null;
+                for (String y : fileList) {
+                    File file2 = new File(s + "/" + y);
+                    if (file2.isFile()) {
+                        String[] split = file2.getName().split("\\.");//尾椎集合
+                        StringBuffer sb = new StringBuffer();
+                        for (int i = 1; i < split.length; i++) {
+                            sb.append(split[i] + ".");
+                        }
+                        String s1 = sb.toString().substring(0, sb.length() - 1);
+                        File file01 = new File(root + "/d/" + name + "/" + name + "." + s1);
+                        file2.renameTo(file01);
+                        if ("tif".equals(s1) || "tiff".equals(s1)) {
+                            tifPath = file01.getPath();
+                        }
+                    }
+                }
+                if(StringUtils.isBlank(tifPath)){
+                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "压缩包没有tif文件")));
+                    return;
+                }
+                renderJson(Co.ok("data", Co.ok("url", "/d/" + name + "/" + name + ".tif").set("yname", file.getName())));
+            }
+        }
+    }
+
+
+    /**
      * @Description: 上传压缩文件
      * @Author: yangxueyang
      * @Date: 2019/8/28
