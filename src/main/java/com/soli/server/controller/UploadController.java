@@ -604,6 +604,37 @@ public class UploadController extends LambkitController {
         }
     }
 
+
+    /**
+     * @return void
+     * @Author queer
+     * @Description //TODO
+     * @Date 9:30 2019/11/21
+     * @Param [image-file]
+     **/
+    @ApiOperation(url = "/upload/updatePDF", tag = "/upload", httpMethod = "post", description = "图片上传")
+    public void updatePDF() {
+        //getFile一定放在第一个参数去获取，否则都获取不到参数
+        UploadFile uf = getFile("file", "pdf");
+        File file = uf.getFile();
+        System.out.println("上传时文件名：" + file.getName());
+        String rootPath = PathKit.getWebRootPath() + "/upload/operation/";
+        String fileext = PathUtils.getExtensionName(file.getName());
+        String filename = UUID.randomUUID().toString() + "." + fileext;
+        if (!"pdf".equals(fileext) && !"PDF".equals(fileext)) {
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "pdf文件格式不正确")));
+            file.delete();
+            return;
+        } else {
+            boolean b = file.renameTo(new File(rootPath + filename));
+            if (!b) {
+                renderJson(Co.ok("data", Ret.fail("errorMsg", "重命名失败")));
+            } else {
+                renderJson(Co.ok("data", Ret.ok("url", "/upload/operation/" + filename).set("yname", file.getName())));
+            }
+        }
+    }
+
     /**
      * @return void
      * @Author queer
