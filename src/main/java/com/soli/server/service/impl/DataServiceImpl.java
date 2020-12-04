@@ -293,12 +293,16 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
                 String s1 = split[0] + ".tif";
                 //生成缩略图
                 ReadTiffUtils.makeThumbsFromTiff(data, s, s1);
+                String name = file.getName().split(".tif")[0];
                 //发布tiff
-
+                Kv kv = IssueTiffUtils.uploadTiff(s, name, 0, null, null);
+                if (kv.getInt("code") != 200) {
+                    return Ret.fail("errorMsg", kv.get("msg"));
+                }
+                Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,path,url) values('" + ndviModel.getTk_id() + "','" + ndviModel.getData_time() + "','" + ndviModel.getPath() + "','d:" + name + "')");
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,path,url) values('" + ndviModel.getTk_id() + "','" + ndviModel.getData_time() + "','" + ndviModel.getPath() + "','d:" + file.getName().split(".tif")[0] + "')");
         }
         return Ret.ok();
     }
