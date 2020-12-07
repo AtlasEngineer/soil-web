@@ -87,6 +87,31 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
+    public Ret delNdvi(Integer id) {
+        if (id == null) {
+            return Ret.fail("errorMsg", "请选择要删除的数据");
+        }
+        Record ndvi = Db.findFirst("select * from tr_tiankuai_ndvi where id = ?", id);
+        if (ndvi == null) {
+            return Ret.fail("errorMsg", "该数据不存在");
+        }
+        //删除geoserver服务和文件
+        GeoServerConfig config = Lambkit.config(GeoServerConfig.class);
+        String RESTURL = config.getGeourl();
+        String RESTUSER = config.getGeouser();
+        String RESTPW = config.getGeopsw();
+        GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(RESTURL, RESTUSER, RESTPW);
+        String webRootPath = PathKit.getWebRootPath().replace("\\","/");
+        File file = new File(webRootPath +"/d/"+ ndvi.getStr("url").split(":")[1]);
+        publisher.removeLayer("d", ndvi.getStr("url").split(":")[1]);
+        if (file.exists()) {
+            file.delete();
+        }
+        Db.delete("DELETE FROM tr_tiankuai_ndvi WHERE id = ? ", id);
+        return Ret.ok("msg","删除成功");
+    }
+
+    @Override
     public Ret getNdviByTiankuai(Integer id) {
         if (id == null) {
             return Ret.fail("errorMsg", "请选择查询的田块");
@@ -157,7 +182,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             GridCoverage2D coverage = reader.read(null);
             BufferedImage bufferedImage = ReadTiffUtils.coverageImage(coverage);
             ImageIO.write(bufferedImage, "png", new File(file.getAbsolutePath().replace("tif", "png")));
-            Db.update("insert into tr_tiankuai_ndvi (title,tk_id,data_time,path,url,time) values('"+title+"','" + id + "','" + parse + "','" + path + "','d:" + name + "','" + new Date() + "')");
+            Db.update("insert into tr_tiankuai_ndvi (title,tk_id,data_time,path,url,time) values('" + title + "','" + id + "','" + parse + "','" + path + "','d:" + name + "','" + new Date() + "')");
         } catch (ParseException e) {
             return Ret.fail("errorMsg", "时间格式错误");
         } catch (DataSourceException e) {
@@ -765,7 +790,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             for (Record record1 : records) {
                 record1.set("path", record1.getStr("path").replace("tif", "png"));
             }
-            record.set("ndvi",records);
+            record.set("ndvi", records);
         }
         return Ret.ok("center", center);
     }

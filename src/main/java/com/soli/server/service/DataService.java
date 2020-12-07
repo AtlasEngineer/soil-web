@@ -37,6 +37,14 @@ import java.util.List;
  */
 public interface DataService extends LambkitService<Data> {
 
+    /**
+     * 分年份获取指定地块的所有ndvi缩略图
+     * @param id
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.delNdvi",useLogin = false)
+    public Ret delNdvi(Integer id);
 
     /**
      * 分年份获取指定地块的所有ndvi缩略图
