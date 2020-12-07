@@ -157,7 +157,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             GridCoverage2D coverage = reader.read(null);
             BufferedImage bufferedImage = ReadTiffUtils.coverageImage(coverage);
             ImageIO.write(bufferedImage, "png", new File(file.getAbsolutePath().replace("tif", "png")));
-            Db.update("insert into tr_tiankuai_ndvi (tk_id,data_time,path,url,time) values('" + id + "','" + parse + "','" + path + "','d:" + name + "','" + new Date() + "')");
+            Db.update("insert into tr_tiankuai_ndvi (title,tk_id,data_time,path,url,time) values('"+title+"','" + id + "','" + parse + "','" + path + "','d:" + name + "','" + new Date() + "')");
         } catch (ParseException e) {
             return Ret.fail("errorMsg", "时间格式错误");
         } catch (DataSourceException e) {
@@ -761,7 +761,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         }
         //20201207,添加每个地块的ndvi集合
         for (Record record : center) {
-            List<Record> records = Db.find("select * from tr_tiankuai_ndvi where tk_id = ? and to_char(data_time,'yyyy') = ? ", record.getInt("id"));
+            List<Record> records = Db.find("select * from tr_tiankuai_ndvi where tk_id = ?", record.getInt("id"));
             for (Record record1 : records) {
                 record1.set("path", record1.getStr("path").replace("tif", "png"));
             }
