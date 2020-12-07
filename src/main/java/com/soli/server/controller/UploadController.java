@@ -471,17 +471,17 @@ public class UploadController extends LambkitController {
         String filename = name + "." + "zip";
         if (file.length() > 104857600) {
             file.delete();
-            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件大小不能大于100MB")));
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "文件大小不能大于100MB")));
             return;
         } else if (!"zip".equals(fileext)) {
-            renderJson(Co.ok("data", Co.fail("errorMsg", "压缩包只支持zip格式")));
+            renderJson(Co.ok("data", Ret.fail("errorMsg", "压缩包只支持zip格式")));
             file.delete();
             return;
         } else {
             File newfile = new File(root + "/upload/" + filename);
             boolean b = file.renameTo(newfile);
             if (!b) {
-                renderJson(Co.ok("data", Co.fail("errorMsg", "重命名失败")));
+                renderJson(Co.ok("data", Ret.fail("errorMsg", "重命名失败")));
             } else {
                 //解压后文件夹
                 String s = root + "/d/" + name;
@@ -489,7 +489,7 @@ public class UploadController extends LambkitController {
                     ZipUtils.decompress(newfile.getPath(), s);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "解压错误")));
+                    renderJson(Co.ok("data", Ret.fail("errorMsg", "解压错误")));
                     return;
                 }
                 File files = new File(s);
@@ -512,10 +512,10 @@ public class UploadController extends LambkitController {
                     }
                 }
                 if (StringUtils.isBlank(tifPath)) {
-                    renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "压缩包没有tif文件")));
+                    renderJson(Co.ok("data", Ret.fail("errorMsg", "压缩包没有tif文件")));
                     return;
                 }
-                renderJson(Co.ok("data", Co.ok("url", "/d/" + name + "/" + name + ".tif").set("yname", file.getName())));
+                renderJson(Co.ok("data", Ret.ok("url", "/d/" + name + "/" + name + ".tif").set("yname", file.getName())));
             }
         }
     }
