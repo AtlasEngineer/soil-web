@@ -469,7 +469,11 @@ public class UploadController extends LambkitController {
         String fileext = PathUtils.getExtensionName(file.getName());
         String name = UUID.randomUUID().toString();
         String filename = name + "." + "zip";
-        if (!"zip".equals(fileext)) {
+        if (file.length() > 104857600) {
+            file.delete();
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "文件大小不能大于100MB")));
+            return;
+        } else if (!"zip".equals(fileext)) {
             renderJson(Co.ok("data", Co.fail("errorMsg", "压缩包只支持zip格式")));
             file.delete();
             return;
@@ -507,7 +511,7 @@ public class UploadController extends LambkitController {
                         }
                     }
                 }
-                if(StringUtils.isBlank(tifPath)){
+                if (StringUtils.isBlank(tifPath)) {
                     renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "压缩包没有tif文件")));
                     return;
                 }

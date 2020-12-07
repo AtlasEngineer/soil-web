@@ -374,7 +374,6 @@ public class WeatherController extends LambkitController {
      * 添加地块
      */
     public void addDK() throws ParseException {
-
         String name = getPara("dk_name");//地块名称
         String type = getPara("type");//作物
         String address = getPara("dk_address");//地址
@@ -413,6 +412,10 @@ public class WeatherController extends LambkitController {
             return;
         }
 
+        if (StringUtils.isBlank(url)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请上传图片")));
+            return;
+        }
         if (StringUtils.isBlank(name)) {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "地块名称不能为空")));
             return;
@@ -555,7 +558,10 @@ public class WeatherController extends LambkitController {
             renderJson(Co.ok("data", Ret.fail("errorMsg", "获取用户信息错误")));
             return;
         }
-
+        if (StringUtils.isBlank(url)) {
+            renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "请上传图片")));
+            return;
+        }
         if (StringUtils.isBlank(name)) {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "地块名称不能为空")));
             return;
