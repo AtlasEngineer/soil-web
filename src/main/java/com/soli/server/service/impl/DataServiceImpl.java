@@ -145,7 +145,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         for (Record record : records2) {
             record.set("path", record.getStr("path").replace("tif", "png"));
         }
-        return Ret.ok(year, records).set(year1, records1).set(year2, records2);
+        return Ret.ok("list",Ret.by(year, records).set(year1, records1).set(year2, records2));
     }
 
     @Override
