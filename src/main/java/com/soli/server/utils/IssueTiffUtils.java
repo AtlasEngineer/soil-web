@@ -73,8 +73,6 @@ public class IssueTiffUtils {
         Kv sld;
         if (sldType == 1) {
             sld = createSldByDbf(sldParam, name);
-        } else if (sldType == 1) {
-            sld = createNDVISld(name);
         } else {
             if (sldType == 2) {
                 sld = createSldByAux(tiffFile, sldParam, name);
@@ -99,45 +97,45 @@ public class IssueTiffUtils {
         }
     }
 
-    private static Kv createNDVISld(String storename) {
-        System.out.println("create new sld...");
-        Document document = DocumentHelper.createDocument();
-        Element root = document.addElement("StyledLayerDescriptor");
-        root.addAttribute("version", "1.0.0");
-        root.addAttribute("xmlns", "http://www.opengis.net/sld");
-//            root.add(new Namespace("sld", "http://www.opengis.net/sld"));
-        root.add(new Namespace("ogc", "http://www.opengis.net/ogc"));
-        root.add(new Namespace("xlink", "http://www.w3.org/1999/xlink"));
-        root.add(new Namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance"));
-        root.add(new Namespace("schemaLocation", "http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd"));
-//            root.add(new Namespace("schemaLocation", "http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd"));
-
-        Element row_nl = root.addElement("NamedLayer");
-        row_nl.addElement("Name").addText("d:" + storename);
-        Element row_nl_us = row_nl.addElement("UserStyle");
-        row_nl_us.addElement("Name").addText("default");
-        Element row_nl_us_f = row_nl_us.addElement("FeatureTypeStyle");
-        Element row_nl_us_r = row_nl_us_f.addElement("Rule");
-
-        Element row_nl_us_r_p = row_nl_us_r.addElement("RasterSymbolizer");
-        // <Opacity>1.0</Opacity>
-        row_nl_us_r_p.addElement("Opacity").addText("1.0");
-        Element row_nl_us_r_c_p = row_nl_us_r_p.addElement("ColorMap");
-        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f20000").addAttribute("quantity", String.valueOf(-1)).addAttribute("label", "-1");
-        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f57300").addAttribute("quantity", String.valueOf(-0.75)).addAttribute("label", "-0.75");
-        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f4a100").addAttribute("quantity", String.valueOf(-0.5)).addAttribute("label", "-0.5");
-        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f4c900").addAttribute("quantity", String.valueOf(-0.25)).addAttribute("label", "-0.25");
-        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#daf400").addAttribute("quantity", String.valueOf(0)).addAttribute("label", "0");
-        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#9fe900").addAttribute("quantity", String.valueOf(0.25)).addAttribute("label", "0.25");
-        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#71c000").addAttribute("quantity", String.valueOf(0.5)).addAttribute("label", "0.5");
-        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#509b00").addAttribute("quantity", String.valueOf(0.75)).addAttribute("label", "0.75");
-        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#317400").addAttribute("quantity", String.valueOf(1)).addAttribute("label", "1");
-        //生成style文件
-        String rootPath = PathKit.getWebRootPath().replace("\\", "/");
-        String path = rootPath + "/sld/" + storename + ".sld";
-        saveDocument(document, path, "UTF-8");
-        return Kv.by("msg", "生成sld成功:" + path).set("code", 200).set("path", path);
-    }
+//    private static Kv createNDVISld(String storename) {
+//        System.out.println("create new sld...");
+//        Document document = DocumentHelper.createDocument();
+//        Element root = document.addElement("StyledLayerDescriptor");
+//        root.addAttribute("version", "1.0.0");
+//        root.addAttribute("xmlns", "http://www.opengis.net/sld");
+////            root.add(new Namespace("sld", "http://www.opengis.net/sld"));
+//        root.add(new Namespace("ogc", "http://www.opengis.net/ogc"));
+//        root.add(new Namespace("xlink", "http://www.w3.org/1999/xlink"));
+//        root.add(new Namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance"));
+//        root.add(new Namespace("schemaLocation", "http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd"));
+////            root.add(new Namespace("schemaLocation", "http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd"));
+//
+//        Element row_nl = root.addElement("NamedLayer");
+//        row_nl.addElement("Name").addText("d:" + storename);
+//        Element row_nl_us = row_nl.addElement("UserStyle");
+//        row_nl_us.addElement("Name").addText("default");
+//        Element row_nl_us_f = row_nl_us.addElement("FeatureTypeStyle");
+//        Element row_nl_us_r = row_nl_us_f.addElement("Rule");
+//
+//        Element row_nl_us_r_p = row_nl_us_r.addElement("RasterSymbolizer");
+//        // <Opacity>1.0</Opacity>
+//        row_nl_us_r_p.addElement("Opacity").addText("1.0");
+//        Element row_nl_us_r_c_p = row_nl_us_r_p.addElement("ColorMap");
+//        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f20000").addAttribute("quantity", String.valueOf(-1)).addAttribute("label", "-1");
+//        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f57300").addAttribute("quantity", String.valueOf(-0.75)).addAttribute("label", "-0.75");
+//        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f4a100").addAttribute("quantity", String.valueOf(-0.5)).addAttribute("label", "-0.5");
+//        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f4c900").addAttribute("quantity", String.valueOf(-0.25)).addAttribute("label", "-0.25");
+//        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#daf400").addAttribute("quantity", String.valueOf(0)).addAttribute("label", "0");
+//        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#9fe900").addAttribute("quantity", String.valueOf(0.25)).addAttribute("label", "0.25");
+//        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#71c000").addAttribute("quantity", String.valueOf(0.5)).addAttribute("label", "0.5");
+//        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#509b00").addAttribute("quantity", String.valueOf(0.75)).addAttribute("label", "0.75");
+//        row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#317400").addAttribute("quantity", String.valueOf(1)).addAttribute("label", "1");
+//        //生成style文件
+//        String rootPath = PathKit.getWebRootPath().replace("\\", "/");
+//        String path = rootPath + "/sld/" + storename + ".sld";
+//        saveDocument(document, path, "UTF-8");
+//        return Kv.by("msg", "生成sld成功:" + path).set("code", 200).set("path", path);
+//    }
 
     public static Kv uploadTiff(String filepath) throws Exception {
         GeoServerConfig config = Lambkit.config(GeoServerConfig.class);

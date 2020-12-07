@@ -173,7 +173,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             String name = file.getName().split(".tif")[0];
             Date parse = simpleDateFormat.parse(time);
             //发布tif
-            Kv kv = IssueTiffUtils.uploadTiff(rootPath + path, name, 9, null, 0);
+            Kv kv = IssueTiffUtils.uploadTiff(rootPath + path, name, 0, null, 0);
             if (kv.getInt("code") != 200) {
                 return Ret.fail("errorMsg", kv.get("msg"));
             }
