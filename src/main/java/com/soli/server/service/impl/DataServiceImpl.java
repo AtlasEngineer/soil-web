@@ -109,16 +109,16 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
         Date y2 = c.getTime();
         String year2 = format.format(y2);
         List<Record> records = Db.find("select * from tr_tiankuai_ndvi where tk_id = ? and to_char(data_time,'yyyy') = ? ", id, year);
-        for (Record record :records) {
-            record.set("path",record.getStr("path").replace("tif","png"));
+        for (Record record : records) {
+            record.set("path", record.getStr("path").replace("tif", "png"));
         }
         List<Record> records1 = Db.find("select * from tr_tiankuai_ndvi where tk_id = ? and to_char(data_time,'yyyy') = ? ", id, year1);
-        for (Record record :records1) {
-            record.set("path",record.getStr("path").replace("tif","png"));
+        for (Record record : records1) {
+            record.set("path", record.getStr("path").replace("tif", "png"));
         }
         List<Record> records2 = Db.find("select * from tr_tiankuai_ndvi where tk_id = ? and to_char(data_time,'yyyy') = ? ", id, year2);
-        for (Record record :records2) {
-            record.set("path",record.getStr("path").replace("tif","png"));
+        for (Record record : records2) {
+            record.set("path", record.getStr("path").replace("tif", "png"));
         }
         return Ret.ok(year, records).set(year1, records1).set(year2, records2);
     }
@@ -170,7 +170,7 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             e.printStackTrace();
             return Ret.fail("errorMsg", "发布失败");
         }
-        return null;
+        return Ret.ok("msg", "发布成功");
     }
 
     @Override
@@ -758,6 +758,14 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
             center = Db.find(" SELECT dk_name,id,st_x(ST_Centroid(geom)) as x,st_y(ST_Centroid(geom)) as y from tr_tiankuai where del=0 and name=?", type);
         } else {
             center = Db.find(" SELECT dk_name,id,st_x(ST_Centroid(geom)) as x,st_y(ST_Centroid(geom)) as y from tr_tiankuai where del=0");
+        }
+        //20201207,添加每个地块的ndvi集合
+        for (Record record : center) {
+            List<Record> records = Db.find("select * from tr_tiankuai_ndvi where tk_id = ? and to_char(data_time,'yyyy') = ? ", record.getInt("id"));
+            for (Record record1 : records) {
+                record1.set("path", record1.getStr("path").replace("tif", "png"));
+            }
+            record.set("ndvi",records);
         }
         return Ret.ok("center", center);
     }
