@@ -293,7 +293,7 @@ public class UploadController extends LambkitController {
                             Kv readQwAndSd = readQwAndSd(tifPath, "tr_tk_eroded", data_time, 0);
                             kv.set(readQwAndSd);
                         }
-                        if (id == 79 || id == 44 || id == 45 || id == 30 || id == 46 || id == 47 || id == 94 || id == 95 || id == 28 || id == 48 || id == 92 || id == 48) {
+                        if (id == 79 || id == 44 || id == 45 || id == 30 || id == 46 || id == 47 || id == 94 || id == 95 || id == 28 || id == 48 || id == 92 || id == 98) {
                             //气象数据重新生成sld、灌溉面积
                             Kv sld = IssueTiffUtils.createFixedSld(id, name);
                             if (sld.getInt("code") != 200) {

@@ -633,7 +633,7 @@ public class IssueTiffUtils {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#f1ff14").addAttribute("quantity", String.valueOf(1000)).addAttribute("label", "1000");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#fa0200").addAttribute("quantity", String.valueOf(2000)).addAttribute("label", "2000");
             }
-            if (id == 28 || id == 48 || id == 92 ) {
+            if (id == 28 || id == 48 || id == 92 || id == 98) {
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1e14ff").addAttribute("quantity", String.valueOf(230)).addAttribute("label", "230");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#1a56ff").addAttribute("quantity", String.valueOf(240)).addAttribute("label", "240");
                 row_nl_us_r_c_p.addElement("ColorMapEntry").addAttribute("color", "#14b2ff").addAttribute("quantity", String.valueOf(250)).addAttribute("label", "250");
