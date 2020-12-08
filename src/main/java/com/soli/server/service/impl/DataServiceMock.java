@@ -40,6 +40,11 @@ public class DataServiceMock extends BaseServiceMock<Data> implements DataServic
     }
 
     @Override
+    public Ret getCrop() {
+        return null;
+    }
+
+    @Override
     public Ret delNdvi(Integer id) {
         return null;
     }

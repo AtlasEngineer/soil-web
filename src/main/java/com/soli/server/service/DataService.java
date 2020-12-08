@@ -37,6 +37,16 @@ import java.util.List;
  */
 public interface DataService extends LambkitService<Data> {
 
+
+    /**
+     * 获取常用作物类型
+     * @param id
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "data.getCrop",useLogin = false)
+    public Ret getCrop();
+
     /**
      * 分年份获取指定地块的所有ndvi缩略图
      * @param id

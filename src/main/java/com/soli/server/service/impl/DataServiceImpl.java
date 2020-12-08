@@ -87,6 +87,13 @@ public class DataServiceImpl extends LambkitModelServiceImpl<Data> implements Da
     }
 
     @Override
+    public Ret getCrop() {
+//        小麦、玉米、水稻、高粱、大豆、花生、棉花、向日葵、芝麻
+        List<Record> records = Db.find("select name,url from tr_crops ");
+        return Ret.ok("list",records);
+    }
+
+    @Override
     public Ret delNdvi(Integer id) {
         if (id == null) {
             return Ret.fail("errorMsg", "请选择要删除的数据");
