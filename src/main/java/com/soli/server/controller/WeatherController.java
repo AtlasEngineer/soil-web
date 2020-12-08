@@ -298,6 +298,7 @@ public class WeatherController extends LambkitController {
         String img = getPara("img");
         String content = getPara("content");
         Integer id = getInt("id");
+        String pdf = getPara("pdf");
 
         if (id == null) {
             renderJson(Co.ok("data", Co.by("state", "fail").set("errorMsg", "id不能为空")));
@@ -348,6 +349,7 @@ public class WeatherController extends LambkitController {
         operationRecord.setContent(content);
         operationRecord.setDel(0);
         operationRecord.setType(type);
+        operationRecord.set("pdf",pdf);
         operationRecord.setUserId(upmsUser.getUserId().intValue());
         operationRecord.setUsername(upmsUser.getRealname());
         boolean result = operationRecord.update();
