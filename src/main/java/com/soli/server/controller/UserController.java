@@ -796,7 +796,7 @@ public class UserController extends LambkitController {
         }
         if (StringUtils.isNotBlank(workunit)){
             userEntity.set("workunit",workunit);
-            ifUpdate = true ;
+            ifUpdate = true;
         }
         if (StringUtils.isNotBlank(workaddress)){
             userEntity.set("workaddress",workaddress);

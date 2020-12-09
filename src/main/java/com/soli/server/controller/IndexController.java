@@ -5,6 +5,7 @@ import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.util.StringUtils;
+import com.lambkit.license.LicenseKit;
 import com.lambkit.plugin.jwt.JwtTokenInterceptor;
 import com.lambkit.web.controller.LambkitController;
 import com.lambkit.web.render.XmlFileRender;
@@ -28,6 +29,11 @@ public class IndexController extends LambkitController {
     @Clear
     public void index() {
         renderText("Hello,土壤");
+    }
+
+    @Clear
+    public void license() {
+        renderJson(Ret.fail("sign", LicenseKit.getLicenseFactory().getSign()).set("msg", "请申请license。"));
     }
 
 

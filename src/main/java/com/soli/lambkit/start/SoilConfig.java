@@ -16,6 +16,8 @@ import com.lambkit.plugin.jwt.JwtTokenPlugin;
 import com.lambkit.web.websocket.WebSocketHandler;
 import com.soli.lambkit.interceptor.GlobalActionHandler;
 import com.soli.lambkit.interceptor.UnknownSessionInterceptor;
+import com.soli.lambkit.license.LicenseHandler;
+import com.soli.lambkit.license.LicensePlugin;
 import com.soli.server.MschModule;
 import com.soli.server.route.ApiRoute;
 
@@ -58,7 +60,7 @@ public class SoilConfig extends LambkitApplicationContext {
             public void configPlugin(Plugins me) {
                 super.configPlugin(me);
                 me.add(new JwtTokenPlugin(UpmsJwtUserService.me()));
-                //        me.add(new LicensePlugin());
+                me.add(new LicensePlugin());
             }
 
             @Override
@@ -67,6 +69,7 @@ public class SoilConfig extends LambkitApplicationContext {
 //				me.add(new ApiRouteHandler("/api"));
                 me.add(new GlobalActionHandler());
                 me.add(new WebSocketHandler());
+                me.add(new LicenseHandler());
                 me.add(com.lambkit.core.api.route.ApiRoute.me().getHandler("/api"));
             }
 
@@ -82,6 +85,7 @@ public class SoilConfig extends LambkitApplicationContext {
             }
         });
     }
+
     @Override
     public void configConstant(Constants me) {
         super.configConstant(me);

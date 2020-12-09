@@ -75,6 +75,12 @@
         <!--            <version>2.5.0</version>-->
         <!--        </dependency>-->
 
+        <dependency>
+            <groupId>de.schlichtherle.truelicense</groupId>
+            <artifactId>truelicense-core</artifactId>
+            <version>1.33</version>
+        </dependency>
+
         <!--图片处理-->
         <!-- https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor -->
         <dependency>
