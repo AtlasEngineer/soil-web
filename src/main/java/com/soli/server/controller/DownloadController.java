@@ -66,9 +66,8 @@ public class DownloadController extends LambkitController {
         }
         //表格
         String tableName = data.getUrl();
-        String substring = ids.substring(1, ids.length() - 1);
         if (tableName.contains("hnw_")) {
-            StringBuffer sql = new StringBuffer("select product,place,price,status,up_time from " + tableName + " where id in (" + substring + ") ");
+            StringBuffer sql = new StringBuffer("select product,place,price,status,up_time from " + tableName + " where id in (" + ids + ") ");
             if ("hnw_jgpz".equals(tableName)) {
                 sql.append(" and category = '" + data.getName() + "' ");
             }
@@ -100,7 +99,7 @@ public class DownloadController extends LambkitController {
             }
             String s = sql.toString();
             String sqlStr = s.substring(0, s.length() - 1);
-            List<Record> records = Db.find(sqlStr + " from " + tableName + " where id in (" + substring + ") ");
+            List<Record> records = Db.find(sqlStr + " from " + tableName + " where id in (" + ids + ") ");
 
             Map<String, String> titleData = new LinkedHashMap<>();//标题，后面用到
             for (Record field : fields) {
