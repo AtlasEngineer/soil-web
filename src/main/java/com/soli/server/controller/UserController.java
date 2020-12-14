@@ -54,7 +54,6 @@ public class UserController extends LambkitController {
         // 获取当前登陆对象
         String serverSessionId = this.getRequest().getHeader("Authorization");;
         String code = UpmsManager.me().getCache().getSession(serverSessionId);
-        String username = null ;
         String userIds = getPara("userIds");
         if(StringUtils.isBlank(userIds)){
                 renderJson(Co.ok("data", Ret.fail("errorMsg", "请选择删除的id")));
@@ -75,24 +74,26 @@ public class UserController extends LambkitController {
             return;
         }else {
             String[] split = userIds.split(",");
-            String sql = "";
-            for (int i = 0; i < split.length; i++) {
-                sql += "'"+split[i]+"',";
-//                UpmsUser byId = UpmsUser.service().dao().findById(split[i]);
-//                byId.set("del",1);
-//                byId.update();
-            }
-            if (!"".equals(sql)) {
-                sql = sql.substring(0,sql.length()-1);
-                int update = Db.use("upms").update("UPDATE upms_user SET del = '1' WHERE user_id in (" + sql + ")");
-                if (update > 0 ){
-                    renderJson(Co.ok("data",  Ret.ok("msg", "删除成功")));
-                    return;
-                }else {
-                    renderJson(Co.ok("data", Ret.fail("errorMsg", "删除失败")));
-                    return;
+            boolean flag = Db.tx(new IAtom() {
+                @Override
+                public boolean run() throws SQLException {
+                    for (String str: split) {
+                        boolean b = Db.use("upms").deleteById("upms_user","user_id", str);
+                        if (!b){
+                            return b;
+                        }
+                    }
+                    return true;
                 }
+                });
+            if (flag){
+                renderJson(Co.ok("data",  Ret.ok("msg", "删除成功")));
+                return;
+            }else {
+                renderJson(Co.ok("data", Ret.fail("errorMsg", "删除失败")));
+                return;
             }
+
         }
     }
 
