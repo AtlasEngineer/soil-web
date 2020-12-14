@@ -79,7 +79,9 @@ public class UserController extends LambkitController {
                 public boolean run() throws SQLException {
                     for (String str: split) {
                         boolean b = Db.use("upms").deleteById("upms_user","user_id", str);
-                        return b;
+                        if (!b){
+                            return b;
+                        }
                     }
                     return true;
                 }
