@@ -444,9 +444,9 @@ public class WeatherController extends LambkitController {
 
         Date date=new Date();
         System.out.println(latlons);
-        int num=Db.update("insert into \"tr_tiankuai\"(id,\"type\", \"dk_name\", \"name\", \"dk_address\", \"dk_url\", \"dk_begin_time\", \"dk_end_time\", " +
+        int num=Db.update("insert into \"tr_tiankuai\"(id,\"type\", \"dk_name\", \"name\", \"dk_address\", \"dk_url\", " +
                 "\"dk_farmland\", \"dk_perimeter\", \"dk_farm\", \"dk_altitude\", \"dk_slope\", \"dk_growers\", \"dk_phone\", \"dk_person\", \"dk_fertilizer\", \"dk_user_id\", \"dk_username\", \"dk_time\", \"del\", \"dk_type\", \"dk_density\", \"dk_irrigation\", \"geom\") " +
-                "values(?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'SRID=4326;POLYGON(("+latlons+"))')",record+1,type,name,geom_type,address,url,sdf.parse(dk_begin_time),sdf.parse(dk_end_time),farmland,perimeter,farm,altitude,slope,growers,phone,person,fertilizer,upmsUser.getUserId(),upmsUser.getRealname(),date,0,dk_type,density,irrigation);
+                "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'SRID=4326;POLYGON(("+latlons+"))')",record+1,type,name,geom_type,address,url,farmland,perimeter,farm,altitude,slope,growers,phone,person,fertilizer,upmsUser.getUserId(),upmsUser.getRealname(),date,0,dk_type,density,irrigation);
         if (num>0) {
             //1、获取地块wkt
             Record max=Db.findFirst("SELECT max(gid) from tr_tiankuai");
@@ -591,8 +591,6 @@ public class WeatherController extends LambkitController {
         tiankuai.setDkName(name);
         tiankuai.setDkAddress(address);
         tiankuai.setDkUrl(url);
-        tiankuai.setDkBeginTime(sdf.parse(dk_end_time));
-        tiankuai.setDkEndTime(sdf.parse(dk_begin_time));
         tiankuai.setDkFarmland(farmland);
         tiankuai.setDkPerimeter(perimeter);
         tiankuai.setDkFarm(farm);
