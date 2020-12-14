@@ -153,7 +153,7 @@ public class DataEachServiceImpl extends LambkitModelServiceImpl<DataEach> imple
                 record40.set(sdf.format(date), 0);
             } else {
                 record40.set(sdf.format(date), Double.valueOf(rec40.getStr("value")));
-                values.add(Double.valueOf(rec10.getStr("value")));
+                values.add(Double.valueOf(rec40.getStr("value")));
             }
         }
         Double max = 0.0;
