@@ -60,7 +60,7 @@ public class SoilConfig extends LambkitApplicationContext {
             public void configPlugin(Plugins me) {
                 super.configPlugin(me);
                 me.add(new JwtTokenPlugin(UpmsJwtUserService.me()));
-//                me.add(new LicensePlugin());
+                //me.add(new LicensePlugin());
             }
 
             @Override
@@ -69,7 +69,7 @@ public class SoilConfig extends LambkitApplicationContext {
 //				me.add(new ApiRouteHandler("/api"));
                 me.add(new GlobalActionHandler());
                 me.add(new WebSocketHandler());
-//                me.add(new LicenseHandler());
+                //me.add(new LicenseHandler());
                 me.add(com.lambkit.core.api.route.ApiRoute.me().getHandler("/api"));
             }
 

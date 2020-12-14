@@ -2,11 +2,16 @@ package com.soli.server.controller;
 
 
 import com.jfinal.aop.Clear;
+import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
 import com.lambkit.common.util.StringUtils;
+import com.lambkit.component.swagger.annotation.ApiOperation;
 import com.lambkit.web.controller.LambkitController;
+import com.mapfinal.map.Tile;
+import com.mapfinal.resource.bundle.BundleFeature;
+import com.soli.server.utils.BundlerRender;
 import com.soli.server.utils.Co;
 
 import java.util.ArrayList;
@@ -162,7 +167,4 @@ public class RegionController extends LambkitController {
         renderJson(Co.ok("data",Ret.ok("data",first)));
 
     }
-
-
-
 }
