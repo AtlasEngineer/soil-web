@@ -7,6 +7,7 @@
     <groupId>com.soil.server</groupId>
     <artifactId>soil-web</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -624,7 +625,7 @@
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
                     <compilerArguments>
-                        <extdirs>D:\IdeaWorkSpace\lanzhou\landa-web\src\main\webapp\WEB-INF\lib</extdirs>
+                        <extdirs>F:\admin\soil-web\src\main\webapp\WEB-INF\lib</extdirs>
                     </compilerArguments>
                 </configuration>
             </plugin>

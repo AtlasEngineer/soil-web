@@ -85,3 +85,8 @@ hs_err_pid*
 /src/test
 /aaaa
 /src/main/test/com/atlas/test/GDALTest.java
+/lambkit.lic
+/license.dat
+/*.lic
+/*.dat
+/src/main/webapp/META-INF
