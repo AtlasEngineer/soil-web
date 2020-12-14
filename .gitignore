@@ -89,3 +89,4 @@ hs_err_pid*
 /license.dat
 /*.lic
 /*.dat
+/src/main/webapp/META-INF
