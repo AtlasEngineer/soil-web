@@ -285,9 +285,9 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
     }
 
     @Override
-    public Ret queryCount(String latlons, String[] time, Integer id ){
+    public Ret queryCount(String latlons, String[] time, List<Integer> id ){
         Ret ok = Ret.ok();
-        if (id == null) {
+        if (id == null || id.size() == 0) {
             return Ret.fail("errorMsg", "未选择数据");
         }
 
@@ -300,9 +300,10 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
         if(records==null){
             return Ret.fail("errorMsg", "暂无数据");
         }
+        Integer dataId = id.get(id.size() - 1);
         DataEach dataEach = null;
         try {
-            dataEach = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(id).andDataTimeBetween(sdf.parse(time[0]), sdf.parse(time[1])).example());
+            dataEach = DataEach.service().dao().findFirst(DataEach.sql().andDataIdEqualTo(dataId).andDataTimeBetween(sdf.parse(time[0]), sdf.parse(time[1])).example());
         } catch (java.text.ParseException e) {
             return Ret.fail("errorMsg", "日期格式不正确");
         }
