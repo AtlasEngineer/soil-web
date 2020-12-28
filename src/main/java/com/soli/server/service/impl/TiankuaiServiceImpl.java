@@ -296,7 +296,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
         }
         String strDateFormat = "yyyy-MM-d";
         SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
-        Record records = Db.findFirst("select * from tr_ch_city where ST_Intersects(geom, st_geometryfromtext('polygon ((" + latlons + "))',4326)) = 't'");
+        Record records = Db.findFirst("select * from tr_ch_city where ST_Intersects(geom, st_geometryfromtext('polygon ((" + latlons + "))',4326)) ");
         if(records==null){
             return Ret.fail("errorMsg", "暂无数据");
         }
@@ -310,6 +310,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
         if(dataEach==null){
             return Ret.fail("errorMsg", "暂无数据");
         }
+        ok.set("city",records.getStr("pname") + records.getStr("cname"));
         String url = dataEach.getStr("url");
         if (dataEach.getType() == 1) {
             if (url.startsWith("d:")) {
