@@ -57,6 +57,11 @@ public class TiankuaiServiceMock extends BaseServiceMock<Tiankuai> implements Ti
     }
 
     @Override
+    public Ret queryCount(String latlons, String[] time, Integer id){
+        return null;
+    }
+
+    @Override
     public Ret compoundQueryBySpot(Double longitude, Double latitude, List<Integer> id) {
         return null;
     }

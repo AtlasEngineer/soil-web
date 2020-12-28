@@ -67,7 +67,15 @@ public interface TiankuaiService extends LambkitService<Tiankuai> {
     @ApiMapping(value = "search.compoundQuery",useLogin = false)
     public Ret compoundQuery(Integer countyId,Integer type,String time[],String latlons,List<Integer> id) throws ParseException, IOException, CQLException, java.text.ParseException, TransformException;
 
-
+    /**
+     *  数据查询 -  聚合查询
+     * @param type          数据类型
+     * @param time          时间【 以逗号分隔 】 eg: 2020-10-16,2020-10-17
+     * @return
+     */
+    @ApiBody(ApiRenderJFinalJson.class)
+    @ApiMapping(value = "search.queryCount",useLogin = false)
+    public Ret queryCount(String latlons,String time[],Integer id) throws IOException, CQLException;
 
 
     /**
