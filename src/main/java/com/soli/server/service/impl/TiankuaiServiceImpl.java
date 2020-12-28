@@ -310,7 +310,8 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
         if(dataEach==null){
             return Ret.fail("errorMsg", "暂无数据");
         }
-        ok.set("city",records.getStr("pname") + records.getStr("cname"));
+        Map map = new HashMap();
+        map.put("city",records.getStr("pname") + records.getStr("cname"));
         String url = dataEach.getStr("url");
         if (dataEach.getType() == 1) {
             if (url.startsWith("d:")) {
@@ -322,7 +323,11 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
                     List<Double> record=getCountAltitudeList(latlons,rootPath + url + "/" + url + ".tif");
                     if (record != null && record.size() > 0) {
                         DoubleSummaryStatistics doubleSummaryStatistics = record.stream().mapToDouble((x) -> x).summaryStatistics();
-                        ok.set("data",doubleSummaryStatistics);
+                        map.put("average",doubleSummaryStatistics.getAverage());
+                        map.put("min",doubleSummaryStatistics.getMin());
+                        map.put("max",doubleSummaryStatistics.getMax());
+                        map.put("count",doubleSummaryStatistics.getCount());
+                        map.put("sum",doubleSummaryStatistics.getSum());
                     }
                 }catch (Exception e){
                     e.printStackTrace();
@@ -330,7 +335,7 @@ public class TiankuaiServiceImpl extends LambkitModelServiceImpl<Tiankuai> imple
                 }
             }
         }
-        return ok;
+        return ok.set("data",map);
     }
 
     @Override
