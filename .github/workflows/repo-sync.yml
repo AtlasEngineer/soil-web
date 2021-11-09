@@ -2,7 +2,7 @@ name: "Git Repository Sync"
 # 每天晚上11触发
 on:
   push:
-    branches: [ master ] 
+    branches: [ master ]
 jobs:
   build:
     runs-on: ubuntu-latest
