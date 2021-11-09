@@ -1,8 +1,8 @@
 name: "Git Repository Sync"
 # 每天晚上11触发
 on:
-  schedule:
-    - cron: '0 15 * * *'
+  push:
+    branches: [ master ] 
 jobs:
   build:
     runs-on: ubuntu-latest
